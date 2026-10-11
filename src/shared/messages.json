@@ -1,0 +1,3282 @@
+[
+  {
+    "id": "m_73d2016e8f03",
+    "ja": "タブ取得を停止しました。再開にはもう一度ボタンを押してください。",
+    "en": "Tab capture stopped. Press the button again to resume."
+  },
+  {
+    "id": "m_a1d0d52dff93",
+    "ja": "このページには照明を追加できません。通常の動画ページで開いてください。",
+    "en": "Lighting is unavailable on this page. Open a regular video page."
+  },
+  {
+    "id": "m_9f6d7a66ea68",
+    "ja": "取得したいタブを表示してから、もう一度開始してください。",
+    "en": "Show the tab you want to capture, then try again."
+  },
+  {
+    "id": "m_6bfcf0831d22",
+    "ja": "照明をオンにして「映像に連動」を選択してください。",
+    "en": "Turn lighting on and select “Video · RGB analysis”."
+  },
+  {
+    "id": "m_90346cc49ba0",
+    "ja": "解析する動画が見つかりません。埋め込み動画は元サイトで開いてください。",
+    "en": "No video found. Open embedded videos on their original site."
+  },
+  {
+    "id": "m_e746162f86e3",
+    "ja": "動画を再生してから、もう一度タブ取得を開始してください。",
+    "en": "Play the video, then start tab capture again."
+  },
+  {
+    "id": "m_c798cb6a47df",
+    "ja": "動画要素単体の全画面を解除してから開始してください。",
+    "en": "Exit video-only fullscreen before starting."
+  },
+  {
+    "id": "m_a969935162e1",
+    "ja": "映像のみを端末内で縮小解析し、外周照明の色を算出します。録画・保存・音声取得は行いません。",
+    "en": "Analyze downscaled video locally to calculate perimeter colors. No recording, storage, or audio capture."
+  },
+  {
+    "id": "m_b55f97df34db",
+    "ja": "タブが切り替わったため開始を取り消しました。",
+    "en": "Start canceled because the active tab changed."
+  },
+  {
+    "id": "m_ce7498717ad6",
+    "ja": "映像取得を開始できませんでした。",
+    "en": "Could not start video capture."
+  },
+  {
+    "id": "m_d777ca12a749",
+    "ja": "映像を取得できませんでした。互換描画または固定照明をお試しください。",
+    "en": "Could not capture video. Try compatibility rendering or fixed lighting."
+  },
+  {
+    "id": "m_2e1048212157",
+    "ja": "タブの切り替えにより取得を停止しました。",
+    "en": "Capture stopped because you switched tabs."
+  },
+  {
+    "id": "m_c1c32bfac54c",
+    "ja": "ページ移動により取得を停止しました。",
+    "en": "Capture stopped because the page changed."
+  },
+  {
+    "id": "m_a297557700a2",
+    "ja": "このタブではまだ開始していません。",
+    "en": "Lighting has not started in this tab."
+  },
+  {
+    "id": "m_6af4b6c9d8db",
+    "ja": "照明はオフです。",
+    "en": "Lighting is off."
+  },
+  {
+    "id": "m_80caf919ccb1",
+    "ja": "タブが非表示のため休止中です。",
+    "en": "Paused while this tab is hidden."
+  },
+  {
+    "id": "m_4e71777668fa",
+    "ja": "動画要素単体の全画面には重ねられません。プレイヤー全体の全画面かシアターモードをご利用ください。",
+    "en": "Lighting cannot overlay video-only fullscreen. Use player fullscreen or theater mode."
+  },
+  {
+    "id": "m_bcdb00dafa74",
+    "ja": "照明は表示していません。固定の照明は、ポップアップの「保護された動画での照明」で選べます。",
+    "en": "Lighting is off. Choose fixed lighting under “Protected video” in the popup."
+  },
+  {
+    "id": "m_9525cdd91c80",
+    "ja": "代わりに「{0}」の照明を表示しています。映像には連動しません。",
+    "en": "Using “{0}” lighting instead. It does not follow the video."
+  },
+  {
+    "id": "m_1b6605b4e422",
+    "ja": "Cinemaプリセット",
+    "en": "Cinema preset"
+  },
+  {
+    "id": "m_da77497f06e1",
+    "ja": "ゆっくり変化",
+    "en": "Slow color drift"
+  },
+  {
+    "id": "m_a405e5a216e9",
+    "ja": "固定カラー",
+    "en": "Fixed color"
+  },
+  {
+    "id": "m_ae20fe5c26a1",
+    "ja": "保護された動画です。このMacのChromeは保護された映像を別の層に表示するため、色を取り出せません（DRM互換描画でも光りません）。{0}",
+    "en": "This video is protected. Chrome on this Mac displays it in a separate layer, so its colors cannot be read (including by DRM compatibility rendering). {0}"
+  },
+  {
+    "id": "m_4e20dc732725",
+    "ja": "互換描画に使用する動画を待っています。",
+    "en": "Waiting for a video for compatibility rendering."
+  },
+  {
+    "id": "m_5104a2c7e128",
+    "ja": "CSS合成で外周を描画中。",
+    "en": "Rendering the perimeter with CSS compositing."
+  },
+  {
+    "id": "m_1c5ee47d886a",
+    "ja": "暗号化動画を検出したため、自動でDRM互換描画（CSS合成）に切り替えました。",
+    "en": "Encrypted video detected. Switched automatically to DRM compatibility rendering (CSS compositing)."
+  },
+  {
+    "id": "m_e393c279a2a7",
+    "ja": "{0}では自動でDRM互換描画（CSS合成）を使います。",
+    "en": "{0} uses DRM compatibility rendering (CSS compositing) automatically."
+  },
+  {
+    "id": "m_00386754f74f",
+    "ja": "{0}画素の取得・64ゾーン解析は行いません。DRM映像の合成可否は環境依存で、光が出るか目視確認が必要です。",
+    "en": "{0} No pixel capture or 64-zone analysis. DRM compositing support varies by environment; check visually whether lighting appears."
+  },
+  {
+    "id": "m_bec679dc57fc",
+    "ja": "保護された動画ですが、この環境はCSSの互換描画に対応していません。固定カラーなどの照明を選べます。",
+    "en": "This video is protected and CSS compatibility rendering is unavailable here. You can choose fixed lighting."
+  },
+  {
+    "id": "m_4ae06f68c150",
+    "ja": "この環境はCSSの互換描画に対応していません。",
+    "en": "CSS compatibility rendering is unavailable in this environment."
+  },
+  {
+    "id": "m_57786e2e381d",
+    "ja": "音の出ている動画・音声を待っています。",
+    "en": "Waiting for video or audio that is playing sound."
+  },
+  {
+    "id": "m_af57340b907b",
+    "ja": "保護されたコンテンツの音は解析しません。Music Mode はここでは光りません。",
+    "en": "Protected audio is not analyzed. Music Mode cannot light this content."
+  },
+  {
+    "id": "m_9909ade314e5",
+    "ja": "この音声は別のサイトから配信されていて、Chromeが読み取りを許可しません。",
+    "en": "Chrome does not allow reading this audio because it comes from another site."
+  },
+  {
+    "id": "m_dc8bf8c929c4",
+    "ja": "再生を待っています。",
+    "en": "Waiting for playback."
+  },
+  {
+    "id": "m_5bd12a65e5ae",
+    "ja": "Music Mode：プレイヤーがミュート中のため、光は止まっています。",
+    "en": "Music Mode: lighting is paused because the player is muted."
+  },
+  {
+    "id": "m_07ecc7fcfefa",
+    "ja": "Music Mode：ページを一度クリックすると、音の解析が始まります。",
+    "en": "Music Mode: click the page once to begin audio analysis."
+  },
+  {
+    "id": "m_acb7fd6ed9ec",
+    "ja": "Music Mode：音だけで光っています。映像の色は使いません。再生音は変えていません。",
+    "en": "Music Mode: lighting follows sound only. Video colors are not used and playback audio is unchanged."
+  },
+  {
+    "id": "m_3931a2d2f804",
+    "ja": "ゆっくり変化する照明（映像解析なし）",
+    "en": "Slow color drift (no video analysis)"
+  },
+  {
+    "id": "m_dfc5d2a663fa",
+    "ja": "固定照明（映像解析なし）",
+    "en": "Fixed lighting (no video analysis)"
+  },
+  {
+    "id": "m_0874a4f42ccd",
+    "ja": "表示中の動画を待っています。別オリジンの埋め込み動画は元サイトで開いてください。",
+    "en": "Waiting for a visible video. Open cross-origin embedded videos on their original site."
+  },
+  {
+    "id": "m_64cee61513bd",
+    "ja": "動画が終了しました。",
+    "en": "The video has ended."
+  },
+  {
+    "id": "m_356e2c8a07e5",
+    "ja": "動画の再生を待っています。",
+    "en": "Waiting for video playback."
+  },
+  {
+    "id": "m_aa62cd710cd8",
+    "ja": "動画を直接読み取れません。「タブの映像を取得」から映像のみの取得を開始できます。",
+    "en": "Cannot read this video directly. Use “Capture tab video” to start video-only capture."
+  },
+  {
+    "id": "m_296fbd84c819",
+    "ja": "一時停止中。止めた場面の光を保っています。",
+    "en": "Paused. Keeping the light from the paused scene."
+  },
+  {
+    "id": "m_e97462a44342",
+    "ja": "動画の色をリアルタイム解析中。音声や再生設定は変更していません。",
+    "en": "Analyzing video colors in real time. Audio and playback settings are unchanged."
+  },
+  {
+    "id": "m_578576aaf514",
+    "ja": "Canvasから映像を読み取れません。CORSなどの制限があります。DRMとは断定できません。",
+    "en": "Cannot read video through Canvas. CORS or other restrictions may apply; this does not necessarily mean DRM."
+  },
+  {
+    "id": "m_21e27943839f",
+    "ja": "映像のみ取得中。最初のフレームを待っています。",
+    "en": "Capturing video only. Waiting for the first frame."
+  },
+  {
+    "id": "m_39a0c836a140",
+    "ja": "タブ映像を解析中。光の映り込みを避けるため内側の領域を使用します。",
+    "en": "Analyzing tab video. Using an inset area to keep the lighting itself out of the sample."
+  },
+  {
+    "id": "m_d430fd835934",
+    "ja": "暗号化動画への切り替えを検出したため、画質を守るためにタブ取得を終了しました。CSS互換描画をご利用ください。",
+    "en": "Encrypted video detected. Tab capture stopped to protect picture quality. Use CSS compatibility rendering."
+  },
+  {
+    "id": "m_e2d180c142dd",
+    "ja": "停止・非表示・動画切替を検出し、映像取得を終了しました。再開はボタンから行ってください。",
+    "en": "Playback stopped, the tab was hidden, or the video changed. Capture ended; press the button to resume."
+  },
+  {
+    "id": "m_cc66b90735b1",
+    "ja": "動画要素単体の全画面では照明を表示できないため取得を終了しました。",
+    "en": "Capture ended because lighting cannot overlay video-only fullscreen."
+  },
+  {
+    "id": "m_c1ed75462359",
+    "ja": "映り込みを除外できる動画領域が不足しています。動画を大きく表示するか発光幅を狭くしてください。",
+    "en": "Not enough video area to exclude the lighting. Enlarge the video or reduce glow width."
+  },
+  {
+    "id": "m_a9949ff56447",
+    "ja": "暗号化動画から黒いフレームが続いています。互換描画または固定照明をお試しください。",
+    "en": "Encrypted video keeps returning black frames. Try compatibility rendering or fixed lighting."
+  },
+  {
+    "id": "m_71430924b8dc",
+    "ja": "黒いフレームが続いています。暗転か取得制限かは判定できません。明るい映像で自動復帰します。",
+    "en": "Black frames continue. This may be a dark scene or a capture restriction. Analysis resumes automatically when bright frames return."
+  },
+  {
+    "id": "m_d2d62fbb87a4",
+    "ja": "標準APIで映像を解析できませんでした。互換描画または固定照明をご利用ください。",
+    "en": "Standard APIs could not analyze the video. Try compatibility rendering or fixed lighting."
+  },
+  {
+    "id": "m_661c48a2de66",
+    "ja": "取得を取り消しました。",
+    "en": "Capture canceled."
+  },
+  {
+    "id": "m_c6fd8029d955",
+    "ja": "Chrome側で映像取得が終了しました。",
+    "en": "Chrome ended video capture."
+  },
+  {
+    "id": "m_74bbdb62c9ce",
+    "ja": "Brightness · 明るさ",
+    "en": "Brightness"
+  },
+  {
+    "id": "m_f6635577039f",
+    "ja": "Glow Width · 光の幅",
+    "en": "Glow Width"
+  },
+  {
+    "id": "m_e2e2c0424c5e",
+    "ja": "Glow Intensity · 光の拡散",
+    "en": "Glow Intensity"
+  },
+  {
+    "id": "m_6a92ab635eec",
+    "ja": "Saturation · 彩度",
+    "en": "Saturation"
+  },
+  {
+    "id": "m_b199b80b1d20",
+    "ja": "Smoothing · 滑らかさ",
+    "en": "Smoothing"
+  },
+  {
+    "id": "m_b9de30cc714f",
+    "ja": "Response Speed · 追従速度",
+    "en": "Response Speed"
+  },
+  {
+    "id": "m_d14cf7404bbc",
+    "ja": "Shadows · 暗い場面の色",
+    "en": "Shadows · Dark-scene color"
+  },
+  {
+    "id": "m_c4901e0a5e96",
+    "ja": "Highlights · 明るい側の丸め",
+    "en": "Highlights · Highlight roll-off"
+  },
+  {
+    "id": "m_2287c16f9a34",
+    "ja": "Vibrance · 彩度の補正",
+    "en": "Vibrance"
+  },
+  {
+    "id": "m_9afda144b983",
+    "ja": "Guard Strength · 弱める強さ",
+    "en": "Guard Strength"
+  },
+  {
+    "id": "m_a9a8a47ba26d",
+    "ja": "Dark Scenes · 暗い場面で明るい光を抑える",
+    "en": "Dark Scenes · Reduce bright light"
+  },
+  {
+    "id": "m_28f9c62a0b97",
+    "ja": "Bright Scenes · 明るい場面で光を下げる",
+    "en": "Bright Scenes · Dim the glow"
+  },
+  {
+    "id": "m_04013feff91a",
+    "ja": "Adaptation Speed · 追従の速さ",
+    "en": "Adaptation Speed"
+  },
+  {
+    "id": "m_2d9608aaf8fe",
+    "ja": "Source Thickness · 光源の太さ",
+    "en": "Source Thickness"
+  },
+  {
+    "id": "m_cc88a1b4d5f5",
+    "ja": "Diffusion Curve · 拡散曲線",
+    "en": "Diffusion Curve"
+  },
+  {
+    "id": "m_f4f7d7558099",
+    "ja": "Falloff · 減衰",
+    "en": "Falloff"
+  },
+  {
+    "id": "m_d4f95be9dc98",
+    "ja": "Softness · 柔らかさ",
+    "en": "Softness"
+  },
+  {
+    "id": "m_2e57961e103f",
+    "ja": "縁",
+    "en": "Edge"
+  },
+  {
+    "id": "m_a3cf60296345",
+    "ja": "内側 {0}px",
+    "en": "Inward {0}px"
+  },
+  {
+    "id": "m_d735e7c3b0f8",
+    "ja": "UI Guard の上限（UIの上だけ）",
+    "en": "UI Guard cap (over UI only)"
+  },
+  {
+    "id": "m_f48a4a38cb85",
+    "ja": "比較をやめました。保存してある設定は、比較の前のままです。",
+    "en": "Comparison canceled. Your saved settings are unchanged."
+  },
+  {
+    "id": "m_ffcb17efe1fd",
+    "ja": "{0} に決めました。保存した項目: {1}",
+    "en": "Kept {0}. Saved: {1}"
+  },
+  {
+    "id": "m_b3bd786bb6c1",
+    "ja": "{0} に決めました。保存してある設定と同じだったため、何も書き換えていません。",
+    "en": "Kept {0}. It matches your saved settings, so nothing changed."
+  },
+  {
+    "id": "m_9bdb75f9af22",
+    "ja": "{0} を表示中 · 対象: {1}",
+    "en": "Showing {0} · Editing: {1}"
+  },
+  {
+    "id": "m_7fff5acf9715",
+    "ja": "{0} のプロファイル",
+    "en": "Profile for {0}"
+  },
+  {
+    "id": "m_5488c0cef084",
+    "ja": "グローバル設定",
+    "en": "Global settings"
+  },
+  {
+    "id": "m_d186691b31ac",
+    "ja": "{0}いま動かした設定は、表示中の {1} に入ります。保存してある設定は、決めるまで変わりません。点灯中のタブは、表示中の側の光になります（A / B キー、または Alt+Shift+B でも切り替えられます）。",
+    "en": "{0} Changes go to the visible side, {1}. Saved settings stay unchanged until you choose a side. Lit tabs show that side (switch with A / B or Alt+Shift+B)."
+  },
+  {
+    "id": "m_d2f8ca4686dd",
+    "ja": "A と B の違い: {0}。",
+    "en": "A / B differences: {0}."
+  },
+  {
+    "id": "m_c25aafce6a3f",
+    "ja": "A と B は、まだ同じ設定です。",
+    "en": "A and B still have the same settings."
+  },
+  {
+    "id": "m_e3bf3a629b89",
+    "ja": "結果",
+    "en": "Result"
+  },
+  {
+    "id": "m_c7fae0b56a6c",
+    "ja": "結果を見る",
+    "en": "See result"
+  },
+  {
+    "id": "m_9eccdca31ee3",
+    "ja": "次へ",
+    "en": "Next"
+  },
+  {
+    "id": "m_be6533491e21",
+    "ja": "照明モード",
+    "en": "Lighting mode"
+  },
+  {
+    "id": "m_c11dabe0f307",
+    "ja": "強さ {0}%",
+    "en": "Strength {0}%"
+  },
+  {
+    "id": "m_ee36a33ba7da",
+    "ja": "標準プリセット「{0}」と同じ設定です。",
+    "en": "These settings match the built-in preset “{0}”."
+  },
+  {
+    "id": "m_bd0fd75fe111",
+    "ja": "標準プリセットの中では「{0}」にいちばん近い設定です。",
+    "en": "The closest built-in preset is “{0}”."
+  },
+  {
+    "id": "m_3d29144ebfd2",
+    "ja": "おすすめの設定を、比較中の {0} に入れました。使うには、上の比較バーで決めてください。",
+    "en": "Recommendation added to side {0}. Choose a side in the comparison bar to keep it."
+  },
+  {
+    "id": "m_38129a1e7e0c",
+    "ja": "おすすめの設定を{0}に保存しました。Lighting や Glow Designer のタブで、ここからさらに調整できます。",
+    "en": "Recommendation saved to {0}. Fine-tune it in Lighting or Glow Designer."
+  },
+  {
+    "id": "m_43dc585fae82",
+    "ja": "A/B 比較を始めました。A がいまの設定、B がおすすめの設定です。点灯中のタブを見ながら、上の比較バー（または A / B キー）で切り替えてください。",
+    "en": "A/B comparison started. A is your current look; B is the recommendation. Switch in the comparison bar (or with A / B) while watching a lit tab."
+  },
+  {
+    "id": "m_1e3c09392421",
+    "ja": "標準のプリセットと同じ名前は使えません。",
+    "en": "Choose a name different from a built-in preset."
+  },
+  {
+    "id": "m_ea5b9e947c76",
+    "ja": "「{0}」として Preset Library に保存しました。Presets のタブからいつでも適用できます。",
+    "en": "Saved “{0}” to Preset Library. Apply it anytime from Presets."
+  },
+  {
+    "id": "m_64fa16304152",
+    "ja": "名前を入力してください。",
+    "en": "Enter a name."
+  },
+  {
+    "id": "m_ecf51957f908",
+    "ja": "Effect Strength · 効果の強さ",
+    "en": "Effect Strength"
+  },
+  {
+    "id": "m_5da5a708f979",
+    "ja": "Light Source Sensitivity · 光源への感度",
+    "en": "Light Source Sensitivity"
+  },
+  {
+    "id": "m_63131da7e820",
+    "ja": "Motion Sensitivity · 動きへの感度",
+    "en": "Motion Sensitivity"
+  },
+  {
+    "id": "m_d3797c6c2e00",
+    "ja": "Response Speed · 反応の速さ",
+    "en": "Response Speed"
+  },
+  {
+    "id": "m_e3ebf69dcca0",
+    "ja": "Cinematic Smoothing · 余韻の長さ",
+    "en": "Cinematic Smoothing"
+  },
+  {
+    "id": "m_98e71e73f610",
+    "ja": "Trail Length · 残光の長さ",
+    "en": "Trail Length"
+  },
+  {
+    "id": "m_51b59d54dca5",
+    "ja": "Trail Strength · 残光の強さ",
+    "en": "Trail Strength"
+  },
+  {
+    "id": "m_68e58c1c2763",
+    "ja": "Pulse Depth · 反応の深さ",
+    "en": "Pulse Depth"
+  },
+  {
+    "id": "m_927cdf882dba",
+    "ja": "Bass · 低音",
+    "en": "Bass"
+  },
+  {
+    "id": "m_83fff037b6e3",
+    "ja": "Mid · 中音",
+    "en": "Mid"
+  },
+  {
+    "id": "m_9e97837bf860",
+    "ja": "Treble · 高音",
+    "en": "Treble"
+  },
+  {
+    "id": "m_ce8fba36eb45",
+    "ja": "Beat Sensitivity · ビートの感度",
+    "en": "Beat Sensitivity"
+  },
+  {
+    "id": "m_ad161ccfe401",
+    "ja": "Beat Wave · ビートが走る時間",
+    "en": "Beat Wave · Travel time"
+  },
+  {
+    "id": "m_ca263e2b2ca9",
+    "ja": "Beat Bloom · ビートで光が広がる量",
+    "en": "Beat Bloom · Glow expansion"
+  },
+  {
+    "id": "m_720586e19e32",
+    "ja": "Glow Intensity · 光の広がり",
+    "en": "Glow Intensity"
+  },
+  {
+    "id": "m_9e603cb72278",
+    "ja": "ゾーンを選ぶと、ここで調整できます。",
+    "en": "Select zones to adjust them here."
+  },
+  {
+    "id": "m_5ff6dc54dea7",
+    "ja": "{0}ゾーンを選択中（#{1}〜#{2}）",
+    "en": "{0} zones selected (#{1}–#{2})"
+  },
+  {
+    "id": "m_7e64645a9af0",
+    "ja": " · 値が混在しています（動かすとそろいます）",
+    "en": " · Mixed values (adjusting will unify them)"
+  },
+  {
+    "id": "m_5a1407b63f13",
+    "ja": "この画面で実際に使われるのは {0} ゾーンです（{1}）。別の数を選ぶと、調整がどう引き継がれるかを確かめられます。光っているゾーン: {2} / {3}",
+    "en": "This display uses {0} zones ({1}). Choose another count to preview how adjustments carry over. Lit zones: {2} / {3}"
+  },
+  {
+    "id": "m_4e361b27450c",
+    "ja": "解像度から自動",
+    "en": "Automatic from resolution"
+  },
+  {
+    "id": "m_0c6235ee884a",
+    "ja": "手動で指定",
+    "en": "Manual"
+  },
+  {
+    "id": "m_2f6af338a83d",
+    "ja": "選んだゾーンだけを光らせています",
+    "en": "Only selected zones are lit"
+  },
+  {
+    "id": "m_8344d19c2a5f",
+    "ja": "ゾーンを選ぶと、そのゾーンだけが光ります",
+    "en": "Select zones to light them individually"
+  },
+  {
+    "id": "m_0e7174df091c",
+    "ja": "オン",
+    "en": "On"
+  },
+  {
+    "id": "m_01c2df03fd3f",
+    "ja": "オフ",
+    "en": "Off"
+  },
+  {
+    "id": "m_a6d7f698fffc",
+    "ja": "オン · 強さ {0}%",
+    "en": "On · Strength {0}%"
+  },
+  {
+    "id": "m_5e4672d7de70",
+    "ja": "調整あり",
+    "en": "Adjusted"
+  },
+  {
+    "id": "m_44858fd14258",
+    "ja": "調整なし",
+    "en": "Unchanged"
+  },
+  {
+    "id": "m_8c68ca8706e5",
+    "ja": "オン · 深さ {0}%",
+    "en": "On · Depth {0}%"
+  },
+  {
+    "id": "m_d6fd0549d9b7",
+    "ja": "0.8の色",
+    "en": "Classic 0.8 color"
+  },
+  {
+    "id": "m_87798a55d070",
+    "ja": "この項目をグローバル設定に戻す",
+    "en": "Reset this item to global settings"
+  },
+  {
+    "id": "m_2752d12ebcbd",
+    "ja": "{0} をグローバル設定に戻す",
+    "en": "Reset {0} to global settings"
+  },
+  {
+    "id": "m_106e95ca839e",
+    "ja": "編集中",
+    "en": "Editing"
+  },
+  {
+    "id": "m_11f9049ddab5",
+    "ja": "編集",
+    "en": "Edit"
+  },
+  {
+    "id": "m_bb6dad578c81",
+    "ja": "複製",
+    "en": "Duplicate"
+  },
+  {
+    "id": "m_4558380733ce",
+    "ja": "「{0}」を写します。複製先のホスト名を入力して「作成」を押してください。",
+    "en": "Copying “{0}”. Enter the destination hostname, then press “Create”."
+  },
+  {
+    "id": "m_2938abf8b851",
+    "ja": "もう一度押すと削除",
+    "en": "Press again to delete"
+  },
+  {
+    "id": "m_6eb4b9361bbb",
+    "ja": "削除（グローバルに戻す）",
+    "en": "Delete (use global settings)"
+  },
+  {
+    "id": "m_ce67916affeb",
+    "ja": "「{0}」のプロファイルを削除しました。このサイトはグローバル設定に従います。",
+    "en": "Deleted the profile for “{0}”. This site now uses global settings."
+  },
+  {
+    "id": "m_15ae47a64680",
+    "ja": "「このサイトでは常に点灯」: 許可あり（ポップアップで変更）",
+    "en": "“Always light this site”: permitted (change in the popup)"
+  },
+  {
+    "id": "m_608c58df76ad",
+    "ja": "「このサイトでは常に点灯」: なし。プロファイルだけでは自動で点灯しません。",
+    "en": "“Always light this site”: off. A profile alone does not start lighting automatically."
+  },
+  {
+    "id": "m_a4de3284e49c",
+    "ja": "保護された動画では色を取り出せないため、このプロファイルがあっても映像には連動しません。",
+    "en": "Colors cannot be read from protected video. This profile does not enable video-reactive lighting for it."
+  },
+  {
+    "id": "m_1ccfa0c9742b",
+    "ja": "file（ローカルファイル）",
+    "en": "file (local files)"
+  },
+  {
+    "id": "m_9361526ec41a",
+    "ja": "違いなし：すべてグローバル設定に従います。",
+    "en": "No differences: all values follow global settings."
+  },
+  {
+    "id": "m_d7587f3bc69e",
+    "ja": "Global Default · グローバル設定",
+    "en": "Global Default"
+  },
+  {
+    "id": "m_095570842adc",
+    "ja": "すべてのサイトの基準です。プロファイルの無いサイトは、この設定だけで光ります。",
+    "en": "The baseline for every site. Sites without a profile use only these settings."
+  },
+  {
+    "id": "m_0962b0bce4eb",
+    "ja": "なし（グローバル設定に従う）",
+    "en": "None (use global settings)"
+  },
+  {
+    "id": "m_3ff803c68d98",
+    "ja": "ホスト名を入力してください（例: www.youtube.com）。",
+    "en": "Enter a hostname (for example, www.youtube.com)."
+  },
+  {
+    "id": "m_d5a408c0473b",
+    "ja": "「{0}」のプロファイルはすでにあります。",
+    "en": "A profile for “{0}” already exists."
+  },
+  {
+    "id": "m_b77db8199bce",
+    "ja": "「{0}」のプロファイルを作成しました。{1}上の「編集する設定」で選んだ状態です。",
+    "en": "Created a profile for “{0}”. {1} It is now selected under “Editing”."
+  },
+  {
+    "id": "m_951cde328577",
+    "ja": "「{0}」の内容を写しています。",
+    "en": "Copied settings from “{0}”."
+  },
+  {
+    "id": "m_c7b3addc4448",
+    "ja": "まだ違いは無く、グローバル設定に従います。",
+    "en": "No differences yet; it follows global settings."
+  },
+  {
+    "id": "m_5f7b709ac4ab",
+    "ja": "適用中",
+    "en": "Applied"
+  },
+  {
+    "id": "m_52ac6fb621ac",
+    "ja": "適用",
+    "en": "Apply"
+  },
+  {
+    "id": "m_f1db81236b98",
+    "ja": "「{0}」を{1}に適用しました。",
+    "en": "Applied “{0}” to {1}."
+  },
+  {
+    "id": "m_7c014b0c868f",
+    "ja": "書き出す",
+    "en": "Export"
+  },
+  {
+    "id": "m_6920b9cbe52d",
+    "ja": "「{0}」をJSONファイルに書き出しました。",
+    "en": "Exported “{0}” as a JSON file."
+  },
+  {
+    "id": "m_2d5c9d57e35b",
+    "ja": "JSONをコピー",
+    "en": "Copy JSON"
+  },
+  {
+    "id": "m_388ed391693e",
+    "ja": "「{0}」のJSONをコピーしました。",
+    "en": "Copied the JSON for “{0}”."
+  },
+  {
+    "id": "m_19633f1815c5",
+    "ja": "コピーできませんでした。「書き出す」をお使いください。",
+    "en": "Could not copy. Use “Export” instead."
+  },
+  {
+    "id": "m_e9653dc3edcb",
+    "ja": "削除",
+    "en": "Delete"
+  },
+  {
+    "id": "m_be70e6b79ef8",
+    "ja": "「{0}」を削除しました。",
+    "en": "Deleted “{0}”."
+  },
+  {
+    "id": "m_14fc53c61af7",
+    "ja": "自分で保存したプリセット。",
+    "en": "A preset you saved."
+  },
+  {
+    "id": "m_cee9dbb950cf",
+    "ja": "いまの設定を「{0}」として保存しました。",
+    "en": "Saved the current look as “{0}”."
+  },
+  {
+    "id": "m_c97f891d6486",
+    "ja": "プリセット「{0}」を追加しました。使うには、上の一覧で「適用」を押してください。",
+    "en": "Added preset “{0}”. Press “Apply” in the list above to use it."
+  },
+  {
+    "id": "m_0a1a8f987a27",
+    "ja": "バックアップです（プロファイル {0} 件、プリセット {1} 件）。読み込むと、現在のグローバル設定・プロファイル・プリセットがすべて置き換わります。よければ「現在の設定をすべて置き換える」を押してください。",
+    "en": "This backup contains {0} profiles and {1} presets. Importing replaces all current global settings, profiles, and presets. Press “Replace all current settings” to continue."
+  },
+  {
+    "id": "m_c94c67bcc110",
+    "ja": "バックアップを読み込みました。{0}",
+    "en": "Backup imported. {0}"
+  },
+  {
+    "id": "m_520db09bace7",
+    "ja": "音の解析（Pulse Engine・Music Mode）は、この読み込みではオンにしていません。使う場合はご自身でオンにしてください。",
+    "en": "This import did not enable audio analysis (Pulse Engine or Music Mode). Turn it on yourself if you want to use it."
+  },
+  {
+    "id": "m_e08310338b04",
+    "ja": "すべての設定をJSONファイルに書き出しました。",
+    "en": "Exported all settings as a JSON file."
+  },
+  {
+    "id": "m_24f00bf8bbe6",
+    "ja": "Canvas 直接解析",
+    "en": "Direct Canvas analysis"
+  },
+  {
+    "id": "m_aad8e2469d49",
+    "ja": "タブ取得（Offscreen）",
+    "en": "Tab capture (Offscreen)"
+  },
+  {
+    "id": "m_2ddc4ed36e86",
+    "ja": "DRM互換描画（CSS合成）",
+    "en": "DRM compatibility (CSS compositing)"
+  },
+  {
+    "id": "m_98997f71bece",
+    "ja": "固定の照明（映像に連動しない）",
+    "en": "Fixed lighting (not video-reactive)"
+  },
+  {
+    "id": "m_e301a3e0c7b1",
+    "ja": "Music Mode（音だけで発光）",
+    "en": "Music Mode (sound only)"
+  },
+  {
+    "id": "m_868310e193d1",
+    "ja": "なし",
+    "en": "None"
+  },
+  {
+    "id": "m_3b8d8df6039c",
+    "ja": "動作中",
+    "en": "Active"
+  },
+  {
+    "id": "m_85bb2ce259b0",
+    "ja": "動作中（負荷に合わせて、粗く・間引いて解析）",
+    "en": "Active (reduced detail and rate to manage load)"
+  },
+  {
+    "id": "m_d6d62f9106b4",
+    "ja": "対象外（映像を解析していません）",
+    "en": "Unavailable (no video analysis)"
+  },
+  {
+    "id": "m_a049d5f3e531",
+    "ja": "点灯中のタブがありません",
+    "en": "No lit tabs"
+  },
+  {
+    "id": "m_d30aecda6bab",
+    "ja": "動画のあるタブで照明を開始すると、ここに計測値が出ます。計測は点灯中のタブの中で行い、1秒ごとに読みに行きます。",
+    "en": "Start lighting in a video tab to see measurements here. Measurements run in lit tabs and are read once per second."
+  },
+  {
+    "id": "m_70e39859279e",
+    "ja": "状態",
+    "en": "Status"
+  },
+  {
+    "id": "m_bd07905fdf18",
+    "ja": "描画方式",
+    "en": "Rendering path"
+  },
+  {
+    "id": "m_296f57e8e911",
+    "ja": "—（映像を解析していません）",
+    "en": "— (no video analysis)"
+  },
+  {
+    "id": "m_2c46d9923fc2",
+    "ja": "0（光に変化が無く、描画を休んでいます）",
+    "en": "0 (resting while the light is unchanged)"
+  },
+  {
+    "id": "m_1edb33667f6a",
+    "ja": "ゾーン",
+    "en": "Zones"
+  },
+  {
+    "id": "m_f8c3f2e23481",
+    "ja": "{0}（光るゾーン {1}）",
+    "en": "{0} ({1} lit)"
+  },
+  {
+    "id": "m_2fdfdd697f54",
+    "ja": " · 光源の候補 {0}",
+    "en": " · Candidate light sources: {0}"
+  },
+  {
+    "id": "m_f4b631e398d3",
+    "ja": "（低 {0} · 中 {1} · 高 {2} · ビート {3} 回）",
+    "en": " (bass {0} · mid {1} · treble {2} · beats {3})"
+  },
+  {
+    "id": "m_2b3611f71ddd",
+    "ja": "色",
+    "en": "Color"
+  },
+  {
+    "id": "m_a253b57a943d",
+    "ja": "オフ（0.8の色）",
+    "en": "Off (classic 0.8 color)"
+  },
+  {
+    "id": "m_f977e1fdaa32",
+    "ja": "Display P3 で読み取り・描画",
+    "en": "Reading and rendering in Display P3"
+  },
+  {
+    "id": "m_6625aea32006",
+    "ja": "対象外（DRM互換描画の光には掛けられません）",
+    "en": "Unavailable (cannot affect DRM compatibility lighting)"
+  },
+  {
+    "id": "m_d3f334073b1f",
+    "ja": "動作中 · 光の下に見つけたUI・文字 {0} か所 · いま光を弱めている場所 {1} か所",
+    "en": "Active · UI/text regions under the glow: {0} · Regions dimmed now: {1}"
+  },
+  {
+    "id": "m_f3be598d8f1f",
+    "ja": "動作中 · 場面の明るさ {0} · 明るいゾーンの明るさ ×{1}",
+    "en": "Active · Scene brightness {0} · Bright-zone level ×{1}"
+  },
+  {
+    "id": "m_378c39a64b92",
+    "ja": "A/B 比較",
+    "en": "A/B comparison"
+  },
+  {
+    "id": "m_e23685b077de",
+    "ja": "{0} を表示中",
+    "en": "Showing {0}"
+  },
+  {
+    "id": "m_5be15c5e5420",
+    "ja": "プロファイル",
+    "en": "Profile"
+  },
+  {
+    "id": "m_248605fb6718",
+    "ja": "{0} 専用",
+    "en": "For {0}"
+  },
+  {
+    "id": "m_f173d7aeec2c",
+    "ja": "解析時間",
+    "en": "Analysis time"
+  },
+  {
+    "id": "m_1a63a223bbf0",
+    "ja": "{0} ms（うち 映像の読み出し {1} ms、Light Director {2} ms）",
+    "en": "{0} ms (video read {1} ms, Light Director {2} ms)"
+  },
+  {
+    "id": "m_628a171f9eea",
+    "ja": "映像の読み出し方",
+    "en": "Video reader"
+  },
+  {
+    "id": "m_9e29c9198419",
+    "ja": "GPUで縮小してから読み出し",
+    "en": "Downscaled on GPU before readback"
+  },
+  {
+    "id": "m_debca7177cc6",
+    "ja": "2D Canvas（動画の解像度が高いほど時間がかかります）",
+    "en": "2D Canvas (higher-resolution video takes longer)"
+  },
+  {
+    "id": "m_869c9026a774",
+    "ja": "描画時間",
+    "en": "Render time"
+  },
+  {
+    "id": "m_023cb645a981",
+    "ja": "最初の描画までの遅延",
+    "en": "First-render latency"
+  },
+  {
+    "id": "m_f29827486b55",
+    "ja": "品質の段階",
+    "en": "Quality level"
+  },
+  {
+    "id": "m_bc90d131f0ac",
+    "ja": "{0}（0 = 最高{1}）",
+    "en": "{0} (0 = highest{1})"
+  },
+  {
+    "id": "m_61f1fbfbef3c",
+    "ja": "。いまは解析の回数を半分にしています",
+    "en": "; currently analyzing half as often"
+  },
+  {
+    "id": "m_7fd8392acad4",
+    "ja": "遅れた解析",
+    "en": "Delayed analyses"
+  },
+  {
+    "id": "m_5e3c514bcf6f",
+    "ja": "{0} 回",
+    "en": "{0} times"
+  },
+  {
+    "id": "m_db1fd9c898ec",
+    "ja": "抜けた描画フレーム",
+    "en": "Skipped render frames"
+  },
+  {
+    "id": "m_eb0f55a3fa1d",
+    "ja": "{0} 枚",
+    "en": "{0} frames"
+  },
+  {
+    "id": "m_8038fcece7ce",
+    "ja": "予算を超えた処理",
+    "en": "Over-budget work"
+  },
+  {
+    "id": "m_998636e9911b",
+    "ja": "{0} 回（解析 {1} ms、描画 {2} ms を超えたもの）",
+    "en": "{0} times (over {1} ms analysis or {2} ms rendering)"
+  },
+  {
+    "id": "m_3a9126bf0acb",
+    "ja": "キャプチャ状態",
+    "en": "Capture status"
+  },
+  {
+    "id": "m_190ae03bc795",
+    "ja": "タブの映像を取得中",
+    "en": "Capturing tab video"
+  },
+  {
+    "id": "m_9c976de4dcb2",
+    "ja": "取得していません",
+    "en": "Not capturing"
+  },
+  {
+    "id": "m_12e38de615d4",
+    "ja": "UI Guard の調査時間",
+    "en": "UI Guard scan time"
+  },
+  {
+    "id": "m_2f613591c0b2",
+    "ja": "{0} ms（約0.1秒ごとに1回。この時間を上限にして少しずつ調べます）",
+    "en": "{0} ms (about every 0.1 s; scans incrementally within this budget)"
+  },
+  {
+    "id": "m_d0ef984e1e46",
+    "ja": "動きの量",
+    "en": "Motion"
+  },
+  {
+    "id": "m_b0018318b8bb",
+    "ja": "光源の候補の速度",
+    "en": "Candidate light-source velocity"
+  },
+  {
+    "id": "m_f8ce3d05bc58",
+    "ja": "横 {0} 画面幅/秒 · 縦 {1} 画面高/秒",
+    "en": "Horizontal {0} screen widths/s · Vertical {1} screen heights/s"
+  },
+  {
+    "id": "m_b8638d909047",
+    "ja": "場面の切り替わり",
+    "en": "Scene cut"
+  },
+  {
+    "id": "m_bc4f25fd9c34",
+    "ja": "検出",
+    "en": "Detected"
+  },
+  {
+    "id": "m_bb3c7034933a",
+    "ja": "点滅の抑制",
+    "en": "Flash suppression"
+  },
+  {
+    "id": "m_72064aeb91ed",
+    "ja": "{0}%（100% = 抑制なし）",
+    "en": "{0}% (100% = no suppression)"
+  },
+  {
+    "id": "m_c6b67f366e77",
+    "ja": "映像の色空間",
+    "en": "Video color space"
+  },
+  {
+    "id": "m_a0683e81a574",
+    "ja": "原色 {0} · 伝達特性 {1}{2}{3}",
+    "en": "Primaries {0} · Transfer {1}{2}{3}"
+  },
+  {
+    "id": "m_7aebd0dd56af",
+    "ja": "（HDR。読める画素はChromeがSDRへ変換した値です）",
+    "en": " (HDR; readable pixels are converted to SDR by Chrome)"
+  },
+  {
+    "id": "m_1d8b4438050c",
+    "ja": "（広色域）",
+    "en": " (wide gamut)"
+  },
+  {
+    "id": "m_32d94de9d3af",
+    "ja": "取得できません（映像を直接読めないとき）",
+    "en": "Unavailable (video cannot be read directly)"
+  },
+  {
+    "id": "m_b0c61a524ac7",
+    "ja": "このディスプレイ",
+    "en": "This display"
+  },
+  {
+    "id": "m_cc3bf903e9e1",
+    "ja": "対応",
+    "en": "Supported"
+  },
+  {
+    "id": "m_e5387449079f",
+    "ja": "非対応",
+    "en": "Not supported"
+  },
+  {
+    "id": "m_dffd192dcc67",
+    "ja": "{0} 動かしながら見るには、この設定ページを別のウィンドウに出すか、HUDをお使いください。",
+    "en": "{0} To watch live measurements, move this settings page to another window or use the HUD."
+  },
+  {
+    "id": "m_f855fb483ae5",
+    "ja": "フィードバックは送信操作時のみ · 映像の送信なし",
+    "en": "Feedback sends only when requested · No video uploads"
+  },
+  {
+    "id": "m_83ab22936798",
+    "ja": "ローカル処理 · 映像の送信なし · 映像フレームは保存しません",
+    "en": "Local processing · No video uploads · Frames are never saved"
+  },
+  {
+    "id": "m_cd127f3c2866",
+    "ja": "この画面では {0} ゾーンを使います。各辺に均等に配分します。",
+    "en": "This display uses {0} zones, divided equally across the four edges."
+  },
+  {
+    "id": "m_bdc210d66a4a",
+    "ja": "グローバル設定（全サイト共通）",
+    "en": "Global settings (all sites)"
+  },
+  {
+    "id": "m_5951960fba74",
+    "ja": "「照明の見た目」「Light Director」「Zone Studio」の変更は、{0} のプロファイルに保存されます。変えていない項目はグローバル設定に従います。{1}",
+    "en": "Changes to Lighting, Light Director, and Zone Studio are saved to the profile for {0}. Unchanged values follow global settings. {1}"
+  },
+  {
+    "id": "m_16c6291ec12a",
+    "ja": "保護された動画が映像に連動するようにはなりません。",
+    "en": "This does not make protected video color-reactive."
+  },
+  {
+    "id": "m_c9b58c0c484f",
+    "ja": "すべてのサイトで使う設定です。サイト専用のプロファイルがあるサイトでは、プロファイルにある項目が優先されます。",
+    "en": "Used across all sites. Where a site has a profile, its saved overrides take priority."
+  },
+  {
+    "id": "m_64dd3ac80299",
+    "ja": "照明タブ {0}",
+    "en": "Lit tab {0}"
+  },
+  {
+    "id": "m_bf7addec913b",
+    "ja": "いま動かした設定は {0} に入ります。保存してある設定は、決めるまで変わりません。A / B キーでも切り替えられます。",
+    "en": "Changes go to side {0}. Saved settings stay unchanged until you choose a side. You can also switch with A / B."
+  },
+  {
+    "id": "m_9b577eec3727",
+    "ja": "{0}で比較中です。このページの設定とは別のため、ここでは切り替えと中止だけができます。",
+    "en": "Comparing {0}. It belongs to different settings, so this page can only switch sides or cancel."
+  },
+  {
+    "id": "m_b4cda3e4a90b",
+    "ja": "カスタム（どのプリセットとも違う設定）",
+    "en": "Custom (no preset match)"
+  },
+  {
+    "id": "m_6f5de510e11d",
+    "ja": "標準",
+    "en": "Standard"
+  },
+  {
+    "id": "m_9c4e60cd8684",
+    "ja": "自分のプリセット",
+    "en": "My presets"
+  },
+  {
+    "id": "m_3a291202ea37",
+    "ja": "{0} 専用の設定を編集中",
+    "en": "Editing settings for {0}"
+  },
+  {
+    "id": "m_af621542429c",
+    "ja": "グローバル設定 · 全サイト共通",
+    "en": "Global settings · All sites"
+  },
+  {
+    "id": "m_0b80b466a2c5",
+    "ja": "{0} 専用のプロファイル",
+    "en": "Profile for {0}"
+  },
+  {
+    "id": "m_6d9b414a27fd",
+    "ja": "グローバルに戻す",
+    "en": "Use global settings"
+  },
+  {
+    "id": "m_a62c42755741",
+    "ja": "このサイト専用にする",
+    "en": "Create site profile"
+  },
+  {
+    "id": "m_b407848dac22",
+    "ja": "モード・明るさ・Light Director などはこのサイトだけの設定として保存されます。{0}",
+    "en": "Mode, brightness, Light Director, and other look settings are saved for this site only. {0}"
+  },
+  {
+    "id": "m_f7f8dd2480c9",
+    "ja": "この動画は保護されていて、色を取り出せません。{0}",
+    "en": "This video is protected; its colors cannot be read. {0}"
+  },
+  {
+    "id": "m_031e881da03a",
+    "ja": "照明は出していません。固定の照明は、下の「保護された動画での照明」で選べます。",
+    "en": "Lighting is off. Choose fixed lighting under “Protected video” below."
+  },
+  {
+    "id": "m_55191c10243d",
+    "ja": "下の「保護された動画での照明」で選んだ照明を使います。",
+    "en": "Using the lighting selected under “Protected video” below."
+  },
+  {
+    "id": "m_c8b6eb1fbabd",
+    "ja": "保護された配信のため、自動でDRM互換描画（CSS合成）に切り替えています。64ゾーン解析・時間平滑化・Flash Limiterは適用されません。",
+    "en": "Protected stream: automatically switched to DRM compatibility rendering (CSS compositing). 64-zone analysis, temporal smoothing, and Flash Limiter do not apply."
+  },
+  {
+    "id": "m_70f1b90fbdc6",
+    "ja": "映像の画素を読み出さないCSS合成。64ゾーン解析・時間平滑化・Flash Limiterは適用できません。DRM配信での表示は環境により異なります。",
+    "en": "CSS compositing without reading video pixels. 64-zone analysis, temporal smoothing, and Flash Limiter do not apply. Results on DRM streams vary by environment."
+  },
+  {
+    "id": "m_247a04bcb126",
+    "ja": "映像の位置に対応する色を、画面の最外周へ。Netflix・Prime Videoなど保護された動画では、自動でDRM互換描画に切り替わります。",
+    "en": "Video colors follow their positions around the screen edge. Protected video such as Netflix or Prime Video switches automatically to DRM compatibility rendering."
+  },
+  {
+    "id": "m_e9bd67818e7a",
+    "ja": "Music Mode：再生中の音だけで光ります。映像の色は読みません。音は端末の中で解析し、録音・保存・送信はしません。再生音は変えません。保護されたコンテンツでは光りません。",
+    "en": "Music Mode: light follows sound only. Audio is analyzed locally, without recording, saving, sending, or changing playback. Protected content does not light up."
+  },
+  {
+    "id": "m_dab5fdf55a40",
+    "ja": "映像の取得・解析を行わない照明です。",
+    "en": "Lighting without video capture or analysis."
+  },
+  {
+    "id": "m_b8337de157c9",
+    "ja": "互換描画は連続したCSS光です。ゾーン数の指定はRGB解析で使用します。",
+    "en": "Compatibility rendering uses continuous CSS light. Zone counts apply to RGB analysis."
+  },
+  {
+    "id": "m_9a09ea43e64c",
+    "ja": "現在 {0}ゾーン · 自動判定 {1}×{2}px（推定）。各辺に均等配分。",
+    "en": "{0} zones · Auto resolution estimate: {1}×{2}px. Divided equally across edges."
+  },
+  {
+    "id": "m_355e7004f73f",
+    "ja": "映像を解析できる照明（映像に連動 · RGB解析）でのみ働きます。",
+    "en": "Works only with readable video (Video · RGB analysis)."
+  },
+  {
+    "id": "m_5675ba82f4cf",
+    "ja": "動作中。解析に時間がかかっているため、少し粗く見ています（自動で戻ります）。",
+    "en": "Active. Analysis is taking longer, so detail is temporarily reduced; it will recover automatically."
+  },
+  {
+    "id": "m_415c82a3c412",
+    "ja": "映像の中の光源と、急に現れた光を外周へ。強さや感度は詳細設定で調整できます。",
+    "en": "Brings video light sources and sudden flashes to the perimeter. Adjust strength and sensitivity in Settings."
+  },
+  {
+    "id": "m_649f225ba129",
+    "ja": "DRM互換描画の光には掛けられません。",
+    "en": "Cannot affect DRM compatibility lighting."
+  },
+  {
+    "id": "m_a379274f9ab6",
+    "ja": "オフ。光がボタンや文字に重なっても、弱めません。",
+    "en": "Off. Light will not be dimmed over buttons or text."
+  },
+  {
+    "id": "m_cf94be9b301c",
+    "ja": "操作UI・字幕・文字の上だけ、光を弱めています（いま {0} か所）。",
+    "en": "Dimming light only over controls, subtitles, and text ({0} regions now)."
+  },
+  {
+    "id": "m_582abd510a7e",
+    "ja": "光の下にUIや文字を {0} か所見つけています。いまの光はその上でも十分に薄いため、弱めていません。",
+    "en": "Found {0} UI/text regions under the glow. The light there is already faint enough, so no dimming is needed."
+  },
+  {
+    "id": "m_8b408f368bf3",
+    "ja": "操作UI・字幕・文字の上だけ、光を自動で弱めて読みやすさを保ちます。",
+    "en": "Automatically dims light over controls, subtitles, and text to keep them readable."
+  },
+  {
+    "id": "m_8a39f1246232",
+    "ja": "オフ。場面の明るさに関係なく、同じ強さで光ります。",
+    "en": "Off. Light strength stays the same regardless of scene brightness."
+  },
+  {
+    "id": "m_611fcaa039bd",
+    "ja": "場面の明るさに合わせて、明るいゾーンの光を {0}% 暗くしています。",
+    "en": "Dimming bright zones by {0}% to match the scene."
+  },
+  {
+    "id": "m_f828d4e71c27",
+    "ja": "暗い場面では明るい光を抑え、明るい場面では全体を少し下げます。",
+    "en": "Tames bright lights in dark scenes and lowers overall light in bright scenes."
+  },
+  {
+    "id": "m_9f4c9cbcdebb",
+    "ja": "DRM互換描画と保護された動画では働きません（音も解析しません）。",
+    "en": "Unavailable for DRM compatibility rendering and protected video (no audio analysis)."
+  },
+  {
+    "id": "m_b6d710575279",
+    "ja": "オンにすると、再生中の音を端末の中で解析します。録音・送信せず、再生音も変えません。",
+    "en": "When enabled, analyzes playing audio locally. No recording, uploads, or playback changes."
+  },
+  {
+    "id": "m_616ba574ac6f",
+    "ja": "音で明るさと広がりが変わります。色は映像のまま。再生音は変えていません。",
+    "en": "Sound changes brightness and spread. Colors still follow the video; playback audio is unchanged."
+  },
+  {
+    "id": "m_4a71f780fd92",
+    "ja": "画質への影響を避けるため、この動画ではタブ取得を使用しません。「DRM互換描画」をお試しください。",
+    "en": "Tab capture is disabled for this video to protect picture quality. Try DRM compatibility rendering."
+  },
+  {
+    "id": "m_a77c7e000511",
+    "ja": "直接解析できない場合に使用。映像のみを取得し、録画・保存は行いません。",
+    "en": "Use when direct analysis is unavailable. Captures video only; nothing is recorded or saved."
+  },
+  {
+    "id": "m_914119fd3fce",
+    "ja": "対象タブがありません。",
+    "en": "No target tab."
+  },
+  {
+    "id": "m_320b8c2b9ff3",
+    "ja": "動画のあるタブで「照明を開始」を押してください。",
+    "en": "Press “Start lighting” in a tab with a video."
+  },
+  {
+    "id": "m_bdb2104522e2",
+    "ja": "タブの取得を停止",
+    "en": "Stop tab capture"
+  },
+  {
+    "id": "m_094e6b7f20b0",
+    "ja": "タブの映像を取得",
+    "en": "Capture tab video"
+  },
+  {
+    "id": "m_fdb6c61ebf5f",
+    "ja": "このタブの照明を更新 <span>↗</span>",
+    "en": "Update this tab’s lighting <span>↗</span>"
+  },
+  {
+    "id": "m_f793b53c5ade",
+    "ja": "このタブで照明を開始 <span>↗</span>",
+    "en": "Start lighting in this tab <span>↗</span>"
+  },
+  {
+    "id": "m_7e076b4d10d8",
+    "ja": "Chromeの許可が得られなかったため、常に点灯はオフのままです。",
+    "en": "Chrome permission was not granted. “Always light” remains off."
+  },
+  {
+    "id": "m_be564a472b70",
+    "ja": "このサイトへの常時の許可を返しました。このタブの照明は、ページを移動するまで続きます。",
+    "en": "Persistent permission for this site was removed. Lighting continues in this tab until you navigate away."
+  },
+  {
+    "id": "m_17597a6a44a1",
+    "ja": "{0} · 新しいタブやChromeの再起動後も自動で開始",
+    "en": "{0} · Starts automatically in new tabs and after restarting Chrome"
+  },
+  {
+    "id": "m_db5ba671d244",
+    "ja": "上",
+    "en": "Top"
+  },
+  {
+    "id": "m_13c12b064b63",
+    "ja": "下",
+    "en": "Bottom"
+  },
+  {
+    "id": "m_e2e0c454e5d5",
+    "ja": "左",
+    "en": "Left"
+  },
+  {
+    "id": "m_14ab1f2bce0a",
+    "ja": "右",
+    "en": "Right"
+  },
+  {
+    "id": "m_2b3dd0b44907",
+    "ja": "ECLIRIM A/B · {0} を表示中",
+    "en": "ECLIRIM A/B · Showing {0}"
+  },
+  {
+    "id": "m_385f8f2d342f",
+    "ja": "暗号化動画のタブ取得は画質に影響する場合があります。「DRM互換描画」を使用してください。",
+    "en": "Capturing encrypted video may affect picture quality. Use DRM compatibility rendering."
+  },
+  {
+    "id": "m_0920826a2146",
+    "ja": "動画ページのURLを確認できません。",
+    "en": "Cannot determine the video page URL."
+  },
+  {
+    "id": "m_597169561f29",
+    "ja": "この配信サイトではタブ取得によるHDCP・画質への影響を避けるため、CSS互換描画を使用してください。",
+    "en": "Use CSS compatibility rendering on this streaming site to avoid HDCP or picture-quality issues from tab capture."
+  },
+  {
+    "id": "m_b5a1aa9df35b",
+    "ja": "Diagnostics の要約",
+    "en": "Diagnostics summary"
+  },
+  {
+    "id": "m_63521cbfdf22",
+    "ja": "状態: {0}",
+    "en": "Status: {0}"
+  },
+  {
+    "id": "m_5ee5d7b9e12c",
+    "ja": "描画方式: {0}",
+    "en": "Rendering path: {0}"
+  },
+  {
+    "id": "m_872c90cadb9f",
+    "ja": "解析FPS",
+    "en": "Analysis FPS"
+  },
+  {
+    "id": "m_ce965e62d70c",
+    "ja": "描画FPS",
+    "en": "Rendering FPS"
+  },
+  {
+    "id": "m_b12671b27e8f",
+    "ja": "映像の読み出し時間",
+    "en": "Video read time"
+  },
+  {
+    "id": "m_e2a27cac6d84",
+    "ja": "ゾーン数",
+    "en": "Zone count"
+  },
+  {
+    "id": "m_4c31c53180fc",
+    "ja": "光るゾーン数",
+    "en": "Lit zones"
+  },
+  {
+    "id": "m_62b01f69ea24",
+    "ja": "色空間",
+    "en": "Color space"
+  },
+  {
+    "id": "m_364c83ffd728",
+    "ja": "感想・評価",
+    "en": "Review"
+  },
+  {
+    "id": "m_26ddd62b6ee4",
+    "ja": "不具合",
+    "en": "Bug report"
+  },
+  {
+    "id": "m_b84b4eef57a0",
+    "ja": "改善案",
+    "en": "Suggestion"
+  },
+  {
+    "id": "m_6480155c75c3",
+    "ja": "ECLIRIM フィードバック",
+    "en": "ECLIRIM feedback"
+  },
+  {
+    "id": "m_926cd0301ada",
+    "ja": "バージョン: {0}",
+    "en": "Version: {0}"
+  },
+  {
+    "id": "m_e22b1d5bea80",
+    "ja": "種類: {0}",
+    "en": "Type: {0}"
+  },
+  {
+    "id": "m_9cda219948f2",
+    "ja": "満足度: {0} / 5",
+    "en": "Rating: {0} / 5"
+  },
+  {
+    "id": "m_50f39a115aa8",
+    "ja": "使ったサイト・場面: {0}",
+    "en": "Site / context: {0}"
+  },
+  {
+    "id": "m_cfb2f0e9aeee",
+    "ja": "よかったところ",
+    "en": "What worked well"
+  },
+  {
+    "id": "m_1cb54a3348c6",
+    "ja": "困ったこと・起きたこと",
+    "en": "What went wrong"
+  },
+  {
+    "id": "m_50e1ffaa9a27",
+    "ja": "改善してほしいこと",
+    "en": "What could improve"
+  },
+  {
+    "id": "m_4e7067615633",
+    "ja": "再現手順",
+    "en": "Steps to reproduce"
+  },
+  {
+    "id": "m_3eb9e8e8baae",
+    "ja": "初期設定。映画に合わせた、自然でなめらかな光。",
+    "en": "Default. Natural, smooth lighting tuned for movies."
+  },
+  {
+    "id": "m_98c8b2011830",
+    "ja": "アクションやゲーム映像向け。鮮やかで、動きと音への反応が速い。",
+    "en": "For action and games. Vivid light with fast responses to motion and sound."
+  },
+  {
+    "id": "m_8ddc7c16abf3",
+    "ja": "長時間の視聴向け。広く淡く、ゆっくり変わる光。",
+    "en": "For long viewing sessions. Wide, soft light that changes slowly."
+  },
+  {
+    "id": "m_88156f478c95",
+    "ja": "暗い部屋で深夜に。細く控えめで、暗い場面の色を残す。",
+    "en": "For late nights in a dark room. Subtle, narrow light that preserves dark-scene colors."
+  },
+  {
+    "id": "m_a5e455104ab7",
+    "ja": "すべてを最大近くまで。光が映像より前に出ます。Flash Limiter は入れたままで、UI Guard もお使いの設定のままです。",
+    "en": "Almost everything at maximum. Light takes center stage. Flash Limiter stays on, and your UI Guard setting is preserved."
+  },
+  {
+    "id": "m_feb20f7964ca",
+    "ja": "ファイルが大きすぎます（400KBまで）。",
+    "en": "File too large (400 KB maximum)."
+  },
+  {
+    "id": "m_a06a92a5a276",
+    "ja": "JSONとして読めませんでした。",
+    "en": "Could not read this as JSON."
+  },
+  {
+    "id": "m_819c7f4f9a0c",
+    "ja": "ECLIRIMの書き出しファイルではありません。",
+    "en": "This is not an ECLIRIM export file."
+  },
+  {
+    "id": "m_80c8a6687374",
+    "ja": "このファイルは新しい版のECLIRIMで作られています。拡張を更新してから読み込んでください。",
+    "en": "This file was created with a newer ECLIRIM version. Update the extension before importing it."
+  },
+  {
+    "id": "m_80bb0088cb83",
+    "ja": "プリセットの名前か内容がありません。",
+    "en": "The preset name or contents are missing."
+  },
+  {
+    "id": "m_e11312e9a7bb",
+    "ja": "種類のわからないファイルです。",
+    "en": "Unknown file type."
+  },
+  {
+    "id": "m_2e32e3fca76f",
+    "ja": "光の量",
+    "en": "Amount of light"
+  },
+  {
+    "id": "m_1cfa9c6fb2b4",
+    "ja": "どのくらい光らせたいですか？",
+    "en": "How much light would you like?"
+  },
+  {
+    "id": "m_ed7e373a2387",
+    "ja": "ひかえめ",
+    "en": "Subtle"
+  },
+  {
+    "id": "m_db58809ab1c5",
+    "ja": "映像の邪魔をしない、うっすらとした光。",
+    "en": "A faint glow that stays out of the way."
+  },
+  {
+    "id": "m_da5cd3b489a7",
+    "ja": "映像に寄り添う、自然な明るさ。",
+    "en": "Natural brightness that complements the video."
+  },
+  {
+    "id": "m_12032921df35",
+    "ja": "強め",
+    "en": "Strong"
+  },
+  {
+    "id": "m_cbda0a238f3a",
+    "ja": "光がはっきり分かる、華やかな明るさ。",
+    "en": "Bright, clearly visible light."
+  },
+  {
+    "id": "m_9730c15f3c19",
+    "ja": "最大",
+    "en": "Maximum"
+  },
+  {
+    "id": "m_0b4c07d851c2",
+    "ja": "光を主役に。映像より前に出ます。",
+    "en": "Make light the main event, ahead of the video."
+  },
+  {
+    "id": "m_3d6254baf222",
+    "ja": "光の幅",
+    "en": "Glow width"
+  },
+  {
+    "id": "m_1801d2c601bb",
+    "ja": "光は画面の内側へどこまで届かせますか？",
+    "en": "How far inward should the glow reach?"
+  },
+  {
+    "id": "m_935744ee1657",
+    "ja": "細い",
+    "en": "Narrow"
+  },
+  {
+    "id": "m_1970e1f9bd86",
+    "ja": "縁に沿った細い光。画面を広く使えます。",
+    "en": "A thin line along the edge, leaving more of the screen clear."
+  },
+  {
+    "id": "m_af5835a4175a",
+    "ja": "縁から少し広がる、標準の幅。",
+    "en": "A standard width that spreads a little from the edge."
+  },
+  {
+    "id": "m_b3d8fcc4cc54",
+    "ja": "広い",
+    "en": "Wide"
+  },
+  {
+    "id": "m_df12273cf797",
+    "ja": "画面の内側まで大きく広がる光。",
+    "en": "Light that spreads far into the screen."
+  },
+  {
+    "id": "m_2160fd23e6d3",
+    "ja": "柔らかさ",
+    "en": "Softness"
+  },
+  {
+    "id": "m_22b459029f2e",
+    "ja": "光の輪郭はどちらが好みですか？",
+    "en": "Which light shape do you prefer?"
+  },
+  {
+    "id": "m_f742b4e810a6",
+    "ja": "くっきり",
+    "en": "Crisp"
+  },
+  {
+    "id": "m_0e8c17de453c",
+    "ja": "Edge Light。縁に芯のある、LEDらしい光。動きにも速く反応します。",
+    "en": "Edge Light. An LED-like core along the edge, with quick motion response."
+  },
+  {
+    "id": "m_4549dad4d2a6",
+    "ja": "Edge Light。芯と広がりのバランスを取った光。",
+    "en": "Edge Light. A balance between a defined core and a soft spread."
+  },
+  {
+    "id": "m_9aacc215f53a",
+    "ja": "ふんわり",
+    "en": "Soft"
+  },
+  {
+    "id": "m_3d16101f3644",
+    "ja": "Soft Halo。芯のない、間接照明のような光。ゆっくり変わります。",
+    "en": "Soft Halo. Indirect light without a sharp core, changing slowly."
+  },
+  {
+    "id": "m_1e9855e35e2e",
+    "ja": "下書きを消す",
+    "en": "Clear draft"
+  },
+  {
+    "id": "m_a2fafca6c983",
+    "ja": "送信中…",
+    "en": "Sending…"
+  },
+  {
+    "id": "m_3c15636ce697",
+    "ja": "フィードバックを送る",
+    "en": "Send feedback"
+  },
+  {
+    "id": "m_6dc96d99ab72",
+    "ja": "読み込み中…",
+    "en": "Loading…"
+  },
+  {
+    "id": "m_b0b8d123ad63",
+    "ja": "要約を更新する",
+    "en": "Refresh summary"
+  },
+  {
+    "id": "m_68a9f97696c8",
+    "ja": "要約を作る",
+    "en": "Create summary"
+  },
+  {
+    "id": "m_f888098de28f",
+    "ja": "下書きを保存できませんでした。入力内容は、この画面からコピーできます。",
+    "en": "Could not save the draft. You can still copy your text from this page."
+  },
+  {
+    "id": "m_103b8d5c1726",
+    "ja": "下書きを読み込めませんでした。新しく入力してコピーできます。",
+    "en": "Could not load the draft. You can write a new one and copy it."
+  },
+  {
+    "id": "m_8325211835de",
+    "ja": "点灯中のタブから要約を作っています…",
+    "en": "Creating a summary from lit tabs…"
+  },
+  {
+    "id": "m_c24b5538d35c",
+    "ja": "要約を確認して、添付する場合はチェックしてください。",
+    "en": "Review the summary, then check the box if you want to attach it."
+  },
+  {
+    "id": "m_f5dce0dfb7bb",
+    "ja": "診断できるタブがありません。動画のタブで照明を開始してから、もう一度お試しください。",
+    "en": "No tabs available for diagnostics. Start lighting in a video tab and try again."
+  },
+  {
+    "id": "m_a660535711cb",
+    "ja": "要約を取得できませんでした。添付せず送信することもできます。",
+    "en": "Could not fetch the summary. You can still send feedback without it."
+  },
+  {
+    "id": "m_3c959b529d99",
+    "ja": "コピーしました。共有したい場所に貼り付けてください。",
+    "en": "Copied. Paste it wherever you want to share it."
+  },
+  {
+    "id": "m_f057db6e9127",
+    "ja": "コピーできませんでした。内容を選択したので、コピーのショートカットを使ってください。",
+    "en": "Could not copy. The text is selected; use your keyboard’s copy shortcut."
+  },
+  {
+    "id": "m_f817b46662f6",
+    "ja": "フィードバックを送信しています…",
+    "en": "Sending feedback…"
+  },
+  {
+    "id": "m_1b3e09bfd467",
+    "ja": "フィードバックを受け付けました。下書きは、この端末に残しています。",
+    "en": "Feedback received. Your draft remains on this device."
+  },
+  {
+    "id": "m_ba75eefc4431",
+    "ja": "診断要約の添付をいまは受け付けられません。添付のチェックを外すか、あとでお試しください。",
+    "en": "Diagnostic attachments are unavailable right now. Uncheck the attachment or try again later."
+  },
+  {
+    "id": "m_8db86760dcbd",
+    "ja": "いまは送信が混み合っています。時間を置いて、もう一度お試しください。",
+    "en": "The service is busy. Wait a little and try again."
+  },
+  {
+    "id": "m_3c83c042b7e9",
+    "ja": "送信結果を確認できませんでした。下書きは残っています。接続を確認して、もう一度お試しください。",
+    "en": "Could not confirm delivery. Your draft is safe. Check your connection and try again."
+  },
+  {
+    "id": "m_37bbf01018b7",
+    "ja": "もう一度押すと消去",
+    "en": "Press again to clear"
+  },
+  {
+    "id": "m_d9b16052ac13",
+    "ja": "下書きを消しました。",
+    "en": "Draft cleared."
+  },
+  {
+    "id": "m_77e6a1ef5518",
+    "ja": "設定を保存できませんでした: {0}",
+    "en": "Could not save settings: {0}"
+  },
+  {
+    "id": "m_8c0c3a5f9a1c",
+    "ja": "明るさ",
+    "en": "Brightness"
+  },
+  {
+    "id": "m_b237742aa5b3",
+    "ja": "光の拡散",
+    "en": "Glow intensity"
+  },
+  {
+    "id": "m_0cef6de66563",
+    "ja": "彩度",
+    "en": "Saturation"
+  },
+  {
+    "id": "m_1c2342b72b6c",
+    "ja": "滑らかさ",
+    "en": "Smoothing"
+  },
+  {
+    "id": "m_a14f87b51a34",
+    "ja": "追従速度",
+    "en": "Response speed"
+  },
+  {
+    "id": "m_b5a4981abd87",
+    "ja": "音を解析中",
+    "en": "Analyzing audio"
+  },
+  {
+    "id": "m_ad4f2c12078f",
+    "ja": "プレイヤーがミュート中（光は動きません）",
+    "en": "Player muted (light is still)"
+  },
+  {
+    "id": "m_347cbaffe29e",
+    "ja": "ページを一度クリックすると始まります",
+    "en": "Click the page once to start"
+  },
+  {
+    "id": "m_73fda94e3be7",
+    "ja": "保護されたコンテンツのため、音は解析しません",
+    "en": "Protected content; audio is not analyzed"
+  },
+  {
+    "id": "m_f01a08090545",
+    "ja": "別のサイトから配信された音のため、Chromeが読み取りを許可しません",
+    "en": "Chrome blocks reading audio from another site"
+  },
+  {
+    "id": "m_aed110baa686",
+    "ja": "音の出ているものがありません",
+    "en": "No audio is playing"
+  },
+  {
+    "id": "m_adfd7be1861a",
+    "ja": "動画のあるタブで開始してください。",
+    "en": "Start in a tab with a video."
+  },
+  {
+    "id": "m_d2698a3a6c0f",
+    "ja": "動作の詳細",
+    "en": "Details"
+  },
+  {
+    "id": "m_845640c965aa",
+    "ja": "このタブで照明を開始",
+    "en": "Start lighting in this tab"
+  },
+  {
+    "id": "m_3386930b101a",
+    "ja": "かんたん設定",
+    "en": "Quick setup"
+  },
+  {
+    "id": "m_7b89b24f2697",
+    "ja": "詳細設定",
+    "en": "Settings"
+  },
+  {
+    "id": "m_ef222409da5f",
+    "ja": "フィードバック",
+    "en": "Feedback"
+  },
+  {
+    "id": "m_3d7b4ade8107",
+    "ja": "元の設定",
+    "en": "Original"
+  },
+  {
+    "id": "m_dd5808dc5315",
+    "ja": "試す設定",
+    "en": "Try changes"
+  },
+  {
+    "id": "m_81de877b2b1c",
+    "ja": "A に決める",
+    "en": "Keep A"
+  },
+  {
+    "id": "m_44896173a558",
+    "ja": "B に決める",
+    "en": "Keep B"
+  },
+  {
+    "id": "m_a9c9c456a0fa",
+    "ja": "やめる",
+    "en": "Cancel"
+  },
+  {
+    "id": "m_1e63261f660f",
+    "ja": "プリセット",
+    "en": "Presets"
+  },
+  {
+    "id": "m_68ab565a383f",
+    "ja": "自然でなめらか",
+    "en": "Natural & smooth"
+  },
+  {
+    "id": "m_ff0c822d1e46",
+    "ja": "鮮やかに反応",
+    "en": "Vivid & responsive"
+  },
+  {
+    "id": "m_19394e5b48d9",
+    "ja": "穏やかな余韻",
+    "en": "Calm & lingering"
+  },
+  {
+    "id": "m_768dbf9d1c26",
+    "ja": "光の形",
+    "en": "Glow shape"
+  },
+  {
+    "id": "m_0680b69c086a",
+    "ja": "縁に芯のある光",
+    "en": "A defined edge core"
+  },
+  {
+    "id": "m_b2e0b04b5401",
+    "ja": "やわらかな間接光",
+    "en": "Soft indirect light"
+  },
+  {
+    "id": "m_cfc4a4be2309",
+    "ja": "音に反応 · Pulse Engine",
+    "en": "Sound · Pulse Engine"
+  },
+  {
+    "id": "m_518f736ad5fc",
+    "ja": "反応の深さ",
+    "en": "Pulse depth"
+  },
+  {
+    "id": "m_6985121c98e8",
+    "ja": "ビートで光が広がる量",
+    "en": "Beat expansion"
+  },
+  {
+    "id": "m_f145abc310bb",
+    "ja": "映像への反応・読みやすさ",
+    "en": "Video response & readability"
+  },
+  {
+    "id": "m_d5c91665efe7",
+    "ja": "映像の光源に反応 · Light Director",
+    "en": "Video light sources · Light Director"
+  },
+  {
+    "id": "m_aa56701e0f88",
+    "ja": "文字と操作UIを保護 · UI Guard",
+    "en": "Text & controls · UI Guard"
+  },
+  {
+    "id": "m_51cc3650c94c",
+    "ja": "明るさを自動調整 · Adaptive Brightness",
+    "en": "Auto brightness · Adaptive Brightness"
+  },
+  {
+    "id": "m_875f06c267db",
+    "ja": "映像・サイトの設定",
+    "en": "Video & site settings"
+  },
+  {
+    "id": "m_60646ad33352",
+    "ja": "照明のソース",
+    "en": "Lighting source"
+  },
+  {
+    "id": "m_f7850c87be2b",
+    "ja": "映像に連動 · RGB解析",
+    "en": "Video · RGB analysis"
+  },
+  {
+    "id": "m_e09e1918b67e",
+    "ja": "DRM互換描画 · CSS",
+    "en": "DRM compatibility · CSS"
+  },
+  {
+    "id": "m_3cf5cda7ac3e",
+    "ja": "Music Mode · 音だけで発光",
+    "en": "Music Mode · Sound only"
+  },
+  {
+    "id": "m_f5f64cbd91a6",
+    "ja": "保護された動画",
+    "en": "Protected video"
+  },
+  {
+    "id": "m_253bb41e4be5",
+    "ja": "光らせない",
+    "en": "No lighting"
+  },
+  {
+    "id": "m_5b1ccef0e606",
+    "ja": "MacのChromeでは、保護された動画は初期設定で光らせません。固定の照明を選んでも、映像には連動しません。",
+    "en": "Chrome on Mac leaves protected video unlit by default. Fixed lighting does not follow the video."
+  },
+  {
+    "id": "m_1cc6e552f2f0",
+    "ja": "Warm · 琥珀",
+    "en": "Warm · Amber"
+  },
+  {
+    "id": "m_842cf4c7918b",
+    "ja": "Moon · 月明かり",
+    "en": "Moon · Moonlight"
+  },
+  {
+    "id": "m_9cf28188c1f6",
+    "ja": "Dusk · 薄暮",
+    "en": "Dusk · Twilight"
+  },
+  {
+    "id": "m_11feb5934e01",
+    "ja": "このサイトでは常に点灯",
+    "en": "Always light this site"
+  },
+  {
+    "id": "m_122039994154",
+    "ja": "編集する設定",
+    "en": "Editing"
+  },
+  {
+    "id": "m_b0cbb90912f6",
+    "ja": "細かな調整・比較",
+    "en": "Fine tuning & comparison"
+  },
+  {
+    "id": "m_152fda33ca26",
+    "ja": "LEDゾーン数",
+    "en": "LED zones"
+  },
+  {
+    "id": "m_e34a8a76d0e3",
+    "ja": "解像度に合わせて自動",
+    "en": "Auto from resolution"
+  },
+  {
+    "id": "m_0c26f0fcfad2",
+    "ja": "急な明滅を抑える · Flash Limiter",
+    "en": "Reduce flashes · Flash Limiter"
+  },
+  {
+    "id": "m_a720a24b73f4",
+    "ja": "A/B 比較を始める",
+    "en": "Start A/B comparison"
+  },
+  {
+    "id": "m_db6bf523753c",
+    "ja": "ローカル処理 · 映像の送信なし",
+    "en": "Local processing · No video uploads"
+  },
+  {
+    "id": "m_817138da929d",
+    "ja": "初期設定",
+    "en": "Reset"
+  },
+  {
+    "id": "m_3863e7cacf71",
+    "ja": "照明のオン／オフ",
+    "en": "Lighting on/off"
+  },
+  {
+    "id": "m_0ae0d37e35f5",
+    "ja": "Enable 照明のオン／オフ",
+    "en": "Enable lighting"
+  },
+  {
+    "id": "m_005008b8c032",
+    "ja": "表示する設定",
+    "en": "Displayed settings"
+  },
+  {
+    "id": "m_4bfa8413cb15",
+    "ja": "ECLIRIM 設定",
+    "en": "ECLIRIM Settings"
+  },
+  {
+    "id": "m_b37943c98449",
+    "ja": "やめる（元のまま）",
+    "en": "Cancel (keep original)"
+  },
+  {
+    "id": "m_fa7d8f7f0bf8",
+    "ja": "照明を調整",
+    "en": "Adjust lighting"
+  },
+  {
+    "id": "m_a37d92500512",
+    "ja": "基本設定",
+    "en": "Lighting"
+  },
+  {
+    "id": "m_fb511e06187c",
+    "ja": "映像への反応",
+    "en": "Video response"
+  },
+  {
+    "id": "m_4eb61a461f88",
+    "ja": "音への反応",
+    "en": "Sound response"
+  },
+  {
+    "id": "m_86b18ccdfdcb",
+    "ja": "ゾーン別",
+    "en": "Zones"
+  },
+  {
+    "id": "m_c96df943c122",
+    "ja": "使う・管理",
+    "en": "Use & manage"
+  },
+  {
+    "id": "m_71d355a17f37",
+    "ja": "サイト別",
+    "en": "Sites"
+  },
+  {
+    "id": "m_9ac6d0dd2c85",
+    "ja": "診断",
+    "en": "Diagnostics"
+  },
+  {
+    "id": "m_287307da0a3a",
+    "ja": "設定の種類",
+    "en": "Settings section"
+  },
+  {
+    "id": "m_a78c9c1e40db",
+    "ja": "Calibration Wizard · かんたん設定",
+    "en": "Calibration Wizard · Quick setup"
+  },
+  {
+    "id": "m_5625d50fc30b",
+    "ja": "3つの質問に、好みの絵を選んで答えるだけで、照明の設定をまとめて作ります。作った設定は、",
+    "en": "Choose your favorite preview for each of three questions to build a lighting look. It is "
+  },
+  {
+    "id": "m_7d4aa68e59bd",
+    "ja": "使うと決めるまで保存されません",
+    "en": "not saved until you choose to use it"
+  },
+  {
+    "id": "m_21b783ebdfb1",
+    "ja": "おすすめの設定ができました",
+    "en": "Your recommended look is ready"
+  },
+  {
+    "id": "m_2ade3e5ff8fe",
+    "ja": "この設定を使う",
+    "en": "Use this look"
+  },
+  {
+    "id": "m_025ffe0b7156",
+    "ja": "いまの設定と A/B で比べる",
+    "en": "Compare with current look"
+  },
+  {
+    "id": "m_4f6bf2becadc",
+    "ja": "プリセットとして保存",
+    "en": "Save as preset"
+  },
+  {
+    "id": "m_a3030bf8f16d",
+    "ja": "保存",
+    "en": "Save"
+  },
+  {
+    "id": "m_8fc7f899161b",
+    "ja": "戻る",
+    "en": "Back"
+  },
+  {
+    "id": "m_6fd851e290e3",
+    "ja": "最初からやり直す",
+    "en": "Start over"
+  },
+  {
+    "id": "m_633b14c5b421",
+    "ja": "絵は、実際の照明と同じ描画をテスト用の色で動かしたものです。お使いの画面や部屋の明るさを測っているわけではありません。Pulse Engine（音の解析）のオン／オフ、ゾーン別の調整、UI Guard は、この設定では変わりません。",
+    "en": "Previews use the actual lighting renderer with test colors. They do not measure your screen or room. This setup leaves Pulse Engine on/off, zone adjustments, and UI Guard unchanged."
+  },
+  {
+    "id": "m_2d4de286c798",
+    "ja": "上は実際の照明と同じ描画です。下のグラフは、画面の縁（左端）から内側（右）へ向かう光の濃さで、点線は Edge Light の標準の形です。",
+    "en": "The preview uses the actual lighting renderer. The graph shows light intensity from the edge (left) inward (right). The dashed line is the standard Edge Light shape."
+  },
+  {
+    "id": "m_73aa1257139f",
+    "ja": "このページの外周にも実寸で表示",
+    "en": "Preview at full size around this page"
+  },
+  {
+    "id": "m_24ec228075e7",
+    "ja": "ウィンドウの縁で、実際の太さと広がりを確かめます。",
+    "en": "Check the actual width and spread at the window edges."
+  },
+  {
+    "id": "m_f77ced547728",
+    "ja": "光の",
+    "en": "Design the "
+  },
+  {
+    "id": "m_88731a8fb9d8",
+    "ja": "形",
+    "en": "shape"
+  },
+  {
+    "id": "m_c893b5dbeeee",
+    "ja": "を作ります。どちらのスタイルも、光がいちばん強いのは",
+    "en": " of the light. Both styles are strongest at the "
+  },
+  {
+    "id": "m_2c02f45eee9b",
+    "ja": "画面の最外周",
+    "en": "outermost screen edge"
+  },
+  {
+    "id": "m_83a2e51b5975",
+    "ja": "で、内側へ向かって弱くなります。",
+    "en": " and fade inward."
+  },
+  {
+    "id": "m_20d5486200ce",
+    "ja": "縁に芯のある、LEDの光",
+    "en": "LED light with an edge core"
+  },
+  {
+    "id": "m_014cd0558ff6",
+    "ja": "芯のない、間接照明の光",
+    "en": "Indirect light with no sharp core"
+  },
+  {
+    "id": "m_63f9247a2c02",
+    "ja": "このスタイルの標準に戻す",
+    "en": "Reset this style"
+  },
+  {
+    "id": "m_d634dde07296",
+    "ja": "しくみ・使える場面",
+    "en": "How it works & availability"
+  },
+  {
+    "id": "m_4e0afd9f5acd",
+    "ja": "これまでの照明です。縁に細い芯があり、そのすぐ内側に強いにじみ、さらに内側へ薄い広がりが続きます。4つのスライダーがすべて 50% のとき、0.9.0 までと同じ形です。",
+    "en": "The original look: a narrow core at the edge, strong bloom just inside it, then a faint spread farther inward. With all four sliders at 50%, it matches versions through 0.9.0."
+  },
+  {
+    "id": "m_8c31c90651b3",
+    "ja": "芯を作らず、縁からなだらかに落ちる1つの光にします。辺に沿って隣の色とも混ざり、壁に当てた間接照明のように見えます。",
+    "en": "A single smooth glow fading inward from the edge, without a core. Neighboring colors blend along the edge, like indirect light on a wall."
+  },
+  {
+    "id": "m_0187553d8d8c",
+    "ja": "光源の太さ。",
+    "en": "Source Thickness. "
+  },
+  {
+    "id": "m_fb400e3bb04f",
+    "ja": "いちばん強く光る部分の幅です。",
+    "en": "The width of the brightest part."
+  },
+  {
+    "id": "m_2ce4251aa5ce",
+    "ja": "拡散曲線。",
+    "en": "Diffusion Curve. "
+  },
+  {
+    "id": "m_36e6b1de7a77",
+    "ja": "落ち方の形で、低いと縁で急に落ちて長く尾を引き、高いと縁の近くを保ってから落ちます。",
+    "en": "Controls the fade shape. Lower values drop quickly at the edge with a long tail; higher values hold near the edge before fading."
+  },
+  {
+    "id": "m_812ca5f5db1a",
+    "ja": "減衰。",
+    "en": "Falloff. "
+  },
+  {
+    "id": "m_a96a073640eb",
+    "ja": "内側へどれだけ早く消えるか。",
+    "en": "How quickly light disappears inward."
+  },
+  {
+    "id": "m_0296b938ec3a",
+    "ja": "柔らかさ。",
+    "en": "Softness. "
+  },
+  {
+    "id": "m_796af11cb6fc",
+    "ja": "芯の境目のぼかしと、辺に沿った色の混ざり具合です。",
+    "en": "Blurs the core boundary and blends neighboring colors along the edge."
+  },
+  {
+    "id": "m_2dcf0d007744",
+    "ja": "「光の幅」「光の拡散」（基本設定 タブ）は、この形が届く範囲と量を決めます。DRM互換描画の光にも、この形が使われます（辺に沿った色の混ざり具合を除く）。",
+    "en": "Glow Width and Glow Intensity (Lighting tab) set the reach and amount of this shape. DRM compatibility lighting uses the shape too, except for color blending along the edge."
+  },
+  {
+    "id": "m_d96350bd1a35",
+    "ja": "照明の見た目",
+    "en": "Lighting look"
+  },
+  {
+    "id": "m_0f9764d8e6b6",
+    "ja": "サイト専用のプロファイルに保存できる設定です。",
+    "en": "These settings can be saved in a site profile."
+  },
+  {
+    "id": "m_0ba0d92482cd",
+    "ja": "急な明滅を穏やかに。Light Director の光にも掛かります。",
+    "en": "Softens sudden flashes. Also applies to Light Director."
+  },
+  {
+    "id": "m_e7b8e62f10ef",
+    "ja": "すべてのサイトで共通",
+    "en": "Shared across all sites"
+  },
+  {
+    "id": "m_4caf6983a1ef",
+    "ja": "ここはプロファイルに含まれません。どのサイトでも同じ値を使います。",
+    "en": "These values are global and are not part of site profiles."
+  },
+  {
+    "id": "m_098294eeccc2",
+    "ja": "照明",
+    "en": "Lighting"
+  },
+  {
+    "id": "m_eeff36245705",
+    "ja": "オフにすると、どのタブでも点灯しません。",
+    "en": "When off, no tabs light up."
+  },
+  {
+    "id": "m_951ccc950935",
+    "ja": "保護された動画での照明",
+    "en": "Lighting for protected video"
+  },
+  {
+    "id": "m_0b13f960b616",
+    "ja": "MacのChromeでは、Netflix・Prime Videoなどの保護された映像から色を取り出せません。初期設定では光らせません。固定の照明を選んでも、映像には連動しません。",
+    "en": "Chrome on Mac cannot read colors from protected video such as Netflix or Prime Video. Lighting is off by default. Fixed lighting does not follow the video."
+  },
+  {
+    "id": "m_e18f2b86a456",
+    "ja": "固定カラーの色",
+    "en": "Fixed color"
+  },
+  {
+    "id": "m_052c2493178a",
+    "ja": "光の下にある操作UI・字幕・文字を読みやすく保ちます。サイト専用のプロファイルに保存できます。",
+    "en": "Keeps controls, subtitles, and text readable under the light. Can be saved in a site profile."
+  },
+  {
+    "id": "m_2ef70da18f54",
+    "ja": "ボタンや文字の真上だけ、光の濃さに上限を掛けます。何も無い場所の光は変えません。",
+    "en": "Caps light intensity directly over buttons and text, leaving empty areas unchanged."
+  },
+  {
+    "id": "m_0d20a7d71b97",
+    "ja": "ポインターのまわりも弱める",
+    "en": "Also dim around the pointer"
+  },
+  {
+    "id": "m_2120a5e106b0",
+    "ja": "マウスを縁の近くで動かしている間、その周囲の光をすぐに弱めます。見つけられないUIへの備えです。",
+    "en": "Immediately dims light around the mouse while it moves near the edge, covering UI that cannot be detected."
+  },
+  {
+    "id": "m_5fa74284619a",
+    "ja": "しくみ。",
+    "en": "Detection. "
+  },
+  {
+    "id": "m_0d176cf9e95b",
+    "ja": "光が濃くなる縁の近くに、ボタン・リンク・入力欄・アイコン・文字があるかを、ページに問い合わせて調べます（クリック位置の判定と同じ方法で、画素は読みません）。文字は「あるかどうか」だけを見て、内容は読みません。",
+    "en": "Checks the page for buttons, links, inputs, icons, and text near the bright screen edges using hit testing, without reading pixels. It detects whether text exists, never its contents."
+  },
+  {
+    "id": "m_593c12ea1018",
+    "ja": "弱め方。",
+    "en": "Dimming. "
+  },
+  {
+    "id": "m_147920c650b4",
+    "ja": "見つけた場所とそのすぐ周りだけ、光の濃さを上限まで下げます。もともと上限より薄い場所は何も変えません。Overkill のような強い設定ほど、効く範囲が広がります。",
+    "en": "Caps opacity only over detected regions and their immediate surroundings. Already faint light stays unchanged. Strong looks such as Overkill are affected over a wider area."
+  },
+  {
+    "id": "m_1d73b6c9f1e5",
+    "ja": "見つけられないもの。",
+    "en": "Detection limits. "
+  },
+  {
+    "id": "m_5fb720c76278",
+    "ja": "動画に組み込まれた標準のコントロール、canvas の中に描かれたUI、クリックを受け取らない要素（一部の字幕など）、別サイトの埋め込みの中身。ポインターのまわりを弱める機能が、その備えです。",
+    "en": "Native video controls, UI drawn inside a canvas, elements that do not receive pointer events (including some subtitles), and cross-origin embeds. Pointer dimming helps cover these cases."
+  },
+  {
+    "id": "m_7b5de8be753e",
+    "ja": "使えない場面。",
+    "en": "Unavailable with. "
+  },
+  {
+    "id": "m_fafd99938ce6",
+    "ja": "DRM互換描画の光は、ページの合成でChromeが作るため、掛けられません。",
+    "en": "DRM compatibility lighting, which Chrome creates through page compositing."
+  },
+  {
+    "id": "m_b91f5e1a2197",
+    "ja": "映像全体の明るさに合わせて、光の強さを自動で整えます。サイト専用のプロファイルに保存できます。",
+    "en": "Automatically adjusts light strength to overall scene brightness. Can be saved in a site profile."
+  },
+  {
+    "id": "m_17dab67cd63c",
+    "ja": "オフにすると、場面の明るさに関係なく、ゾーンの色だけで光の強さが決まります。",
+    "en": "When off, only each zone’s color determines light strength, regardless of scene brightness."
+  },
+  {
+    "id": "m_835a1a449de3",
+    "ja": "暗い場面。",
+    "en": "Dark scenes. "
+  },
+  {
+    "id": "m_248227238511",
+    "ja": "明るいゾーンの光だけを抑えます。暗いゾーンの光はそのままなので、暗い色は暗いまま光り続けます（Color Engine の Shadows と一緒に働きます）。",
+    "en": "Reduces only bright-zone light. Dark zones keep their light, so dark colors stay visible at low brightness (works with Color Engine’s Shadows)."
+  },
+  {
+    "id": "m_b9f5561302d4",
+    "ja": "明るい場面。",
+    "en": "Bright scenes. "
+  },
+  {
+    "id": "m_c407fa21d6dc",
+    "ja": "光を全体に下げて、眩しさを抑えます。明るいゾーンがそろって上限に張り付くのも減ります。",
+    "en": "Lowers all light to reduce glare and keep bright zones from hitting the ceiling together."
+  },
+  {
+    "id": "m_99438175425f",
+    "ja": "中くらいの場面。",
+    "en": "Midtone scenes. "
+  },
+  {
+    "id": "m_1ffb85432961",
+    "ja": "何も変えません。変化はゆっくりで、時間の平滑化と Flash Limiter をそのまま通ります。",
+    "en": "Leaves the light unchanged. Adjustments are gradual and still pass through temporal smoothing and Flash Limiter."
+  },
+  {
+    "id": "m_6424e3b5c52d",
+    "ja": "映像を解析できる照明（映像に連動 · RGB解析、タブ取得）でのみ働きます。固定の照明・Music Mode・DRM互換描画では働きません。",
+    "en": "Works only with readable video (RGB analysis or tab capture). Unavailable for fixed lighting, Music Mode, and DRM compatibility rendering."
+  },
+  {
+    "id": "m_ed26fd8142c7",
+    "ja": "色の読み取りと階調です。サイト専用のプロファイルに保存できます。",
+    "en": "Color sampling and tonal control. Can be saved in a site profile."
+  },
+  {
+    "id": "m_558041169587",
+    "ja": "オフにすると、0.8 までの色の扱いにそのまま戻ります。",
+    "en": "When off, restores the color behavior used through version 0.8."
+  },
+  {
+    "id": "m_63e7486b475d",
+    "ja": "広色域（Display P3）",
+    "en": "Wide gamut (Display P3)"
+  },
+  {
+    "id": "m_e7593c2e436f",
+    "ja": "広色域の映像を、P3対応のディスプレイではP3のまま読み取り、P3で光らせます。",
+    "en": "Reads and renders wide-gamut video in P3 on supported displays."
+  },
+  {
+    "id": "m_6122ff2111ab",
+    "ja": "暗い場面の色をどれだけ残すか。上げるほど、暗い色が「消える」のではなく「暗く光る」ようになります。ごく暗いところ（色がノイズでしかない明るさ）は、色を付けずに無彩色にします。",
+    "en": "Preserves color in dark scenes. Higher values keep dark colors glowing dimly rather than disappearing. Near-black areas where color is mostly noise are kept neutral."
+  },
+  {
+    "id": "m_a92e7f0089c5",
+    "ja": "明るい側の丸め方。上げるほど早めに丸め、明るいゾーン同士の差を残します。ゾーンの中の白い部分に色が薄められるのも抑えます。",
+    "en": "Controls highlight roll-off. Higher values roll off earlier to preserve differences between bright zones and reduce color dilution by white areas."
+  },
+  {
+    "id": "m_765d0e6c4bf9",
+    "ja": "くすんだ色ほど大きく、鮮やかな色は控えめに彩度を足します。ディスプレイに出せない鮮やかさは、色相を保ったまま収めます。",
+    "en": "Adds more saturation to muted colors and less to vivid ones. Colors beyond the display gamut are brought in while preserving hue."
+  },
+  {
+    "id": "m_a0540af8c381",
+    "ja": "HDRの映像かどうかは検出して Diagnostics に表示します。ただし、ページから読める画素はChromeがSDRへ変換したあとの値で、HDRの明るさそのものは取り出せません。光もSDRで描きます。",
+    "en": "HDR video is detected and reported in Diagnostics. Readable pixels have already been converted to SDR by Chrome, so original HDR brightness is unavailable. The light is also rendered in SDR."
+  },
+  {
+    "id": "m_a0c9abe84d1e",
+    "ja": "外周の色に加えて、映像の中の",
+    "en": "Alongside perimeter colors, brings video "
+  },
+  {
+    "id": "m_ca251de3d3f7",
+    "ja": "光源",
+    "en": "light sources"
+  },
+  {
+    "id": "m_427566260604",
+    "ja": "と",
+    "en": " and "
+  },
+  {
+    "id": "m_51aa07393cfe",
+    "ja": "急に現れた光",
+    "en": "sudden flashes"
+  },
+  {
+    "id": "m_2baec622ba54",
+    "ja": "を、近い辺へ届けます。映像より目立たないよう、初期設定は控えめです。",
+    "en": " to the nearest edge. Defaults are subtle so the lighting stays behind the video."
+  },
+  {
+    "id": "m_e9a04391a5de",
+    "ja": "オフにすると、従来どおり外周の色だけで光ります。",
+    "en": "When off, lighting uses perimeter colors only."
+  },
+  {
+    "id": "m_997730722697",
+    "ja": "Light Director を初期値に戻す",
+    "en": "Reset Light Director"
+  },
+  {
+    "id": "m_6385bbddbf8a",
+    "ja": "追いかけている光源が動いたあとに、通った場所の外周へ残光を残します。止まっている光源には付きません。",
+    "en": "Leaves a trail along the perimeter after a tracked light source moves. Stationary sources leave no trail."
+  },
+  {
+    "id": "m_44ef73c1b5ab",
+    "ja": "働きかた",
+    "en": "How it works"
+  },
+  {
+    "id": "m_0ec29028c34e",
+    "ja": "光源の候補。",
+    "en": "Candidate light sources. "
+  },
+  {
+    "id": "m_2d9995d5d9a8",
+    "ja": "まわりよりずっと明るい場所を光源の候補として扱います。明るいだけで光っていないもの（白い服、明るい壁）も候補になることがあります。",
+    "en": "Areas much brighter than their surroundings are treated as candidates. Bright objects that do not emit light, such as white clothes or walls, may also qualify."
+  },
+  {
+    "id": "m_ec2d5ae2540b",
+    "ja": "急に現れた光。",
+    "en": "Sudden flashes. "
+  },
+  {
+    "id": "m_f9e1e65653fe",
+    "ja": "画面の一部だけが急に明るくなった場所に、短く反応します。場面の切り替わりや画面全体の明滅は、この対象から外します。",
+    "en": "Briefly responds when only part of the picture suddenly brightens. Scene cuts and whole-frame flashes are excluded."
+  },
+  {
+    "id": "m_4038dcfe6705",
+    "ja": "動きの方向。",
+    "en": "Motion direction. "
+  },
+  {
+    "id": "m_e2eb5e7bc455",
+    "ja": "フレームの差からは「どこが変わったか」しかわかりません。方向は、光源の候補の中心を追って求め、進む先へ少しだけ先回りして光らせます。",
+    "en": "Frame differences show where something changed, not its direction. Direction comes from tracking candidate light-source centers; the light leads their motion slightly."
+  },
+  {
+    "id": "m_623a72f032d5",
+    "ja": "字幕とロゴ。",
+    "en": "Subtitles and logos. "
+  },
+  {
+    "id": "m_dae230eaf4ec",
+    "ja": "画面の上下にある横長の帯（字幕の形）は光らせません。何分も変わらない明るい部分（局のロゴなど）は、ゆっくり対象から外します。形と時間だけで判断するため、外れることがあります。",
+    "en": "Wide bands at the top or bottom (subtitle-like shapes) are excluded. Bright regions that remain unchanged for minutes, such as station logos, are gradually excluded too. Shape and timing are only heuristics and can misclassify."
+  },
+  {
+    "id": "m_a7ae8c140ec7",
+    "ja": "点滅。",
+    "en": "Flashes. "
+  },
+  {
+    "id": "m_375030f7e921",
+    "ja": "くり返し明滅する光は、自動で弱めます。Flash Limiter と時間の平滑化は、ここで足した光にもそのまま掛かります。",
+    "en": "Repeated flashing is automatically weakened. Flash Limiter and temporal smoothing also apply to the added light."
+  },
+  {
+    "id": "m_ee9b5220e39e",
+    "ja": "映像を解析できる照明（映像に連動 · RGB解析）でのみ働きます。DRM互換描画・固定の照明・保護された動画では働きません。",
+    "en": "Works only with readable video (Video · RGB analysis). Unavailable for DRM compatibility rendering, fixed lighting, and protected video."
+  },
+  {
+    "id": "m_b31141958eef",
+    "ja": "再生中の音を",
+    "en": "Analyzes playing audio in "
+  },
+  {
+    "id": "m_fe1e24c6b278",
+    "ja": "低・中・高",
+    "en": "bass, mid, and treble"
+  },
+  {
+    "id": "m_3816a19a6c42",
+    "ja": "の3つの音域で聞き、ビート・爆発音・効果音に合わせて",
+    "en": " bands, responding to beats, explosions, and effects by changing "
+  },
+  {
+    "id": "m_1cdcf7aa2d81",
+    "ja": "光の強さ",
+    "en": "light strength"
+  },
+  {
+    "id": "m_fac75fe8e039",
+    "ja": "を変えます。色は映像のままです。",
+    "en": ". Colors still follow the video."
+  },
+  {
+    "id": "m_7408e50eb64d",
+    "ja": "は、画面で見える光の濃さをどれだけ動かすかです（40% で、ビートのとき最大1.6倍、ビートの間は約0.76倍）。",
+    "en": " controls how far visible light intensity moves (at 40%, up to 1.6× on a beat and about 0.76× between beats)."
+  },
+  {
+    "id": "m_548c75ddaada",
+    "ja": "を上げると、低音のビートが下辺の中央から左右の辺を通って上辺へ走ります（100% で約0.32秒）。0% にすると、すべての辺が同時に動きます。",
+    "en": " sends bass beats from the bottom center, along the sides, to the top (about 0.32 s at 100%). At 0%, all edges respond together."
+  },
+  {
+    "id": "m_dfd7ae295ea4",
+    "ja": "は、ビートのたびに光が画面の内側へ広がる量です（100% で、光の届く深さが最大1.8倍）。0% にすると広がりません。UI Guard がオンのときは、広がった光がボタンや文字に掛かっても上限を超えないよう、保護する範囲を縁の側へ広げます。",
+    "en": " expands light inward on each beat (up to 1.8× depth at 100%). At 0%, it does not expand. With UI Guard enabled, protected regions extend toward the edge so the expanded glow stays capped over buttons and text."
+  },
+  {
+    "id": "m_b91114c3afcb",
+    "ja": "オンにすると、点灯中のタブで再生中の音を、端末の中で解析します。初期設定はオフです。",
+    "en": "When enabled, analyzes playing audio locally in lit tabs. Off by default."
+  },
+  {
+    "id": "m_d35713730e53",
+    "ja": "Pulse Engine を初期値に戻す",
+    "en": "Reset Pulse Engine"
+  },
+  {
+    "id": "m_b4ffd9b5a1be",
+    "ja": "映像を使わず、",
+    "en": "Light follows "
+  },
+  {
+    "id": "m_4dca294fef00",
+    "ja": "音だけ",
+    "en": "sound only"
+  },
+  {
+    "id": "m_e7a8e8f3d944",
+    "ja": "で光らせます。低音は下の辺を暖色で、高音は上の辺を寒色で照らし、色合いはゆっくり揺らぎます。映像のない音声プレイヤーでも働きます。",
+    "en": ", without using video. Bass lights the bottom in warm colors; treble lights the top in cool colors, with gently drifting hues. Also works with audio-only players."
+  },
+  {
+    "id": "m_526d6c366ed0",
+    "ja": "照明のソースを Music Mode にする",
+    "en": "Use Music Mode as the lighting source"
+  },
+  {
+    "id": "m_77f2409d1b0e",
+    "ja": "全サイト共通の設定です。オフに戻すと「映像に連動 · RGB解析」になります。",
+    "en": "Shared across all sites. Turning it off returns to Video · RGB analysis."
+  },
+  {
+    "id": "m_4b1fe35fc52a",
+    "ja": "音の扱い",
+    "en": "Audio handling"
+  },
+  {
+    "id": "m_b768cb0acdb2",
+    "ja": "読むのはオンにしたあとだけ。",
+    "en": "Read only after you enable it. "
+  },
+  {
+    "id": "m_c3589b0d539a",
+    "ja": "Pulse Engine をオンにするか Music Mode を選ぶまで、音には一切触れません。プリセットの適用やバックアップの読み込みで、勝手にオンになることもありません。",
+    "en": "Audio is untouched until you enable Pulse Engine or choose Music Mode. Applying presets or importing backups never silently enables audio analysis."
+  },
+  {
+    "id": "m_7adb117d48f7",
+    "ja": "再生音は変えません。",
+    "en": "Playback audio is unchanged. "
+  },
+  {
+    "id": "m_6f13b54c6114",
+    "ja": "プレイヤーの音の「写し」を受け取り、音域ごとの大きさを読むだけです。写しはどこにも出力せず、録音・保存・送信もしません。",
+    "en": "Reads frequency-band levels from a copy of the player’s audio. The copy is never played, recorded, saved, or sent."
+  },
+  {
+    "id": "m_e813ce38b054",
+    "ja": "動くのは変化だけ。",
+    "en": "Only changes move the light. "
+  },
+  {
+    "id": "m_d1157b763f8e",
+    "ja": "各音域を直近の大きさと比べ、急に大きくなったところで光を持ち上げます。一定の音は、どれだけ大きくても光を動かしません。",
+    "en": "Each band is compared with its recent level; sudden increases lift the light. Steady sound does not move it, however loud."
+  },
+  {
+    "id": "m_6ccd226af5ec",
+    "ja": "音で動かした光にも掛かります。オンの間は、ビートへの反応を1秒に3回までにします。ビートの瞬間だけは、光を一度に少し（最大の明るさの8%まで）持ち上げ、同じだけ速く戻すことを許しています。それ以外の変化の速さは、映像の光と同じ上限のままです。Flash Limiter がオンの間は、Beat Bloom の広がりは半分になり、ビートで濃さを上限いっぱいまで持ち上げる動きは使いません。ビートをもっと穏やかにしたいときは Pulse Depth を下げてください。",
+    "en": "Also applies to sound-driven light. While enabled, beat responses are limited to three per second. At a beat, light may rise briefly by up to 8% of maximum brightness and return just as quickly. Other changes keep the same speed limit as video lighting. Flash Limiter also halves Beat Bloom expansion and disables full-opacity beat peaks. Lower Pulse Depth for gentler beats."
+  },
+  {
+    "id": "m_652acac4e965",
+    "ja": "保護されたコンテンツ（DRM）の音は解析しません。別のサイトから配信されている音は、Chromeが読み取りを許可しません。プレイヤーがミュート中は、光は動きません。DRM互換描画では働きません。",
+    "en": "Protected (DRM) audio is never analyzed. Chrome blocks reading cross-origin audio. Muting the player stops light movement. Unavailable with DRM compatibility rendering."
+  },
+  {
+    "id": "m_2aed5d6e209f",
+    "ja": "外側の区切りがゾーンです。クリックで選択、Shift＋クリックで範囲、⌘ / Ctrl＋クリックで追加・解除。内側の光は、実際の照明と同じ描画で表示しています。",
+    "en": "The outer segments are zones. Click to select, Shift-click for a range, or ⌘ / Ctrl-click to add or remove. The inner light uses the actual lighting renderer."
+  },
+  {
+    "id": "m_621f0216183b",
+    "ja": "ゾーンの調整",
+    "en": "Zone adjustments"
+  },
+  {
+    "id": "m_7bbc4e808749",
+    "ja": "表示するゾーン数",
+    "en": "Preview zone count"
+  },
+  {
+    "id": "m_a04b0ef9c0c3",
+    "ja": "上辺",
+    "en": "Top edge"
+  },
+  {
+    "id": "m_0727a91ec3f7",
+    "ja": "下辺",
+    "en": "Bottom edge"
+  },
+  {
+    "id": "m_58e8ca4aa4bb",
+    "ja": "左辺",
+    "en": "Left edge"
+  },
+  {
+    "id": "m_5a95a5abba50",
+    "ja": "右辺",
+    "en": "Right edge"
+  },
+  {
+    "id": "m_b55eb06d25e1",
+    "ja": "すべて",
+    "en": "All"
+  },
+  {
+    "id": "m_ccdebb93f7f9",
+    "ja": "解除",
+    "en": "Clear selection"
+  },
+  {
+    "id": "m_94a47280894e",
+    "ja": "このゾーンを光らせる",
+    "en": "Light this zone"
+  },
+  {
+    "id": "m_8a0cd57c2a78",
+    "ja": "オフにしたゾーンは消灯し、隣のゾーンへなめらかにつながります。",
+    "en": "Disabled zones go dark and blend smoothly into neighboring zones."
+  },
+  {
+    "id": "m_69c653d2df29",
+    "ja": "選択したゾーンを初期値に",
+    "en": "Reset selected zones"
+  },
+  {
+    "id": "m_37f4e45d3c40",
+    "ja": "すべてのゾーンを初期値に",
+    "en": "Reset all zones"
+  },
+  {
+    "id": "m_346ef9d3d008",
+    "ja": "調整は辺の上の位置で保存します。ゾーン数が変わっても（自動調整を含む）、同じ場所に同じ調整が掛かります。DRM互換描画（CSS）では、ゾーン別の調整は使われません。",
+    "en": "Adjustments are stored by position along each edge. They stay in the same place when zone count changes, including automatically. Zone adjustments do not apply to DRM compatibility rendering (CSS)."
+  },
+  {
+    "id": "m_06fb23c6c192",
+    "ja": "照明の見た目をまとめて切り替えます。適用先は、上の「編集する設定」で選んでいる対象（グローバル設定か、サイトのプロファイル）です。",
+    "en": "Switch the whole look at once. Presets apply to the target selected under “Editing” above: global settings or a site profile."
+  },
+  {
+    "id": "m_fff9a7973cbf",
+    "ja": "プリセットが変えるのは見た目だけです。ゾーン別の調整、UI Guard、照明のソース、Pulse Engine のオン／オフはそのまま残ります。以前の版で書き出したファイルも、そのまま読み込めます。",
+    "en": "Presets change the look only. Zone adjustments, UI Guard, lighting source, and Pulse Engine on/off stay unchanged. Files exported by older versions still import normally."
+  },
+  {
+    "id": "m_ecdcffe7b179",
+    "ja": "いまの設定をプリセットとして保存",
+    "en": "Save current look as a preset"
+  },
+  {
+    "id": "m_b2619ed04d4f",
+    "ja": "JSON の読み込みと書き出し",
+    "en": "Import & export JSON"
+  },
+  {
+    "id": "m_25cd1d9e2ad6",
+    "ja": "プリセットは1つずつJSONファイルにして渡せます。「すべての設定」は、グローバル設定・サイトのプロファイル・自分のプリセットをまとめたバックアップです（サイトへのアクセス許可はChromeが管理していて、含まれません）。読み込んだ内容は保存時と同じ検査を通し、知らない項目は捨てます。",
+    "en": "Share presets as individual JSON files. “All settings” backs up global settings, site profiles, and your presets; Chrome-managed site permissions are excluded. Imports pass the same validation as saved settings, and unknown fields are discarded."
+  },
+  {
+    "id": "m_15d01b2ae66c",
+    "ja": "ファイルを選んで読み込む",
+    "en": "Choose file to import"
+  },
+  {
+    "id": "m_5921be9427a1",
+    "ja": "すべての設定を書き出す",
+    "en": "Export all settings"
+  },
+  {
+    "id": "m_db1772efd6df",
+    "ja": "JSON を貼り付けて読み込む",
+    "en": "Paste JSON to import"
+  },
+  {
+    "id": "m_bc960385c1de",
+    "ja": "貼り付けた JSON を読み込む",
+    "en": "Import pasted JSON"
+  },
+  {
+    "id": "m_cd46a89450a2",
+    "ja": "現在の設定をすべて置き換える",
+    "en": "Replace all current settings"
+  },
+  {
+    "id": "m_ebcdc142810f",
+    "ja": "サイトごとに、照明の見た目を保存できます。プロファイルには",
+    "en": "Save a lighting look for each site. Profiles store "
+  },
+  {
+    "id": "m_681e92fe8649",
+    "ja": "グローバル設定と違う項目だけ",
+    "en": "only differences from global settings"
+  },
+  {
+    "id": "m_b218b8188fed",
+    "ja": "を保存し、残りはグローバル設定に従います。そのサイトのページを開くと自動で使われます。",
+    "en": "; all other values follow the global settings. The profile applies automatically when you open that site."
+  },
+  {
+    "id": "m_9e04f7185a2d",
+    "ja": "プロファイルは設定を保存するだけです。サイトへのアクセス許可や照明の自動開始（「このサイトでは常に点灯」）は別の機能で、ここから許可が追加されることはありません。",
+    "en": "Profiles only store settings. Site access and automatic lighting (“Always light this site”) are separate; creating a profile grants no permissions."
+  },
+  {
+    "id": "m_c2ee8992fb1e",
+    "ja": "新しいプロファイル",
+    "en": "New profile"
+  },
+  {
+    "id": "m_c05cb00624a9",
+    "ja": "コピー元",
+    "en": "Copy from"
+  },
+  {
+    "id": "m_900f8294213e",
+    "ja": "作成",
+    "en": "Create"
+  },
+  {
+    "id": "m_db67406bf276",
+    "ja": "計測するタブ",
+    "en": "Tab to measure"
+  },
+  {
+    "id": "m_1eab38a9de99",
+    "ja": "開発者向けの詳細を表示",
+    "en": "Show developer details"
+  },
+  {
+    "id": "m_55221639e0b8",
+    "ja": "診断の設定",
+    "en": "Diagnostic settings"
+  },
+  {
+    "id": "m_cfbb0460374b",
+    "ja": "パフォーマンスHUD",
+    "en": "Performance HUD"
+  },
+  {
+    "id": "m_6b2ca4b28ec7",
+    "ja": "点灯中のタブの左上に、計測値を小さく表示します。クリックは素通しします。",
+    "en": "Shows small measurements at the upper left of lit tabs. Clicks pass through it."
+  },
+  {
+    "id": "m_4b795013ec52",
+    "ja": "負荷に合わせて品質を自動調整",
+    "en": "Adapt quality to load"
+  },
+  {
+    "id": "m_19b8d53fd646",
+    "ja": "解析が長く続けて遅いとき、解析の細かさを段階的に下げます（最後の段階では解析の回数を半分にします）。再生の安定を優先します。Light Director は止めません。",
+    "en": "If analysis stays slow, gradually reduces detail (halving analysis frequency at the final level). Prioritizes smooth playback without stopping Light Director."
+  },
+  {
+    "id": "m_2500d47dab46",
+    "ja": "表示する値はすべて、そのタブの中で実際に計った値です。",
+    "en": "Every displayed value is measured in that tab."
+  },
+  {
+    "id": "m_932714a5a5c8",
+    "ja": "CPU使用率・GPU使用率は表示しません。",
+    "en": "CPU and GPU utilization are not shown."
+  },
+  {
+    "id": "m_ec56367c476d",
+    "ja": "拡張機能からは、タブごとの正確な値を取得できないためです。代わりに、処理にかかった時間と、予算を超えた回数を表示します。",
+    "en": "Extensions cannot obtain accurate per-tab utilization. Processing time and over-budget counts are shown instead."
+  },
+  {
+    "id": "m_5fdf8651059f",
+    "ja": "「最初の描画までの遅延」は、フレームを読んでから、その結果が最初に画面へ描かれるまでの時間です。その後の平滑化にかかる時間は含みません。",
+    "en": "First-render latency measures the time from reading a frame to first drawing its result on screen. It excludes subsequent smoothing."
+  },
+  {
+    "id": "m_89166601de5f",
+    "ja": "品質の段階：0 = 最高、1 = Light Director が読む画素を1/4に、2 = 解析を小さくし Light Director は1フレームおき、3 = 映像解析の回数を半分に（Light Directorは継続）。",
+    "en": "Quality levels: 0 = highest; 1 = Light Director samples one quarter of the pixels; 2 = smaller analysis with Light Director every other frame; 3 = half-rate video analysis, with Light Director still running."
+  },
+  {
+    "id": "m_981a8ec9957f",
+    "ja": "使ってみた感想や困りごとを、開発者へ届けられます。入力内容は端末内に下書き保存されます。",
+    "en": "Send the developer your feedback or problems. Your input is saved as a draft on this device."
+  },
+  {
+    "id": "m_aa21d580c510",
+    "ja": "使ってみて、どうだった？",
+    "en": "How was your experience?"
+  },
+  {
+    "id": "m_32c421ae4cbf",
+    "ja": "種類",
+    "en": "Type"
+  },
+  {
+    "id": "m_fe05c21c8249",
+    "ja": "満足度",
+    "en": "Rating"
+  },
+  {
+    "id": "m_95a04d7add1f",
+    "ja": "未回答",
+    "en": "Not rated"
+  },
+  {
+    "id": "m_5292082a1483",
+    "ja": "1 · 不満",
+    "en": "1 · Poor"
+  },
+  {
+    "id": "m_391e0cf661a4",
+    "ja": "2 · やや不満",
+    "en": "2 · Fair"
+  },
+  {
+    "id": "m_16f53ac3604e",
+    "ja": "3 · ふつう",
+    "en": "3 · Average"
+  },
+  {
+    "id": "m_0589255cfaca",
+    "ja": "4 · よい",
+    "en": "4 · Good"
+  },
+  {
+    "id": "m_84ab799d265c",
+    "ja": "5 · とてもよい",
+    "en": "5 · Excellent"
+  },
+  {
+    "id": "m_98590743e81c",
+    "ja": "使ったサイト・場面",
+    "en": "Site / context"
+  },
+  {
+    "id": "m_5d7906f5af42",
+    "ja": "任意",
+    "en": "Optional"
+  },
+  {
+    "id": "m_6e1b55dabdc7",
+    "ja": "Diagnosticsの要約",
+    "en": "Diagnostics summary"
+  },
+  {
+    "id": "m_a211d16c8e5a",
+    "ja": "動作の状態・fps・処理時間などを添付できます。URL、タブ名、サイト別設定の名前、映像・音声は含めません。",
+    "en": "Optionally attach status, FPS, and processing times. Excludes URLs, tab titles, profile names, video, and audio."
+  },
+  {
+    "id": "m_c43b4108974d",
+    "ja": "診断するタブ",
+    "en": "Tab to diagnose"
+  },
+  {
+    "id": "m_b175097e84ee",
+    "ja": "添付する要約",
+    "en": "Summary to attach"
+  },
+  {
+    "id": "m_42cf63041880",
+    "ja": "作成時点の値です。非表示のタブは解析や描画を休むことがあります。タブの変更や要約の更新後は、もう一度確認してください。",
+    "en": "Values are a snapshot. Hidden tabs may pause analysis or rendering. Review again after changing tabs or refreshing the summary."
+  },
+  {
+    "id": "m_3372db701b56",
+    "ja": "この要約を確認し、フィードバックに添付する",
+    "en": "I reviewed this summary and want to attach it"
+  },
+  {
+    "id": "m_a3cc0b1f2a94",
+    "ja": "送る内容",
+    "en": "Content to send"
+  },
+  {
+    "id": "m_14aa3d11186e",
+    "ja": "バージョンを自動で添えます。Diagnosticsは、要約を確認してチェックした場合だけ含めます。",
+    "en": "The version is added automatically. Diagnostics are included only after you review the summary and check the box."
+  },
+  {
+    "id": "m_271e53931eb8",
+    "ja": "「フィードバックを送る」を押すと、表示中の内容を開発者へ送信します。",
+    "en": "Press “Send feedback” to send the displayed content to the developer."
+  },
+  {
+    "id": "m_77ca14330dea",
+    "ja": "内容をコピー",
+    "en": "Copy content"
+  },
+  {
+    "id": "m_ec88e2c87948",
+    "ja": "名前（40文字まで）",
+    "en": "Name (up to 40 characters)"
+  },
+  {
+    "id": "m_3973537a389c",
+    "ja": "画面の縁から内側へ向かう光の濃さのグラフ",
+    "en": "Graph of light intensity from the screen edge inward"
+  },
+  {
+    "id": "m_b2ff6b6f2f24",
+    "ja": "上辺のゾーン",
+    "en": "Top-edge zones"
+  },
+  {
+    "id": "m_a96e24d991d7",
+    "ja": "左辺のゾーン",
+    "en": "Left-edge zones"
+  },
+  {
+    "id": "m_4fc0c2c47994",
+    "ja": "右辺のゾーン",
+    "en": "Right-edge zones"
+  },
+  {
+    "id": "m_d0081039333b",
+    "ja": "下辺のゾーン",
+    "en": "Bottom-edge zones"
+  },
+  {
+    "id": "m_ff49b2ae9c3a",
+    "ja": "テストパターン",
+    "en": "Test pattern"
+  },
+  {
+    "id": "m_2c8fd2f6e90b",
+    "ja": "まとめて選択",
+    "en": "Select a group"
+  },
+  {
+    "id": "m_6c0be96f2d36",
+    "ja": "例: www.youtube.com（ローカルファイルは file）",
+    "en": "Example: www.youtube.com (file for local files)"
+  },
+  {
+    "id": "m_73be88fa35c9",
+    "ja": "例：YouTubeで音楽動画、映画の暗い場面",
+    "en": "Example: a YouTube music video, or a dark movie scene"
+  },
+  {
+    "id": "m_e68230b7de49",
+    "ja": "例：ビートに合わせて光が広がる感じがよかった",
+    "en": "Example: I liked how the light expanded with the beat"
+  },
+  {
+    "id": "m_1d899aea578f",
+    "ja": "例：設定を変えたあと、光が戻らなくなった",
+    "en": "Example: after changing a setting, the light did not return"
+  },
+  {
+    "id": "m_6a11e09ab1ca",
+    "ja": "1. 動画で照明を開始する\n2. 変更した設定を書く\n3. 何が起きたかを書く",
+    "en": "1. Start lighting on a video\n2. Describe the setting you changed\n3. Describe what happened"
+  },
+  {
+    "id": "m_7ece343ef580",
+    "ja": "例：よく使う設定へ、もっと少ない操作で移動したい",
+    "en": "Example: fewer steps to reach frequently used settings"
+  },
+  {
+    "id": "m_c8d245462f43",
+    "ja": "評価や感想を入力すると、ここに文章がまとまります。",
+    "en": "Your rating and feedback will be assembled here."
+  },
+  {
+    "id": "m_c4a40ea8fe35",
+    "ja": "、",
+    "en": ", "
+  },
+  {
+    "id": "m_eb0d5884569b",
+    "ja": "。",
+    "en": "."
+  },
+  {
+    "id": "m_09dd4289a956",
+    "ja": "{0}。",
+    "en": "{0}."
+  },
+  {
+    "id": "m_5384ef6fa993",
+    "ja": "Edge Light。",
+    "en": "Edge Light. "
+  },
+  {
+    "id": "m_c93c4f354974",
+    "ja": "Soft Halo。",
+    "en": "Soft Halo. "
+  },
+  {
+    "id": "m_f2d72be2e32a",
+    "ja": "言語 / Language",
+    "en": "Language"
+  },
+  {
+    "id": "m_9be79d2af19e",
+    "ja": "自動（Chromeの言語）",
+    "en": "Auto (Chrome)"
+  },
+  {
+    "id": "m_77710aedc74e",
+    "ja": "日本語",
+    "en": "Japanese"
+  },
+  {
+    "id": "m_999265938a7c",
+    "ja": "言語を保存できませんでした。もう一度お試しください。",
+    "en": "Could not save the language. Please try again."
+  },
+  {
+    "id": "m_dd2bffa16fc0",
+    "ja": "映像の色と光を、画面の外周へ。端末内で動くシネマティック照明。",
+    "en": "Bring video colors and light to your screen’s edges. Cinematic lighting, processed locally."
+  },
+  {
+    "id": "m_d2115e1b12f4",
+    "ja": "A/B 比較：表示する側（A・B）を切り替える",
+    "en": "A/B comparison: switch the displayed side (A or B)"
+  },
+  {
+    "id": "m_25e640902791",
+    "ja": "Shadows。",
+    "en": "Shadows. "
+  },
+  {
+    "id": "m_10020c363bf4",
+    "ja": "Highlights。",
+    "en": "Highlights. "
+  },
+  {
+    "id": "m_53da23c20307",
+    "ja": "Vibrance。",
+    "en": "Vibrance. "
+  },
+  {
+    "id": "m_ca6118c9407d",
+    "ja": "HDR。",
+    "en": "HDR. "
+  },
+  {
+    "id": "m_9458901cf614",
+    "ja": "Flash Limiter。",
+    "en": "Flash Limiter. "
+  }
+]

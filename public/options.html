@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en" data-i18n-pending>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title data-i18n="m_4bfa8413cb15">ECLIRIM 設定</title><link rel="stylesheet" href="options.css"></head>
+<body>
+  <header class="top">
+    <div class="brand"><img class="mark" src="icons/mark.svg" alt="" width="42" height="42"><div><h1>ECLIRIM</h1><span class="eyebrow">LIGHT BEYOND THE FRAME · <span id="version"></span></span></div></div>
+    <div class="top-tools"><label class="language" for="language"><span><span data-i18n="m_f2d72be2e32a">言語 / Language</span></span><select id="language"><option value="auto" data-i18n="m_9be79d2af19e">自動（Chromeの言語）</option><option value="ja" data-i18n="m_77710aedc74e">日本語</option><option value="en">English</option></select></label><label class="target" for="target"><span><span data-i18n="m_122039994154">編集する設定</span></span><select id="target"></select></label><button id="compare-start" class="secondary"><span data-i18n="m_a720a24b73f4">A/B 比較を始める</span></button></div>
+  </header>
+  <div id="compare-bar" class="compare" hidden>
+    <div class="compare-main"><b><span data-i18n="m_378c39a64b92">A/B 比較</span></b>
+      <div class="ab" role="group" aria-label="表示する設定" data-i18n-aria-label="m_005008b8c032"><button data-side="a" aria-pressed="false">A<small><span data-i18n="m_3d7b4ade8107">元の設定</span></small></button><button data-side="b" aria-pressed="false">B<small><span data-i18n="m_dd5808dc5315">試す設定</span></small></button></div>
+      <span id="compare-note"></span>
+      <span class="compare-actions"><button id="compare-keep-a"><span data-i18n="m_81de877b2b1c">A に決める</span></button><button id="compare-keep-b" class="primary"><span data-i18n="m_44896173a558">B に決める</span></button><button id="compare-cancel"><span data-i18n="m_b37943c98449">やめる（元のまま）</span></button></span>
+    </div>
+    <p class="hint" id="compare-diff"></p>
+  </div>
+  <p id="compare-result" class="hint" aria-live="polite"></p>
+  <p id="target-note" class="hint banner"></p>
+  <nav role="tablist" aria-label="設定の種類" data-i18n-aria-label="m_287307da0a3a">
+    <div class="nav-group"><span class="nav-label"><span data-i18n="m_fa7d8f7f0bf8">照明を調整</span></span>
+      <button role="tab" data-tab="lighting" aria-selected="true"><span data-i18n="m_a37d92500512">基本設定</span></button>
+      <button role="tab" data-tab="glow"><span data-i18n="m_768dbf9d1c26">光の形</span></button>
+      <button role="tab" data-tab="director"><span data-i18n="m_fb511e06187c">映像への反応</span></button>
+      <button role="tab" data-tab="pulse"><span data-i18n="m_4eb61a461f88">音への反応</span></button>
+      <button role="tab" data-tab="studio"><span data-i18n="m_86b18ccdfdcb">ゾーン別</span></button>
+    </div>
+    <div class="nav-group"><span class="nav-label"><span data-i18n="m_c96df943c122">使う・管理</span></span>
+      <button role="tab" data-tab="wizard"><span data-i18n="m_3386930b101a">かんたん設定</span></button>
+      <button role="tab" data-tab="presets"><span data-i18n="m_1e63261f660f">プリセット</span></button>
+      <button role="tab" data-tab="profiles"><span data-i18n="m_71d355a17f37">サイト別</span></button>
+      <button role="tab" data-tab="diagnostics"><span data-i18n="m_9ac6d0dd2c85">診断</span></button>
+      <button role="tab" data-tab="feedback"><span data-i18n="m_ef222409da5f">フィードバック</span></button>
+    </div>
+  </nav>
+  <label class="mobile-nav" for="section-select"><span data-i18n="m_287307da0a3a">設定の種類</span><select id="section-select">
+    <optgroup label="照明を調整" data-i18n-label="m_fa7d8f7f0bf8"><option value="lighting" data-i18n="m_a37d92500512">基本設定</option><option value="glow" data-i18n="m_768dbf9d1c26">光の形</option><option value="director" data-i18n="m_fb511e06187c">映像への反応</option><option value="pulse" data-i18n="m_4eb61a461f88">音への反応</option><option value="studio" data-i18n="m_86b18ccdfdcb">ゾーン別</option></optgroup>
+    <optgroup label="使う・管理" data-i18n-label="m_c96df943c122"><option value="wizard" data-i18n="m_3386930b101a">かんたん設定</option><option value="presets" data-i18n="m_1e63261f660f">プリセット</option><option value="profiles" data-i18n="m_71d355a17f37">サイト別</option><option value="diagnostics" data-i18n="m_9ac6d0dd2c85">診断</option><option value="feedback" data-i18n="m_ef222409da5f">フィードバック</option></optgroup>
+  </select></label>
+  <p id="error" role="alert" hidden></p>
+  <main>
+    <section id="tab-wizard" role="tabpanel" hidden>
+      <div class="card">
+        <h2><span data-i18n="m_a78c9c1e40db">Calibration Wizard · かんたん設定</span></h2>
+        <p class="lead"><span data-i18n="m_5625d50fc30b">3つの質問に、好みの絵を選んで答えるだけで、照明の設定をまとめて作ります。作った設定は、</span><b><span data-i18n="m_7d4aa68e59bd">使うと決めるまで保存されません</span></b><span data-i18n="m_eb0d5884569b">。</span></p>
+        <ol class="steps" id="wizard-steps"></ol>
+        <div id="wizard-step">
+          <h3 id="wizard-title"></h3><p id="wizard-question" class="hint"></p>
+          <div id="wizard-options" class="choices" role="radiogroup" aria-labelledby="wizard-title"></div>
+        </div>
+        <div id="wizard-result" hidden>
+          <h3><span data-i18n="m_21b783ebdfb1">おすすめの設定ができました</span></h3>
+          <div class="result-grid"><div id="wizard-final" class="mini large"></div><dl id="wizard-summary" class="metrics"></dl></div>
+          <p class="hint" id="wizard-closest"></p>
+          <div class="quick"><button id="wizard-apply" class="primary" type="button"><span data-i18n="m_2ade3e5ff8fe">この設定を使う</span></button><button id="wizard-compare" type="button"><span data-i18n="m_025ffe0b7156">いまの設定と A/B で比べる</span></button></div>
+          <form id="wizard-save" class="profile-form"><label for="wizard-name"><span data-i18n="m_4f6bf2becadc">プリセットとして保存</span><input id="wizard-name" placeholder="名前（40文字まで）" data-i18n-placeholder="m_ec88e2c87948" maxlength="40" autocomplete="off" spellcheck="false"></label><button class="primary"><span data-i18n="m_a3030bf8f16d">保存</span></button></form>
+        </div>
+        <p id="wizard-message" class="hint" aria-live="polite"></p>
+        <div class="quick wizard-nav"><button id="wizard-back" type="button"><span data-i18n="m_8fc7f899161b">戻る</span></button><button id="wizard-next" class="primary" type="button"><span data-i18n="m_9eccdca31ee3">次へ</span></button><button id="wizard-restart" type="button" hidden><span data-i18n="m_6fd851e290e3">最初からやり直す</span></button></div>
+        <p class="hint"><span data-i18n="m_633b14c5b421">絵は、実際の照明と同じ描画をテスト用の色で動かしたものです。お使いの画面や部屋の明るさを測っているわけではありません。Pulse Engine（音の解析）のオン／オフ、ゾーン別の調整、UI Guard は、この設定では変わりません。</span></p>
+      </div>
+    </section>
+
+    <section id="tab-glow" role="tabpanel" hidden>
+      <div class="studio">
+        <div class="card stage-card">
+          <div id="glow-stage" class="glow-stage"><div class="screen"><span>PREVIEW</span><small id="glow-stage-note"></small></div></div>
+          <canvas id="glow-graph" width="1280" height="360" role="img" aria-label="画面の縁から内側へ向かう光の濃さのグラフ" data-i18n-aria-label="m_3973537a389c"></canvas>
+          <p class="hint"><span data-i18n="m_2d4de286c798">上は実際の照明と同じ描画です。下のグラフは、画面の縁（左端）から内側（右）へ向かう光の濃さで、点線は Edge Light の標準の形です。</span></p>
+          <label class="check-row"><span><span data-i18n="m_73aa1257139f">このページの外周にも実寸で表示</span><small><span data-i18n="m_24ec228075e7">ウィンドウの縁で、実際の太さと広がりを確かめます。</span></small></span><input type="checkbox" id="glow-live"></label>
+        </div>
+        <div class="card"><h2>Glow Designer</h2>
+          <p class="lead"><span data-i18n="m_f77ced547728">光の</span><b><span data-i18n="m_88731a8fb9d8">形</span></b><span data-i18n="m_c893b5dbeeee">を作ります。どちらのスタイルも、光がいちばん強いのは</span><b><span data-i18n="m_2c02f45eee9b">画面の最外周</span></b><span data-i18n="m_83a2e51b5975">で、内側へ向かって弱くなります。</span></p>
+          <div class="modes two" role="group" aria-label="Glow Style">
+            <button data-glow="edge">Edge Light<small><span data-i18n="m_20d5486200ce">縁に芯のある、LEDの光</span></small></button>
+            <button data-glow="halo">Soft Halo<small><span data-i18n="m_014cd0558ff6">芯のない、間接照明の光</span></small></button>
+          </div>
+          <div class="sliders" id="glow-sliders"></div>
+          <button id="glow-reset" class="secondary"><span data-i18n="m_63f9247a2c02">このスタイルの標準に戻す</span></button>
+          <details class="reference"><summary><span data-i18n="m_d634dde07296">しくみ・使える場面</span></summary><ul class="notes">
+            <li><b><span data-i18n="m_5384ef6fa993">Edge Light。</span></b><span data-i18n="m_4e0afd9f5acd">これまでの照明です。縁に細い芯があり、そのすぐ内側に強いにじみ、さらに内側へ薄い広がりが続きます。4つのスライダーがすべて 50% のとき、0.9.0 までと同じ形です。</span></li>
+            <li><b><span data-i18n="m_c93c4f354974">Soft Halo。</span></b><span data-i18n="m_8c31c90651b3">芯を作らず、縁からなだらかに落ちる1つの光にします。辺に沿って隣の色とも混ざり、壁に当てた間接照明のように見えます。</span></li>
+            <li><b><span data-i18n="m_0187553d8d8c">光源の太さ。</span></b><span data-i18n="m_fb400e3bb04f">いちばん強く光る部分の幅です。</span><b><span data-i18n="m_2ce4251aa5ce">拡散曲線。</span></b><span data-i18n="m_36e6b1de7a77">落ち方の形で、低いと縁で急に落ちて長く尾を引き、高いと縁の近くを保ってから落ちます。</span><b><span data-i18n="m_812ca5f5db1a">減衰。</span></b><span data-i18n="m_a96a073640eb">内側へどれだけ早く消えるか。</span><b><span data-i18n="m_0296b938ec3a">柔らかさ。</span></b><span data-i18n="m_796af11cb6fc">芯の境目のぼかしと、辺に沿った色の混ざり具合です。</span></li>
+            <li><span data-i18n="m_2dcf0d007744">「光の幅」「光の拡散」（基本設定 タブ）は、この形が届く範囲と量を決めます。DRM互換描画の光にも、この形が使われます（辺に沿った色の混ざり具合を除く）。</span></li>
+          </ul></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-lighting" role="tabpanel">
+      <div class="columns">
+        <div class="card"><h2><span data-i18n="m_d96350bd1a35">照明の見た目</span></h2><p class="hint"><span data-i18n="m_0f9764d8e6b6">サイト専用のプロファイルに保存できる設定です。</span></p>
+          <div class="modes" role="group" aria-label="Lighting Mode">
+            <button data-mode="cinema">Cinema<small><span data-i18n="m_68ab565a383f">自然でなめらか</span></small></button>
+            <button data-mode="vivid">Vivid<small><span data-i18n="m_ff0c822d1e46">鮮やかに反応</span></small></button>
+            <button data-mode="ambient">Ambient<small><span data-i18n="m_19394e5b48d9">穏やかな余韻</span></small></button>
+          </div>
+          <div class="sliders" id="look-sliders"></div>
+          <label class="check-row"><span>Flash Limiter<small><span data-i18n="m_0ba0d92482cd">急な明滅を穏やかに。Light Director の光にも掛かります。</span></small></span><input type="checkbox" id="flashLimiter"></label>
+        </div>
+        <div class="card"><h2><span data-i18n="m_e7b8e62f10ef">すべてのサイトで共通</span></h2><p class="hint"><span data-i18n="m_4caf6983a1ef">ここはプロファイルに含まれません。どのサイトでも同じ値を使います。</span></p>
+          <label class="check-row"><span><span data-i18n="m_098294eeccc2">照明</span><small><span data-i18n="m_eeff36245705">オフにすると、どのタブでも点灯しません。</span></small></span><input type="checkbox" id="enabled"></label>
+          <label class="select-row" for="source"><span><span data-i18n="m_60646ad33352">照明のソース</span></span><select id="source"><option value="video" data-i18n="m_f7850c87be2b">映像に連動 · RGB解析</option><option value="compatibility" data-i18n="m_e09e1918b67e">DRM互換描画 · CSS</option><option value="manual" data-i18n="m_a405e5a216e9">固定カラー</option><option value="preset" data-i18n="m_1b6605b4e422">Cinemaプリセット</option><option value="drift" data-i18n="m_da77497f06e1">ゆっくり変化</option><option value="music" data-i18n="m_3cf5cda7ac3e">Music Mode · 音だけで発光</option></select></label>
+          <label class="select-row" for="protectedLight"><span><span data-i18n="m_951ccc950935">保護された動画での照明</span></span><select id="protectedLight"><option value="off" data-i18n="m_253bb41e4be5">光らせない</option><option value="preset" data-i18n="m_1b6605b4e422">Cinemaプリセット</option><option value="drift" data-i18n="m_da77497f06e1">ゆっくり変化</option><option value="manual" data-i18n="m_a405e5a216e9">固定カラー</option></select></label>
+          <p class="hint"><span data-i18n="m_0b13f960b616">MacのChromeでは、Netflix・Prime Videoなどの保護された映像から色を取り出せません。初期設定では光らせません。固定の照明を選んでも、映像には連動しません。</span></p>
+          <label class="select-row" for="manualColor"><span><span data-i18n="m_e18f2b86a456">固定カラーの色</span></span><input type="color" id="manualColor"></label>
+          <label class="select-row" for="preset"><span><span data-i18n="m_1b6605b4e422">Cinemaプリセット</span></span><select id="preset"><option value="warm" data-i18n="m_1cc6e552f2f0">Warm · 琥珀</option><option value="moon" data-i18n="m_842cf4c7918b">Moon · 月明かり</option><option value="dusk" data-i18n="m_9cf28188c1f6">Dusk · 薄暮</option></select></label>
+          <label class="select-row" for="zoneMode"><span><span data-i18n="m_152fda33ca26">LEDゾーン数</span></span><select id="zoneMode"><option value="auto" data-i18n="m_e34a8a76d0e3">解像度に合わせて自動</option><option value="manual" data-i18n="m_0c6235ee884a">手動で指定</option></select></label>
+          <label class="select-row" id="zone-count-row" for="zoneCount"><span>Zone Count</span><select id="zoneCount"><option>32</option><option>64</option><option>96</option><option>128</option></select></label>
+          <p id="zone-note" class="hint"></p>
+        </div>
+        <div class="card"><h2>UI Guard</h2><p class="hint"><span data-i18n="m_052c2493178a">光の下にある操作UI・字幕・文字を読みやすく保ちます。サイト専用のプロファイルに保存できます。</span></p>
+          <label class="check-row"><span>UI Guard<small><span data-i18n="m_2ef70da18f54">ボタンや文字の真上だけ、光の濃さに上限を掛けます。何も無い場所の光は変えません。</span></small></span><input type="checkbox" id="guard-enabled"></label>
+          <div class="sliders" id="guard-sliders"></div>
+          <label class="check-row"><span><span data-i18n="m_0d20a7d71b97">ポインターのまわりも弱める</span><small><span data-i18n="m_2120a5e106b0">マウスを縁の近くで動かしている間、その周囲の光をすぐに弱めます。見つけられないUIへの備えです。</span></small></span><input type="checkbox" id="guard-pointer"></label>
+          <details class="reference"><summary><span data-i18n="m_d634dde07296">しくみ・使える場面</span></summary><ul class="notes">
+            <li><b><span data-i18n="m_5fa74284619a">しくみ。</span></b><span data-i18n="m_0d176cf9e95b">光が濃くなる縁の近くに、ボタン・リンク・入力欄・アイコン・文字があるかを、ページに問い合わせて調べます（クリック位置の判定と同じ方法で、画素は読みません）。文字は「あるかどうか」だけを見て、内容は読みません。</span></li>
+            <li><b><span data-i18n="m_593c12ea1018">弱め方。</span></b><span data-i18n="m_147920c650b4">見つけた場所とそのすぐ周りだけ、光の濃さを上限まで下げます。もともと上限より薄い場所は何も変えません。Overkill のような強い設定ほど、効く範囲が広がります。</span></li>
+            <li><b><span data-i18n="m_1d73b6c9f1e5">見つけられないもの。</span></b><span data-i18n="m_5fb720c76278">動画に組み込まれた標準のコントロール、canvas の中に描かれたUI、クリックを受け取らない要素（一部の字幕など）、別サイトの埋め込みの中身。ポインターのまわりを弱める機能が、その備えです。</span></li>
+            <li><b><span data-i18n="m_7b5de8be753e">使えない場面。</span></b><span data-i18n="m_fafd99938ce6">DRM互換描画の光は、ページの合成でChromeが作るため、掛けられません。</span></li>
+          </ul></details>
+        </div>
+        <div class="card"><h2>Adaptive Brightness</h2><p class="hint"><span data-i18n="m_b91f5e1a2197">映像全体の明るさに合わせて、光の強さを自動で整えます。サイト専用のプロファイルに保存できます。</span></p>
+          <label class="check-row"><span>Adaptive Brightness<small><span data-i18n="m_17dab67cd63c">オフにすると、場面の明るさに関係なく、ゾーンの色だけで光の強さが決まります。</span></small></span><input type="checkbox" id="exposure-enabled"></label>
+          <div class="sliders" id="exposure-sliders"></div>
+          <details class="reference"><summary><span data-i18n="m_d634dde07296">しくみ・使える場面</span></summary><ul class="notes">
+            <li><b><span data-i18n="m_835a1a449de3">暗い場面。</span></b><span data-i18n="m_248227238511">明るいゾーンの光だけを抑えます。暗いゾーンの光はそのままなので、暗い色は暗いまま光り続けます（Color Engine の Shadows と一緒に働きます）。</span></li>
+            <li><b><span data-i18n="m_b9f5561302d4">明るい場面。</span></b><span data-i18n="m_c407fa21d6dc">光を全体に下げて、眩しさを抑えます。明るいゾーンがそろって上限に張り付くのも減ります。</span></li>
+            <li><b><span data-i18n="m_99438175425f">中くらいの場面。</span></b><span data-i18n="m_1ffb85432961">何も変えません。変化はゆっくりで、時間の平滑化と Flash Limiter をそのまま通ります。</span></li>
+            <li><b><span data-i18n="m_7b5de8be753e">使えない場面。</span></b><span data-i18n="m_6424e3b5c52d">映像を解析できる照明（映像に連動 · RGB解析、タブ取得）でのみ働きます。固定の照明・Music Mode・DRM互換描画では働きません。</span></li>
+          </ul></details>
+        </div>
+        <div class="card"><h2>Color Engine 2.0</h2><p class="hint"><span data-i18n="m_ed26fd8142c7">色の読み取りと階調です。サイト専用のプロファイルに保存できます。</span></p>
+          <label class="check-row"><span>Color Engine 2.0<small><span data-i18n="m_558041169587">オフにすると、0.8 までの色の扱いにそのまま戻ります。</span></small></span><input type="checkbox" id="color-enabled"></label>
+          <div class="sliders" id="color-sliders"></div>
+          <label class="check-row"><span><span data-i18n="m_63e7486b475d">広色域（Display P3）</span><small><span data-i18n="m_e7593c2e436f">広色域の映像を、P3対応のディスプレイではP3のまま読み取り、P3で光らせます。</span></small></span><input type="checkbox" id="color-wide"></label>
+          <details class="reference"><summary><span data-i18n="m_d634dde07296">しくみ・使える場面</span></summary><ul class="notes">
+            <li><b><span data-i18n="m_25e640902791">Shadows。</span></b><span data-i18n="m_6122ff2111ab">暗い場面の色をどれだけ残すか。上げるほど、暗い色が「消える」のではなく「暗く光る」ようになります。ごく暗いところ（色がノイズでしかない明るさ）は、色を付けずに無彩色にします。</span></li>
+            <li><b><span data-i18n="m_10020c363bf4">Highlights。</span></b><span data-i18n="m_a92e7f0089c5">明るい側の丸め方。上げるほど早めに丸め、明るいゾーン同士の差を残します。ゾーンの中の白い部分に色が薄められるのも抑えます。</span></li>
+            <li><b><span data-i18n="m_53da23c20307">Vibrance。</span></b><span data-i18n="m_765d0e6c4bf9">くすんだ色ほど大きく、鮮やかな色は控えめに彩度を足します。ディスプレイに出せない鮮やかさは、色相を保ったまま収めます。</span></li>
+            <li><b><span data-i18n="m_ca6118c9407d">HDR。</span></b><span data-i18n="m_a0540af8c381">HDRの映像かどうかは検出して Diagnostics に表示します。ただし、ページから読める画素はChromeがSDRへ変換したあとの値で、HDRの明るさそのものは取り出せません。光もSDRで描きます。</span></li>
+          </ul></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-director" role="tabpanel" hidden>
+      <div class="columns">
+        <div class="card"><h2>Light Director</h2>
+          <p class="lead"><span data-i18n="m_a0c9abe84d1e">外周の色に加えて、映像の中の</span><b><span data-i18n="m_ca251de3d3f7">光源</span></b><span data-i18n="m_427566260604">と</span><b><span data-i18n="m_51aa07393cfe">急に現れた光</span></b><span data-i18n="m_2baec622ba54">を、近い辺へ届けます。映像より目立たないよう、初期設定は控えめです。</span></p>
+          <label class="check-row"><span>Light Director<small><span data-i18n="m_e9a04391a5de">オフにすると、従来どおり外周の色だけで光ります。</span></small></span><input type="checkbox" id="director-enabled"></label>
+          <div class="sliders" id="director-sliders"></div>
+          <button id="director-reset" class="secondary"><span data-i18n="m_997730722697">Light Director を初期値に戻す</span></button>
+          <h2 class="sub">Dynamic Light Trails</h2>
+          <label class="check-row"><span>Light Trails<small><span data-i18n="m_6385bbddbf8a">追いかけている光源が動いたあとに、通った場所の外周へ残光を残します。止まっている光源には付きません。</span></small></span><input type="checkbox" id="trails-enabled"></label>
+          <div class="sliders" id="trails-sliders"></div>
+        </div>
+        <div class="card"><h2><span data-i18n="m_44ef73c1b5ab">働きかた</span></h2>
+          <details class="reference"><summary><span data-i18n="m_d634dde07296">しくみ・使える場面</span></summary><ul class="notes">
+            <li><b><span data-i18n="m_0ec29028c34e">光源の候補。</span></b><span data-i18n="m_2d9995d5d9a8">まわりよりずっと明るい場所を光源の候補として扱います。明るいだけで光っていないもの（白い服、明るい壁）も候補になることがあります。</span></li>
+            <li><b><span data-i18n="m_ec2d5ae2540b">急に現れた光。</span></b><span data-i18n="m_f9e1e65653fe">画面の一部だけが急に明るくなった場所に、短く反応します。場面の切り替わりや画面全体の明滅は、この対象から外します。</span></li>
+            <li><b><span data-i18n="m_4038dcfe6705">動きの方向。</span></b><span data-i18n="m_e2eb5e7bc455">フレームの差からは「どこが変わったか」しかわかりません。方向は、光源の候補の中心を追って求め、進む先へ少しだけ先回りして光らせます。</span></li>
+            <li><b><span data-i18n="m_623a72f032d5">字幕とロゴ。</span></b><span data-i18n="m_dae230eaf4ec">画面の上下にある横長の帯（字幕の形）は光らせません。何分も変わらない明るい部分（局のロゴなど）は、ゆっくり対象から外します。形と時間だけで判断するため、外れることがあります。</span></li>
+            <li><b><span data-i18n="m_a7ae8c140ec7">点滅。</span></b><span data-i18n="m_375030f7e921">くり返し明滅する光は、自動で弱めます。Flash Limiter と時間の平滑化は、ここで足した光にもそのまま掛かります。</span></li>
+            <li><b><span data-i18n="m_7b5de8be753e">使えない場面。</span></b><span data-i18n="m_ee9b5220e39e">映像を解析できる照明（映像に連動 · RGB解析）でのみ働きます。DRM互換描画・固定の照明・保護された動画では働きません。</span></li>
+          </ul></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-pulse" role="tabpanel" hidden>
+      <div class="columns">
+        <div class="card"><h2>Pulse Engine</h2>
+          <p class="lead"><span data-i18n="m_b31141958eef">再生中の音を</span><b><span data-i18n="m_fe1e24c6b278">低・中・高</span></b><span data-i18n="m_3816a19a6c42">の3つの音域で聞き、ビート・爆発音・効果音に合わせて</span><b><span data-i18n="m_1cdcf7aa2d81">光の強さ</span></b><span data-i18n="m_fac75fe8e039">を変えます。色は映像のままです。</span></p>
+          <p class="hint"><b>Pulse Depth</b><span data-i18n="m_7408e50eb64d"> は、画面で見える光の濃さをどれだけ動かすかです（40% で、ビートのとき最大1.6倍、ビートの間は約0.76倍）。</span><b>Beat Wave</b><span data-i18n="m_548c75ddaada"> を上げると、低音のビートが下辺の中央から左右の辺を通って上辺へ走ります（100% で約0.32秒）。0% にすると、すべての辺が同時に動きます。</span><b>Beat Bloom</b><span data-i18n="m_dfd7ae295ea4"> は、ビートのたびに光が画面の内側へ広がる量です（100% で、光の届く深さが最大1.8倍）。0% にすると広がりません。UI Guard がオンのときは、広がった光がボタンや文字に掛かっても上限を超えないよう、保護する範囲を縁の側へ広げます。</span></p>
+          <label class="check-row"><span>Pulse Engine<small><span data-i18n="m_b91114c3afcb">オンにすると、点灯中のタブで再生中の音を、端末の中で解析します。初期設定はオフです。</span></small></span><input type="checkbox" id="pulse-enabled"></label>
+          <div class="sliders" id="pulse-sliders"></div>
+          <button id="pulse-reset" class="secondary"><span data-i18n="m_d35713730e53">Pulse Engine を初期値に戻す</span></button>
+        </div>
+        <div class="card"><h2>Music Mode</h2>
+          <p class="lead"><span data-i18n="m_b4ffd9b5a1be">映像を使わず、</span><b><span data-i18n="m_4dca294fef00">音だけ</span></b><span data-i18n="m_e7a8e8f3d944">で光らせます。低音は下の辺を暖色で、高音は上の辺を寒色で照らし、色合いはゆっくり揺らぎます。映像のない音声プレイヤーでも働きます。</span></p>
+          <label class="check-row"><span><span data-i18n="m_526d6c366ed0">照明のソースを Music Mode にする</span><small><span data-i18n="m_77f2409d1b0e">全サイト共通の設定です。オフに戻すと「映像に連動 · RGB解析」になります。</span></small></span><input type="checkbox" id="music-mode"></label>
+          <h2 class="sub"><span data-i18n="m_4b1fe35fc52a">音の扱い</span></h2>
+          <details class="reference"><summary><span data-i18n="m_d634dde07296">しくみ・使える場面</span></summary><ul class="notes">
+            <li><b><span data-i18n="m_b768cb0acdb2">読むのはオンにしたあとだけ。</span></b><span data-i18n="m_c3589b0d539a">Pulse Engine をオンにするか Music Mode を選ぶまで、音には一切触れません。プリセットの適用やバックアップの読み込みで、勝手にオンになることもありません。</span></li>
+            <li><b><span data-i18n="m_7adb117d48f7">再生音は変えません。</span></b><span data-i18n="m_6f13b54c6114">プレイヤーの音の「写し」を受け取り、音域ごとの大きさを読むだけです。写しはどこにも出力せず、録音・保存・送信もしません。</span></li>
+            <li><b><span data-i18n="m_e813ce38b054">動くのは変化だけ。</span></b><span data-i18n="m_d1157b763f8e">各音域を直近の大きさと比べ、急に大きくなったところで光を持ち上げます。一定の音は、どれだけ大きくても光を動かしません。</span></li>
+            <li><b><span data-i18n="m_9458901cf614">Flash Limiter。</span></b><span data-i18n="m_6ccd226af5ec">音で動かした光にも掛かります。オンの間は、ビートへの反応を1秒に3回までにします。ビートの瞬間だけは、光を一度に少し（最大の明るさの8%まで）持ち上げ、同じだけ速く戻すことを許しています。それ以外の変化の速さは、映像の光と同じ上限のままです。Flash Limiter がオンの間は、Beat Bloom の広がりは半分になり、ビートで濃さを上限いっぱいまで持ち上げる動きは使いません。ビートをもっと穏やかにしたいときは Pulse Depth を下げてください。</span></li>
+            <li><b><span data-i18n="m_7b5de8be753e">使えない場面。</span></b><span data-i18n="m_652acac4e965">保護されたコンテンツ（DRM）の音は解析しません。別のサイトから配信されている音は、Chromeが読み取りを許可しません。プレイヤーがミュート中は、光は動きません。DRM互換描画では働きません。</span></li>
+          </ul></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-studio" role="tabpanel" hidden>
+      <div class="studio">
+        <div class="card stage-card">
+          <div class="stage-grid">
+            <div class="zones" data-side="0" aria-label="上辺のゾーン" data-i18n-aria-label="m_b2ff6b6f2f24"></div>
+            <div class="zones vertical" data-side="2" aria-label="左辺のゾーン" data-i18n-aria-label="m_a96e24d991d7"></div>
+            <div id="stage"><div class="screen"><span>PREVIEW</span><small id="stage-note"></small></div></div>
+            <div class="zones vertical" data-side="3" aria-label="右辺のゾーン" data-i18n-aria-label="m_4fc0c2c47994"></div>
+            <div class="zones" data-side="1" aria-label="下辺のゾーン" data-i18n-aria-label="m_d0081039333b"></div>
+          </div>
+          <p class="hint"><span data-i18n="m_2aed5d6e209f">外側の区切りがゾーンです。クリックで選択、Shift＋クリックで範囲、⌘ / Ctrl＋クリックで追加・解除。内側の光は、実際の照明と同じ描画で表示しています。</span></p>
+          <div class="patterns" role="group" aria-label="テストパターン" data-i18n-aria-label="m_ff49b2ae9c3a" id="patterns"></div>
+          <label class="check-row"><span><span data-i18n="m_73aa1257139f">このページの外周にも実寸で表示</span><small><span data-i18n="m_24ec228075e7">ウィンドウの縁で、実際の太さと広がりを確かめます。</span></small></span><input type="checkbox" id="studio-live"></label>
+        </div>
+        <div class="card">
+          <h2><span data-i18n="m_621f0216183b">ゾーンの調整</span></h2>
+          <label class="select-row" for="studio-count"><span><span data-i18n="m_7bbc4e808749">表示するゾーン数</span></span><select id="studio-count"><option>32</option><option>64</option><option>96</option><option>128</option></select></label>
+          <p class="hint" id="studio-count-note"></p>
+          <div class="quick" role="group" aria-label="まとめて選択" data-i18n-aria-label="m_2c8fd2f6e90b"><button data-select="0"><span data-i18n="m_a04b0ef9c0c3">上辺</span></button><button data-select="1"><span data-i18n="m_0727a91ec3f7">下辺</span></button><button data-select="2"><span data-i18n="m_58e8ca4aa4bb">左辺</span></button><button data-select="3"><span data-i18n="m_5a95a5abba50">右辺</span></button><button data-select="all"><span data-i18n="m_b55eb06d25e1">すべて</span></button><button data-select="none"><span data-i18n="m_ccdebb93f7f9">解除</span></button></div>
+          <p id="selection" class="selection" aria-live="polite"></p>
+          <div class="sliders" id="zone-sliders"></div>
+          <label class="check-row"><span><span data-i18n="m_94a47280894e">このゾーンを光らせる</span><small><span data-i18n="m_8a0cd57c2a78">オフにしたゾーンは消灯し、隣のゾーンへなめらかにつながります。</span></small></span><input type="checkbox" id="zone-on"></label>
+          <div class="quick"><button id="zone-reset"><span data-i18n="m_69c653d2df29">選択したゾーンを初期値に</span></button><button id="zones-reset"><span data-i18n="m_37f4e45d3c40">すべてのゾーンを初期値に</span></button></div>
+          <p class="hint"><span data-i18n="m_346ef9d3d008">調整は辺の上の位置で保存します。ゾーン数が変わっても（自動調整を含む）、同じ場所に同じ調整が掛かります。DRM互換描画（CSS）では、ゾーン別の調整は使われません。</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-presets" role="tabpanel" hidden>
+      <div class="card"><h2>Preset Library</h2>
+        <p class="lead"><span data-i18n="m_06fb23c6c192">照明の見た目をまとめて切り替えます。適用先は、上の「編集する設定」で選んでいる対象（グローバル設定か、サイトのプロファイル）です。</span></p>
+        <p class="hint"><span data-i18n="m_fff9a7973cbf">プリセットが変えるのは見た目だけです。ゾーン別の調整、UI Guard、照明のソース、Pulse Engine のオン／オフはそのまま残ります。以前の版で書き出したファイルも、そのまま読み込めます。</span></p>
+        <div id="preset-list" class="profile-list"></div>
+        <form id="preset-form" class="profile-form">
+          <label for="preset-name"><span data-i18n="m_ecdcffe7b179">いまの設定をプリセットとして保存</span><input id="preset-name" placeholder="名前（40文字まで）" data-i18n-placeholder="m_ec88e2c87948" maxlength="40" autocomplete="off" spellcheck="false"></label>
+          <button class="primary"><span data-i18n="m_a3030bf8f16d">保存</span></button>
+        </form>
+        <p id="preset-message" class="hint" aria-live="polite"></p>
+      </div>
+      <div class="card spaced"><h2><span data-i18n="m_b2619ed04d4f">JSON の読み込みと書き出し</span></h2>
+        <p class="hint"><span data-i18n="m_25cd1d9e2ad6">プリセットは1つずつJSONファイルにして渡せます。「すべての設定」は、グローバル設定・サイトのプロファイル・自分のプリセットをまとめたバックアップです（サイトへのアクセス許可はChromeが管理していて、含まれません）。読み込んだ内容は保存時と同じ検査を通し、知らない項目は捨てます。</span></p>
+        <div class="quick"><button id="import-pick" type="button"><span data-i18n="m_15d01b2ae66c">ファイルを選んで読み込む</span></button><input type="file" id="import-file" accept="application/json,.json" hidden><button id="backup-export" type="button"><span data-i18n="m_5921be9427a1">すべての設定を書き出す</span></button></div>
+        <label class="stack" for="import-text"><span data-i18n="m_db1772efd6df">JSON を貼り付けて読み込む</span><textarea id="import-text" rows="5" spellcheck="false" placeholder='{"app":"ECLIRIM","kind":"preset", …}'></textarea></label>
+        <div class="quick"><button id="import-paste" type="button"><span data-i18n="m_bc960385c1de">貼り付けた JSON を読み込む</span></button><button id="import-confirm" type="button" class="danger" hidden><span data-i18n="m_cd46a89450a2">現在の設定をすべて置き換える</span></button></div>
+        <p id="import-message" class="hint" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section id="tab-profiles" role="tabpanel" hidden>
+      <div class="card"><h2>Site Profiles</h2>
+        <p class="lead"><span data-i18n="m_ebcdc142810f">サイトごとに、照明の見た目を保存できます。プロファイルには</span><b><span data-i18n="m_681e92fe8649">グローバル設定と違う項目だけ</span></b><span data-i18n="m_b218b8188fed">を保存し、残りはグローバル設定に従います。そのサイトのページを開くと自動で使われます。</span></p>
+        <p class="hint"><span data-i18n="m_9e04f7185a2d">プロファイルは設定を保存するだけです。サイトへのアクセス許可や照明の自動開始（「このサイトでは常に点灯」）は別の機能で、ここから許可が追加されることはありません。</span></p>
+        <div id="profile-list" class="profile-list"></div>
+        <form id="profile-form" class="profile-form">
+          <label for="profile-site"><span data-i18n="m_c2ee8992fb1e">新しいプロファイル</span><input id="profile-site" placeholder="例: www.youtube.com（ローカルファイルは file）" data-i18n-placeholder="m_6c0be96f2d36" autocomplete="off" spellcheck="false"></label>
+          <label for="profile-from"><span data-i18n="m_c05cb00624a9">コピー元</span><select id="profile-from"></select></label>
+          <button class="primary"><span data-i18n="m_900f8294213e">作成</span></button>
+        </form>
+        <p id="profile-message" class="hint" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section id="tab-diagnostics" role="tabpanel" hidden>
+      <div class="columns">
+        <div class="card"><h2>Performance Monitor</h2>
+          <label class="select-row" for="diag-tab"><span><span data-i18n="m_db67406bf276">計測するタブ</span></span><select id="diag-tab"></select></label>
+          <dl id="diag-simple" class="metrics"></dl>
+          <label class="check-row"><span><span data-i18n="m_1eab38a9de99">開発者向けの詳細を表示</span></span><input type="checkbox" id="diag-detail"></label>
+          <dl id="diag-full" class="metrics detail" hidden></dl>
+          <p class="hint" id="diag-note"></p>
+        </div>
+        <div class="card"><h2><span data-i18n="m_55221639e0b8">診断の設定</span></h2>
+          <label class="check-row"><span><span data-i18n="m_cfbb0460374b">パフォーマンスHUD</span><small><span data-i18n="m_6b2ca4b28ec7">点灯中のタブの左上に、計測値を小さく表示します。クリックは素通しします。</span></small></span><input type="checkbox" id="hud"></label>
+          <label class="check-row"><span><span data-i18n="m_4b795013ec52">負荷に合わせて品質を自動調整</span><small><span data-i18n="m_19b8d53fd646">解析が長く続けて遅いとき、解析の細かさを段階的に下げます（最後の段階では解析の回数を半分にします）。再生の安定を優先します。Light Director は止めません。</span></small></span><input type="checkbox" id="adaptive"></label>
+          <details class="reference"><summary><span data-i18n="m_d634dde07296">しくみ・使える場面</span></summary><ul class="notes">
+            <li><span data-i18n="m_2500d47dab46">表示する値はすべて、そのタブの中で実際に計った値です。</span></li>
+            <li><b><span data-i18n="m_932714a5a5c8">CPU使用率・GPU使用率は表示しません。</span></b><span data-i18n="m_ec56367c476d">拡張機能からは、タブごとの正確な値を取得できないためです。代わりに、処理にかかった時間と、予算を超えた回数を表示します。</span></li>
+            <li><span data-i18n="m_5fdf8651059f">「最初の描画までの遅延」は、フレームを読んでから、その結果が最初に画面へ描かれるまでの時間です。その後の平滑化にかかる時間は含みません。</span></li>
+            <li><span data-i18n="m_89166601de5f">品質の段階：0 = 最高、1 = Light Director が読む画素を1/4に、2 = 解析を小さくし Light Director は1フレームおき、3 = 映像解析の回数を半分に（Light Directorは継続）。</span></li>
+          </ul></details>
+        </div>
+      </div>
+    </section>
+    <section id="tab-feedback" role="tabpanel" hidden>
+      <div class="section-intro"><h2><span data-i18n="m_ef222409da5f">フィードバック</span></h2><p class="lead"><span data-i18n="m_981a8ec9957f">使ってみた感想や困りごとを、開発者へ届けられます。入力内容は端末内に下書き保存されます。</span></p></div>
+      <div class="feedback-layout">
+        <form id="feedback-form" class="card">
+          <fieldset id="feedback-fields" disabled><legend><span data-i18n="m_aa21d580c510">使ってみて、どうだった？</span></legend>
+            <div class="feedback-pair">
+              <label class="field" for="feedback-kind"><span data-i18n="m_32c421ae4cbf">種類</span><select id="feedback-kind"><option value="review" data-i18n="m_364c83ffd728">感想・評価</option><option value="bug" data-i18n="m_26ddd62b6ee4">不具合</option><option value="idea" data-i18n="m_b84b4eef57a0">改善案</option></select></label>
+              <label class="field" for="feedback-rating"><span data-i18n="m_fe05c21c8249">満足度</span><select id="feedback-rating"><option value="0" data-i18n="m_95a04d7add1f">未回答</option><option value="1" data-i18n="m_5292082a1483">1 · 不満</option><option value="2" data-i18n="m_391e0cf661a4">2 · やや不満</option><option value="3" data-i18n="m_16f53ac3604e">3 · ふつう</option><option value="4" data-i18n="m_0589255cfaca">4 · よい</option><option value="5" data-i18n="m_84ab799d265c">5 · とてもよい</option></select></label>
+            </div>
+            <label class="field" for="feedback-context"><span data-i18n="m_98590743e81c">使ったサイト・場面 </span><small><span data-i18n="m_5d7906f5af42">任意</span></small><input id="feedback-context" maxlength="160" placeholder="例：YouTubeで音楽動画、映画の暗い場面" data-i18n-placeholder="m_73be88fa35c9"></label>
+            <label class="field" for="feedback-good"><span data-i18n="m_cfb2f0e9aeee">よかったところ</span><textarea id="feedback-good" rows="3" maxlength="2000" placeholder="例：ビートに合わせて光が広がる感じがよかった" data-i18n-placeholder="m_e68230b7de49"></textarea></label>
+            <label class="field" for="feedback-problem"><span data-i18n="m_1cb54a3348c6">困ったこと・起きたこと</span><textarea id="feedback-problem" rows="3" maxlength="2000" placeholder="例：設定を変えたあと、光が戻らなくなった" data-i18n-placeholder="m_1d899aea578f"></textarea></label>
+            <label class="field" id="feedback-steps-row" for="feedback-steps" hidden><span data-i18n="m_4e7067615633">再現手順 </span><small><span data-i18n="m_5d7906f5af42">任意</span></small><textarea id="feedback-steps" rows="3" maxlength="2000" placeholder="1. 動画で照明を開始する&#10;2. 変更した設定を書く&#10;3. 何が起きたかを書く" data-i18n-placeholder="m_6a11e09ab1ca"></textarea></label>
+            <label class="field" for="feedback-idea"><span data-i18n="m_50e1ffaa9a27">改善してほしいこと</span><textarea id="feedback-idea" rows="3" maxlength="2000" placeholder="例：よく使う設定へ、もっと少ない操作で移動したい" data-i18n-placeholder="m_7ece343ef580"></textarea></label>
+            <div id="feedback-diagnostics" class="feedback-diagnostics">
+              <h3><span data-i18n="m_6e1b55dabdc7">Diagnosticsの要約 </span><small><span data-i18n="m_5d7906f5af42">任意</span></small></h3>
+              <p class="hint"><span data-i18n="m_a211d16c8e5a">動作の状態・fps・処理時間などを添付できます。URL、タブ名、サイト別設定の名前、映像・音声は含めません。</span></p>
+              <button id="feedback-diagnostics-load" class="secondary" type="button"><span data-i18n="m_68a9f97696c8">要約を作る</span></button>
+              <p id="feedback-diagnostics-status" class="hint" role="status" aria-live="polite"></p>
+              <div id="feedback-diagnostics-review" hidden>
+                <label class="field" for="feedback-diagnostics-tab"><span data-i18n="m_c43b4108974d">診断するタブ</span><select id="feedback-diagnostics-tab"></select></label>
+                <label class="field" for="feedback-diagnostics-preview"><span data-i18n="m_b175097e84ee">添付する要約</span><textarea id="feedback-diagnostics-preview" rows="9" readonly></textarea></label>
+                <p class="hint"><span data-i18n="m_42cf63041880">作成時点の値です。非表示のタブは解析や描画を休むことがあります。タブの変更や要約の更新後は、もう一度確認してください。</span></p>
+                <label class="check-row" for="feedback-diagnostics-confirm"><span><span data-i18n="m_3372db701b56">この要約を確認し、フィードバックに添付する</span></span><input id="feedback-diagnostics-confirm" type="checkbox" disabled></label>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+        <div class="feedback-preview"><label class="field" for="feedback-preview"><span data-i18n="m_a3cc0b1f2a94">送る内容</span><textarea id="feedback-preview" rows="18" readonly placeholder="評価や感想を入力すると、ここに文章がまとまります。" data-i18n-placeholder="m_c8d245462f43"></textarea></label><p class="hint"><span data-i18n="m_14aa3d11186e">バージョンを自動で添えます。Diagnosticsは、要約を確認してチェックした場合だけ含めます。</span></p>          <p id="feedback-mail-note" class="hint"><span data-i18n="m_271e53931eb8">「フィードバックを送る」を押すと、表示中の内容を開発者へ送信します。</span></p><div class="quick"><button id="feedback-send" class="primary" type="button" disabled><span data-i18n="m_3c15636ce697">フィードバックを送る</span></button><button id="feedback-copy" type="button" disabled><span data-i18n="m_77ca14330dea">内容をコピー</span></button><button id="feedback-clear" type="button" disabled><span data-i18n="m_1e9855e35e2e">下書きを消す</span></button></div>
+          <p id="feedback-status" class="hint" role="status" aria-live="polite"></p>
+</div>
+      </div>
+    </section>
+  </main>
+  <footer><span class="privacy-dot"></span><span id="privacy-note"><span data-i18n="m_83ab22936798">ローカル処理 · 映像の送信なし · 映像フレームは保存しません</span></span></footer>
+  <script src="options.js"></script>
+</body></html>

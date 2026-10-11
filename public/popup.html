@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-i18n-pending>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ECLIRIM</title><link rel="stylesheet" href="popup.css"></head>
+<body>
+  <header><div class="brand"><img class="mark" src="icons/mark.svg" alt="" width="36" height="36"><div><h1>ECLIRIM</h1><span class="eyebrow">LIGHT BEYOND THE FRAME</span></div></div><label class="switch" title="照明のオン／オフ" data-i18n-title="m_3863e7cacf71"><input id="enabled" type="checkbox" aria-label="Enable 照明のオン／オフ" data-i18n-aria-label="m_0ae0d37e35f5"><span></span></label></header>
+  <main>
+    <section class="status-box" aria-live="polite">
+      <div class="status-line"><span id="dot"></span><strong id="state">Waiting for Video</strong><span id="service"></span></div>
+      <p id="detail"><span data-i18n="m_adfd7be1861a">動画のあるタブで開始してください。</span></p>
+      <details id="status-details" class="status-details" hidden><summary><span data-i18n="m_d2698a3a6c0f">動作の詳細</span></summary><div id="metrics"></div></details>
+    </section>
+    <button id="start" class="primary"><span data-i18n="m_845640c965aa">このタブで照明を開始 </span><span>↗</span></button>
+  <div class="tools"><button id="wizard" class="secondary"><span data-i18n="m_3386930b101a">かんたん設定</span></button><button id="open-options" class="secondary"><span data-i18n="m_7b89b24f2697">詳細設定</span></button><button id="feedback" class="secondary"><span data-i18n="m_ef222409da5f">フィードバック</span></button></div>
+    <div id="compare-bar" class="compare" hidden>
+      <div class="compare-head"><b><span data-i18n="m_378c39a64b92">A/B 比較</span></b><span id="compare-note"></span></div>
+      <div class="ab" role="group" aria-label="表示する設定" data-i18n-aria-label="m_005008b8c032"><button data-side="a" aria-pressed="false">A<small><span data-i18n="m_3d7b4ade8107">元の設定</span></small></button><button data-side="b" aria-pressed="false">B<small><span data-i18n="m_dd5808dc5315">試す設定</span></small></button></div>
+      <div class="compare-actions"><button id="compare-keep-a" class="chip"><span data-i18n="m_81de877b2b1c">A に決める</span></button><button id="compare-keep-b" class="chip"><span data-i18n="m_44896173a558">B に決める</span></button><button id="compare-cancel" class="chip"><span data-i18n="m_a9c9c456a0fa">やめる</span></button></div>
+      <p class="hint" id="compare-hint"></p>
+    </div>
+    <p id="editing-context" class="context-note"></p>
+    <label class="select-row" for="library"><span><span data-i18n="m_1e63261f660f">プリセット</span></span><select id="library"></select></label>
+    <div class="sliders" id="main-sliders"></div>
+    <div class="section-label"><span data-i18n="m_be6533491e21">照明モード</span></div>
+    <div class="modes" role="group" aria-label="Lighting Mode">
+      <button data-mode="cinema" aria-pressed="true">Cinema<small><span data-i18n="m_68ab565a383f">自然でなめらか</span></small></button>
+      <button data-mode="vivid" aria-pressed="false">Vivid<small><span data-i18n="m_ff0c822d1e46">鮮やかに反応</span></small></button>
+      <button data-mode="ambient" aria-pressed="false">Ambient<small><span data-i18n="m_19394e5b48d9">穏やかな余韻</span></small></button>
+    </div>
+    <div class="section-label"><span data-i18n="m_768dbf9d1c26">光の形</span></div>
+    <div class="modes two" role="group" aria-label="Glow Style">
+      <button data-glow="edge" aria-pressed="true">Edge Light<small><span data-i18n="m_0680b69c086a">縁に芯のある光</span></small></button>
+      <button data-glow="halo" aria-pressed="false">Soft Halo<small><span data-i18n="m_b2e0b04b5401">やわらかな間接光</span></small></button>
+    </div>
+    <label class="check-row pulse-row"><span><span data-i18n="m_cfc4a4be2309">音に反応 · Pulse Engine</span><small id="pulse-note"></small></span><input type="checkbox" id="pulse"></label>
+    <div class="slider" id="pulse-depth-row" hidden><label for="pulse-depth"><span data-i18n="m_518f736ad5fc">反応の深さ</span><output id="pulse-depth-value" for="pulse-depth"></output></label><input type="range" id="pulse-depth" min="0" max="100"></div>
+    <div class="slider" id="pulse-bloom-row" hidden><label for="pulse-bloom"><span data-i18n="m_6985121c98e8">ビートで光が広がる量</span><output id="pulse-bloom-value" for="pulse-bloom"></output></label><input type="range" id="pulse-bloom" min="0" max="100"></div>
+
+    <details id="features-details"><summary><span data-i18n="m_f145abc310bb">映像への反応・読みやすさ</span></summary>
+      <label class="check-row"><span><span data-i18n="m_d5c91665efe7">映像の光源に反応 · Light Director</span><small id="director-note"></small></span><input type="checkbox" id="director"></label>
+      <label class="check-row"><span><span data-i18n="m_aa56701e0f88">文字と操作UIを保護 · UI Guard</span><small id="guard-note"></small></span><input type="checkbox" id="guard"></label>
+      <label class="check-row"><span><span data-i18n="m_51cc3650c94c">明るさを自動調整 · Adaptive Brightness</span><small id="exposure-note"></small></span><input type="checkbox" id="exposure"></label>
+    </details>
+    <details id="source-details"><summary><span data-i18n="m_875f06c267db">映像・サイトの設定</span></summary>
+      <label class="select-row" for="source"><span><span data-i18n="m_60646ad33352">照明のソース</span></span><select id="source"><option value="video" data-i18n="m_f7850c87be2b">映像に連動 · RGB解析</option><option value="compatibility" data-i18n="m_e09e1918b67e">DRM互換描画 · CSS</option><option value="manual" data-i18n="m_a405e5a216e9">固定カラー</option><option value="preset" data-i18n="m_1b6605b4e422">Cinemaプリセット</option><option value="drift" data-i18n="m_da77497f06e1">ゆっくり変化</option><option value="music" data-i18n="m_3cf5cda7ac3e">Music Mode · 音だけで発光</option></select></label>
+      <p id="source-note" class="hint"></p>
+      <label class="select-row" for="protectedLight"><span><span data-i18n="m_f5f64cbd91a6">保護された動画</span></span><select id="protectedLight"><option value="off" data-i18n="m_253bb41e4be5">光らせない</option><option value="preset" data-i18n="m_1b6605b4e422">Cinemaプリセット</option><option value="drift" data-i18n="m_da77497f06e1">ゆっくり変化</option><option value="manual" data-i18n="m_a405e5a216e9">固定カラー</option></select></label>
+      <p class="hint"><span data-i18n="m_5b1ccef0e606">MacのChromeでは、保護された動画は初期設定で光らせません。固定の照明を選んでも、映像には連動しません。</span></p>
+      <div id="manual-row" hidden><label class="select-row"><span data-i18n="m_a405e5a216e9">固定カラー</span><input type="color" id="manualColor" value="#ffb477"></label></div>
+      <div id="preset-row" hidden><label class="select-row"><span data-i18n="m_1b6605b4e422">Cinemaプリセット</span><select id="preset"><option value="warm" data-i18n="m_1cc6e552f2f0">Warm · 琥珀</option><option value="moon" data-i18n="m_842cf4c7918b">Moon · 月明かり</option><option value="dusk" data-i18n="m_9cf28188c1f6">Dusk · 薄暮</option></select></label></div>
+      <label class="check-row" id="always-row" hidden><span><span data-i18n="m_11feb5934e01">このサイトでは常に点灯</span><small id="always-site"></small></span><input type="checkbox" id="always"></label>
+      <p id="always-note" class="hint" hidden></p>
+      <div id="profile-row" class="profile-row" hidden><span><small><span data-i18n="m_122039994154">編集する設定</span></small><b id="profile-name"></b></span><button id="profile-toggle" class="chip"></button></div>
+      <p id="profile-note" class="hint" hidden></p>
+      <button id="capture" class="secondary"><span data-i18n="m_094e6b7f20b0">タブの映像を取得</span></button>
+      <p id="capture-note" class="hint"><span data-i18n="m_a77c7e000511">直接解析できない場合に使用。映像のみを取得し、録画・保存は行いません。</span></p>
+    </details>
+    <details id="advanced-details"><summary><span data-i18n="m_b0cbb90912f6">細かな調整・比較</span></summary><div class="sliders" id="advanced-sliders"></div>
+      <label class="select-row"><span data-i18n="m_152fda33ca26">LEDゾーン数</span><select id="zoneMode"><option value="auto" data-i18n="m_e34a8a76d0e3">解像度に合わせて自動</option><option value="manual" data-i18n="m_0c6235ee884a">手動で指定</option></select></label>
+      <label class="select-row" id="zone-count-row">Zone Count<select id="zoneCount"><option>32</option><option selected>64</option><option>96</option><option>128</option></select></label>
+      <p id="zone-note" class="hint"></p>
+      <label class="check-row"><span><span data-i18n="m_0c26f0fcfad2">急な明滅を抑える · Flash Limiter</span></span><input type="checkbox" id="flashLimiter"></label>
+      <button id="compare-start" class="secondary"><span data-i18n="m_a720a24b73f4">A/B 比較を始める</span></button>
+    </details>
+    <p id="error" role="alert" hidden></p>
+  </main>
+  <footer><span class="privacy-dot"></span><span data-i18n="m_db6bf523753c">ローカル処理 · 映像の送信なし </span><button id="reset"><span data-i18n="m_817138da929d">初期設定</span></button></footer>
+  <script src="popup.js"></script>
+</body></html>

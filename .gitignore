@@ -1,0 +1,29 @@
+node_modules/
+.qa-profile/
+.omx/
+dist/
+artifacts/*.zip
+.DS_Store
+releases/*-source.zip
+
+# Personal production notes stay local.
+*作品メモ*
+*制作メモ*
+personal-notes/
+private-notes/
+
+# Public source: generated archives and raw test output stay local.
+/releases/
+/feedback-relay/
+/private-backups/
+artifacts/*
+!artifacts/01-direct-64-zones.png
+!artifacts/15-glow-designer.png
+!artifacts/16-soft-halo.png
+!artifacts/17-ui-guard-off.png
+!artifacts/18-ui-guard-on.png
+!artifacts/20-ab-comparison.png
+!artifacts/21-wizard.png
+!artifacts/feedback-diagnostics-1280.png
+!artifacts/24-popup-organized.png
+!artifacts/feedback-1280.png

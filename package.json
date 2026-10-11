@@ -1,0 +1,32 @@
+{
+  "name": "eclirim",
+  "version": "0.9.9",
+  "license": "SEE LICENSE IN LICENSE",
+  "private": true,
+  "type": "module",
+  "description": "Local, video-reactive perimeter lighting for Chrome",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "package": "npm run build && node scripts/package.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "test:e2e": "node scripts/e2e.mjs && node scripts/e2e-cinematic.mjs && node scripts/e2e-resonance.mjs && node scripts/e2e-identity.mjs && node scripts/e2e-recovery.mjs && node scripts/e2e-guard.mjs && node scripts/e2e-ui.mjs && node scripts/e2e-feedback-diagnostics.mjs && node scripts/e2e-i18n.mjs",
+    "test:recovery": "node scripts/e2e-recovery.mjs",
+    "test:perf": "node scripts/e2e-performance.mjs",
+    "dev": "node scripts/serve.mjs",
+    "check": "npm run typecheck && npm test && npm run build",
+    "test:guard": "node scripts/e2e-guard.mjs",
+    "test:ui": "node scripts/e2e-ui.mjs",
+    "test:feedback-diagnostics": "node scripts/e2e-feedback-diagnostics.mjs",
+    "test:i18n": "node scripts/e2e-i18n.mjs"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.0",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.25.0",
+    "playwright": "^1.56.0",
+    "pngjs": "^7.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="rim" x1="20" y1="16" x2="110" y2="114" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff0d6"/><stop offset=".3" stop-color="#ffb868"/><stop offset=".66" stop-color="#ea6c9c"/><stop offset="1" stop-color="#7c7dff"/>
+    </linearGradient>
+    <radialGradient id="spark" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#fff1d8" stop-opacity=".9"/><stop offset="1" stop-color="#ffc98a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="6.5"/></filter>
+    <radialGradient id="tile" cx="50%" cy="40%" r="80%"><stop offset="0" stop-color="#1c1e28"/><stop offset="1" stop-color="#090a0e"/></radialGradient>
+  </defs>
+  <rect width="128" height="128" rx="29" fill="url(#tile)"/>
+  <rect x="27" y="27" width="74" height="74" rx="23" fill="none" stroke="url(#rim)" stroke-width="14.4" filter="url(#soft)" opacity=".8"/>
+  <rect x="27" y="27" width="74" height="74" rx="23" fill="none" stroke="url(#rim)" stroke-width="9"/>
+  <rect x="27" y="27" width="74" height="74" rx="23" fill="#07080b"/>
+  <circle cx="33.5" cy="33.5" r="12" fill="url(#spark)"/>
+</svg>
