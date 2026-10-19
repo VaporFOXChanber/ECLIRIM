@@ -1,5 +1,6 @@
-import { DEFAULTS, LOOK_KEYS, compareSettings, loadCompare, loadPresets, loadProfiles, loadSettings, lookOf, own, presetName, resolveSettings, sanitize, sanitizeCompare, sanitizePreset, sanitizePresets, sanitizeProfile, sanitizeProfiles, savePresets, saveProfiles, saveSettings } from '../shared/settings';
-import type { AudioStatus, Compare, LookKey, PresetLook, Presets, Profile, Profiles, Settings } from '../shared/types';
+import { DEFAULTS, LOOK_KEYS, compareSettings, loadCompare, loadPresets, loadProfiles, loadSettings, lookOf, own, presetName, resolveSettings, sanitize, sanitizeCompare, sanitizePreset, sanitizePresets, sanitizeProfile, sanitizeProfiles, savePresets, saveProfiles, saveSettings, type Stored } from '../shared/settings';
+import { applyPreset } from '../shared/presets';
+import type { AudioStatus, Compare, LookKey, Message, PresetLook, Presets, Profile, Profiles, Settings } from '../shared/types';
 
 /** What the popup and the settings page edit: the global settings, or one site's profile lying over them. */
 export class Store {
@@ -55,10 +56,17 @@ export class Store {
       if (!Object.keys(rest).length) return;
       patch = rest;
     }
-    const profile = this.profile ? { ...this.profile } : null, global: Partial<Settings> = {};
+    const { profiles, settings } = this.lay(patch);
+    if (profiles) this.queue(() => saveProfiles(profiles));
+    if (settings) this.queue(() => saveSettings(settings));
+  }
+  /** Lays a change over what is saved, here: returns what then has to be stored. */
+  private lay(patch: Partial<Settings>): { settings?: Settings; profiles?: Profiles } {
+    const profile = this.profile ? { ...this.profile } : null, global: Partial<Settings> = {}, stored: { settings?: Settings; profiles?: Profiles } = {};
     for (const [key, value] of Object.entries(patch)) Object.assign(profile && LOOK_KEYS.includes(key as LookKey) ? profile : global, { [key]: value });
-    if (profile) this.setProfile(this.target, profile);
-    if (Object.keys(global).length) { const next = this.global = sanitize({ ...this.global, ...global }); this.queue(() => saveSettings(next)); }
+    if (profile) stored.profiles = this.profiles = sanitizeProfiles({ ...this.profiles, [this.target]: profile });
+    if (Object.keys(global).length) stored.settings = this.global = sanitize({ ...this.global, ...global });
+    return stored;
   }
   /** Creates or replaces a site's profile; null removes it, which returns that site to the global settings. */
   setProfile(site: string, profile: Profile | null): void {
@@ -70,29 +78,30 @@ export class Store {
   }
   private setCompare(compare: Compare | null): void {
     this.compare = compare;
-    this.queue(() => compare ? chrome.storage.local.set({ compare }) : chrome.storage.local.remove('compare'));
+    this.queue(() => sendCompare(compare));
   }
   /**
    * Starts an A/B comparison of the settings being edited. A is their look as it is saved now. B starts as the same look,
-   * or as A with `b` laid over it (a preset, a wizard result). B is the side shown first: it is the one to be changed.
+   * or as A with `b` laid over it (a preset, a wizard result) the way `applyPreset` lays it: listening and a Flash Limiter
+   * that is on stay as they are. B is the side shown first: it is the one to be changed.
    */
   startCompare(b?: Profile | null): void {
     const a = lookOf(this.kept);
-    this.setCompare({ active: 'b', a, b: sanitizeProfile({ ...a, ...(b || {}) }), target: this.target });
+    this.setCompare({ active: 'b', a, b: sanitizeProfile({ ...a, ...(b ? applyPreset(this.kept, b) : {}) }), target: this.target });
   }
   /** Switches the lit tabs, and this page, to the other look. */
   showSide(side: 'a' | 'b'): void { if (this.compare && this.compare.active !== side) this.setCompare({ ...this.compare, active: side }); }
   /**
-   * Ends the comparison. With a side, that look becomes the saved one (only what differs from before is written);
-   * with null everything stays as it was saved. Returns what was written.
+   * Ends the comparison. With a side, that look becomes the saved one (only what differs from before is written, in the
+   * same write that ends the comparison); with null everything stays as it was saved. Returns what was written.
    */
   endCompare(adopt: 'a' | 'b' | null): LookKey[] {
-    const compare = this.compare, mine = this.comparing;
-    this.setCompare(null);
-    if (!adopt || !compare || !mine) return [];
-    const before = lookOf(this.kept), chosen = compare[adopt], patch: Profile = {};
-    for (const key of LOOK_KEYS) if (key in chosen && JSON.stringify(chosen[key]) !== JSON.stringify(before[key])) Object.assign(patch, { [key]: chosen[key] });
-    if (Object.keys(patch).length) this.change(patch);
+    const compare = this.compare, mine = this.comparing, before = lookOf(this.kept), patch: Profile = {};
+    this.compare = null;
+    if (adopt && compare && mine) for (const key of LOOK_KEYS)
+      if (key in compare[adopt] && JSON.stringify(compare[adopt][key]) !== JSON.stringify(before[key])) Object.assign(patch, { [key]: compare[adopt][key] });
+    const stored = Object.keys(patch).length ? this.lay(patch) : {};
+    this.queue(() => sendCompare(null, stored));
     return Object.keys(patch) as LookKey[];
   }
   /** Keeps a preset under this name, or with null removes it. Returns the name as it was stored ('' = not a usable name). */
@@ -104,15 +113,27 @@ export class Store {
     this.presets = next; this.queue(() => savePresets(next));
     return clean;
   }
-  /** Replaces everything at once: reading a backup. */
+  /**
+   * Replaces everything at once: reading a backup. A comparison in progress ends without a side being kept: its A is no
+   * longer what is saved, and keeping its B would write over what was just restored.
+   */
   restore(settings: Settings, profiles: Profiles, presets: Presets): void {
-    this.global = sanitize(settings); this.profiles = sanitizeProfiles(profiles); this.presets = sanitizePresets(presets);
+    this.global = sanitize(settings); this.profiles = sanitizeProfiles(profiles); this.presets = sanitizePresets(presets); this.compare = null;
     if (this.target && !this.profiles[this.target]) this.target = '';
     const all = { settings: this.global, profiles: this.profiles, presets: this.presets };
-    this.queue(() => chrome.storage.local.set(all));
+    this.queue(() => sendCompare(null, all));
   }
   /** Resolves once everything changed so far is stored. */
   get saved(): Promise<void> { return this.saving; }
+}
+/**
+ * The comparison is written by the background, which also switches it from the keyboard (`saveCompare`): one write at a
+ * time there, so a switch that read it before it ended cannot write it back afterwards. What has to be stored with it
+ * (`saved`: a side kept, a backup restored) goes in the same message, so the page closing cannot leave half of it.
+ */
+async function sendCompare(compare: Compare | null, saved?: Stored): Promise<void> {
+  const reply = await chrome.runtime.sendMessage({ target: 'background', type: 'compare', compare, saved } satisfies Message);
+  if (!reply?.ok) throw new Error(reply?.error || 'A/B');
 }
 
 /** Human names of what a profile can hold, for listing its differences from the global settings. */

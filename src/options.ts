@@ -1,9 +1,9 @@
-import { t, initI18n, localizeDocument, localizeText, getLanguagePreference, setLanguagePreference } from './shared/i18n';
+import { t, initI18n, localizeDocument, localizeText, getLanguage, getLanguagePreference, setLanguagePreference } from './shared/i18n';
 import { DIRECTOR, GLOW, HALO, LOOK_KEYS, PULSE, clamp, effectiveSettings, glowDepth, presetName, sanitize } from './shared/settings';
 import type { ColorSettings, DirectorSettings, ExposureSettings, GlowSettings, GuardSettings, LookKey, Message, PresetLook, Profile, PulseSettings, RGB, Settings, Status, TrailSettings } from './shared/types';
 import { siteKey } from './shared/site';
 import { AUDIO_NAMES, LOOK_NAMES, Store, protectedSite } from './ui/store';
-import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, importJSON, matchesPreset, presetFrom, withoutListening, type Imported } from './shared/presets';
+import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, guardRestore, importJSON, limiterKept, matchesPreset, presetFrom, type Imported } from './shared/presets';
 import { WIZARD, WIZARD_START, WIZARD_STEPS, closestPreset, recommend, type WizardAnswers } from './shared/wizard';
 import { glowProfile } from './engine/emission';
 import { guardCap } from './engine/guard';
@@ -399,6 +399,8 @@ $('profile-form').addEventListener('submit', e => {
 // ───── Presets
 let removing = '', pending: Extract<Imported, { kind: 'backup' }> | null = null;
 const say = (id: string, text: string) => { $(id).textContent = text; };
+/** Messages one after another, as each language writes them. */
+const sentences = (...texts: (string | false)[]) => texts.filter(Boolean).join(getLanguage() === 'ja' ? '' : ' ');
 function download(name: string, text: string): void {
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' })), link = make('a', { href: url, download: name });
   document.body.append(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -408,8 +410,15 @@ function renderPresets(): void {
   const row = (name: string, note: string, look: PresetLook, own: boolean) => {
     const active = matchesPreset(settings, look), apply = make('button', { type: 'button', textContent: active ? t("適用中") : t("適用"), disabled: active });
     apply.dataset.apply = name;
-    // Only the look changes. Whether sound is analysed stays the user's own switch.
-    apply.addEventListener('click', () => { change(applyPreset(settings, look)); say('preset-message', t("「{0}」を{1}に適用しました。", [name, store.target ? t("{0} のプロファイル", [store.target]) : t("グローバル設定")])); });
+    // Only the look changes. Whether sound is analysed, and a Flash Limiter that is on, stay the user's own switches.
+    // During a comparison the look goes to the side that is showing, like any other change: nothing saved is written until a side is kept.
+    apply.addEventListener('click', () => {
+      const kept = limiterKept(settings, look), side = store.comparing ? store.compare!.active.toUpperCase() : '';
+      change(applyPreset(settings, look));
+      say('preset-message', sentences(side ? t("「{0}」を比較中の {1} に入れました。使うには、上の比較バーで決めてください。", [name, side])
+        : t("「{0}」を{1}に適用しました。", [name, store.target ? t("{0} のプロファイル", [store.target]) : t("グローバル設定")]),
+        kept && t("Flash Limiter はオンのままにしました（このプリセットではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。")));
+    });
     const save = make('button', { type: 'button', textContent: t("書き出す") }); save.dataset.export = name;
     save.addEventListener('click', () => { download(fileName(name), exportPreset(name, look)); say('preset-message', t("「{0}」をJSONファイルに書き出しました。", [name])); });
     const copy = make('button', { type: 'button', textContent: t("JSONをコピー") });
@@ -461,12 +470,15 @@ $('import-file').addEventListener('change', async e => {
 $('import-paste').addEventListener('click', () => take($<HTMLTextAreaElement>('import-text').value));
 $('import-confirm').addEventListener('click', () => {
   if (!pending) return;
-  // A backup may come from someone else: reading it never starts sound analysis that is not already on here.
-  const guarded = withoutListening(pending, store.global);
-  const quieted = guarded.settings.pulse.enabled !== pending.settings.pulse.enabled || guarded.settings.source !== pending.settings.source;
+  // A backup may come from someone else: reading it never starts sound analysis that is not already on here, and never turns a Flash Limiter off.
+  // Judged by what is showing now, a comparison's side included; the comparison then ends with the restore.
+  const guarded = guardRestore(pending, { settings: store.global, profiles: store.profiles, compare: store.compare }), compared = !!store.compare;
   store.restore(guarded.settings, guarded.profiles, pending.presets);
   pending = null; $('import-confirm').hidden = true; $<HTMLTextAreaElement>('import-text').value = '';
-  say('import-message', t("バックアップを読み込みました。{0}", [quieted ? t("音の解析（Pulse Engine・Music Mode）は、この読み込みではオンにしていません。使う場合はご自身でオンにしてください。") : '']));
+  say('import-message', t("バックアップを読み込みました。{0}", [sentences(
+    guarded.quieted && t("音の解析（Pulse Engine・Music Mode）は、この読み込みではオンにしていません。使う場合はご自身でオンにしてください。"),
+    guarded.limiter && t("Flash Limiter は、オンだったところではオンのままにしました（バックアップではオフ）。オフにする場合は、ご自身で切り替えてください。"),
+    compared && t("進めていた A/B 比較は終了しました。"))]));
   render();
 });
 $('backup-export').addEventListener('click', () => {

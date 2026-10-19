@@ -1,10 +1,11 @@
-import type { PresetLook, Presets, Profiles, Settings } from './types';
-import { COLOR, DIRECTOR, EXPOSURE, GLOW, HALO, PULSE, SCHEMA, TRAILS, cut, presetName, sanitize, sanitizePreset, sanitizePresets, sanitizeProfiles } from './settings';
+import type { Compare, PresetLook, Presets, Profile, Profiles, Settings } from './types';
+import { COLOR, DIRECTOR, EXPOSURE, GLOW, HALO, PULSE, SCHEMA, TRAILS, compareSettings, cut, presetName, resolveSettings, sanitize, sanitizePreset, sanitizePresets, sanitizeProfiles } from './settings';
 
 /**
  * Preset Library. A preset is a complete look: everything a site profile can hold except zone trims, which belong to one
  * screen, and the UI Guard, which is a protection and stays as the user has it. Applying one never switches sound analysis
- * on or off: its Pulse settings only say how the light should answer sound once the user has switched the Pulse Engine on.
+ * on or off, nor a Flash Limiter that is on off: its Pulse settings only say how the light should answer sound once the user
+ * has switched the Pulse Engine on.
  */
 export interface BuiltIn { name: string; note: string; look: PresetLook }
 const look = (values: PresetLook): PresetLook => sanitizePreset(values);
@@ -50,12 +51,18 @@ export function freePresetName(name: unknown, mine: Presets): string {
   }
 }
 
-/** The settings change that applying a preset makes. Whether the Pulse Engine is on stays as the user has it. */
+/**
+ * The settings change that applying a preset makes. Whether the Pulse Engine is on stays as the user has it, and a Flash
+ * Limiter that is on stays on (`limiterKept`): a preset may come from someone else, only the user's own switch turns it off.
+ */
 export function applyPreset(current: Settings, preset: PresetLook): Partial<Settings> {
   const patch: Partial<Settings> = { ...sanitizePreset(preset) };
   if (patch.pulse) patch.pulse = { ...patch.pulse, enabled: current.pulse.enabled };
+  if (limiterKept(current, preset)) patch.flashLimiter = true;
   return patch;
 }
+/** Whether applying this preset keeps the Flash Limiter on although the preset has it off. */
+export const limiterKept = (current: Settings, preset: PresetLook): boolean => current.flashLimiter && preset.flashLimiter === false;
 /** The look of the settings as they are now, ready to be kept as a preset. */
 export function presetFrom(settings: Settings): PresetLook { return sanitizePreset(settings); }
 /** Whether the current settings are exactly this preset (Pulse on/off aside). */
@@ -65,15 +72,42 @@ export function matchesPreset(settings: Settings, preset: PresetLook): boolean {
 }
 
 /**
- * A backup may come from someone else, so reading one never starts sound analysis: the Pulse Engine stays off unless it is
- * already on here, and Music Mode (which also listens) is not switched to. Everything else is taken as it is.
+ * A backup may come from someone else, so reading one never starts sound analysis and never takes the Flash Limiter away.
+ * Both are judged by what a page shows now (during a comparison, the side that is showing) and what the backup asks of it:
+ * the global settings, and each site with its profile laid over them. The Pulse Engine is on only where both say so, Music
+ * Mode (which also listens) is not switched to, and the Flash Limiter is on where either does; a site that comes out
+ * different from the global settings keeps that in its profile. Everything else is taken as it is.
+ * `quieted` / `limiter`: listening, or the Flash Limiter, was kept from what the backup says.
  */
-export function withoutListening(imported: { settings: Settings; profiles: Profiles }, current: Settings): { settings: Settings; profiles: Profiles } {
-  const settings = { ...imported.settings, pulse: { ...imported.settings.pulse, enabled: imported.settings.pulse.enabled && current.pulse.enabled },
-    source: imported.settings.source === 'music' && current.source !== 'music' ? current.source : imported.settings.source };
-  const profiles = Object.fromEntries(Object.entries(imported.profiles).map(([site, profile]) =>
-    [site, profile.pulse ? { ...profile, pulse: { ...profile.pulse, enabled: profile.pulse.enabled && current.pulse.enabled } } : profile]));
-  return { settings, profiles };
+export function guardRestore(imported: { settings: Settings; profiles: Profiles }, current: { settings: Settings; profiles: Profiles; compare?: Compare | null }):
+  { settings: Settings; profiles: Profiles; quieted: boolean; limiter: boolean } {
+  const wanted = imported.settings, of = (profiles: Profiles, site: string) => Object.hasOwn(profiles, site) ? profiles[site] : null;
+  // A page with a profile of its own shows a comparison only of that profile; every other page, one of the global settings.
+  const seen = (site: string) => { const own = of(current.profiles, site); return compareSettings(resolveSettings(current.settings, own), current.compare || null, own ? site : ''); };
+  const was = seen('');
+  const settings = { ...wanted, flashLimiter: wanted.flashLimiter || was.flashLimiter, pulse: { ...wanted.pulse, enabled: wanted.pulse.enabled && was.pulse.enabled },
+    source: wanted.source === 'music' && was.source !== 'music' ? was.source : wanted.source };
+  let quieted = settings.pulse.enabled !== wanted.pulse.enabled || settings.source !== wanted.source, limiter = settings.flashLimiter !== wanted.flashLimiter;
+  const profiles: Profiles = {};
+  for (const site of new Set([...Object.keys(imported.profiles), ...Object.keys(current.profiles)])) {
+    const profile: Profile = { ...of(imported.profiles, site) }, before = seen(site), asked = resolveSettings(wanted, profile), after = resolveSettings(settings, profile);
+    const lit = before.flashLimiter || asked.flashLimiter, listening = before.pulse.enabled && asked.pulse.enabled;
+    if (after.flashLimiter !== lit) profile.flashLimiter = lit;
+    if (after.pulse.enabled !== listening) profile.pulse = { ...after.pulse, enabled: listening };
+    limiter ||= lit !== asked.flashLimiter; quieted ||= listening !== asked.pulse.enabled;
+    if (Object.hasOwn(imported.profiles, site) || Object.keys(profile).length) profiles[site] = profile;
+  }
+  return { settings, profiles, quieted, limiter };
+}
+/**
+ * What a site profile keeps when it is reset to follow the global settings (`current`: what the site shows now): nothing,
+ * unless following them would take away a Flash Limiter that is on, or start listening where it is off.
+ */
+export function resetProfile(current: Settings, global: Settings): Profile {
+  const profile: Profile = {};
+  if (current.flashLimiter && !global.flashLimiter) profile.flashLimiter = true;
+  if (!current.pulse.enabled && global.pulse.enabled) profile.pulse = { ...global.pulse, enabled: false };
+  return profile;
 }
 
 const APP = 'ECLIRIM';

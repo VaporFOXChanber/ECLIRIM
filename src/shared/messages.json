@@ -3278,5 +3278,30 @@
     "id": "m_9458901cf614",
     "ja": "Flash Limiter。",
     "en": "Flash Limiter. "
+  },
+  {
+    "id": "m_742ec15a88a4",
+    "ja": "「{0}」を比較中の {1} に入れました。使うには、上の比較バーで決めてください。",
+    "en": "Added “{0}” to side {1}. Choose a side in the comparison bar to keep it."
+  },
+  {
+    "id": "m_05b39b63f0c6",
+    "ja": "Flash Limiter はオンのままにしました（このプリセットではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。",
+    "en": "The Flash Limiter stays on (this preset turns it off). To turn it off, use the Flash Limiter switch yourself."
+  },
+  {
+    "id": "m_a3ffc908ceab",
+    "ja": "Flash Limiter は、オンだったところではオンのままにしました（バックアップではオフ）。オフにする場合は、ご自身で切り替えてください。",
+    "en": "The Flash Limiter stays on wherever it was on (the backup turns it off). To turn it off, switch it off yourself."
+  },
+  {
+    "id": "m_f7fe9d4168c3",
+    "ja": "進めていた A/B 比較は終了しました。",
+    "en": "The A/B comparison in progress has ended."
+  },
+  {
+    "id": "m_5005fce6f30b",
+    "ja": "Flash Limiter はオンのままにしました（グローバル設定ではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。",
+    "en": "The Flash Limiter stays on (the global settings have it off). To turn it off, use the Flash Limiter switch yourself."
   }
 ]

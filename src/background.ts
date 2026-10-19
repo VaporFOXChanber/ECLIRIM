@@ -1,4 +1,4 @@
-import { loadCompare, loadSettings, migrate, sanitize } from './shared/settings';
+import { flipCompare, loadSettings, migrate, sanitize, sanitizeCompare, saveCompare } from './shared/settings';
 import { captureBlockReason } from './shared/capture-policy';
 import { sitePattern } from './shared/site';
 import type { Message, Settings, VideoContext } from './shared/types';
@@ -89,10 +89,11 @@ async function startCapture(tabId: number): Promise<{ ok: boolean }> {
 chrome.runtime.onMessage.addListener((m: Message, sender, reply) => {
   if (m?.target !== 'background' || sender.id !== chrome.runtime.id) return;
   const popup = sender.url === chrome.runtime.getURL('popup.html');
+  const options = sender.url?.split(/[?#]/)[0] === chrome.runtime.getURL('options.html');
   const offscreen = sender.url === offscreenURL;
   let job: Promise<unknown> | undefined;
   // Diagnostics on the settings page: what every lit tab measures. Only tabs the user lit or approved are asked.
-  if (m.type === 'tabs' && sender.url?.split(/[?#]/)[0] === chrome.runtime.getURL('options.html')) job = (async () => {
+  if (m.type === 'tabs' && options) job = (async () => {
     const granted = (await chrome.permissions.getAll()).origins || [];
     const ids = new Set([...await litTabs(), ...(granted.length ? await chrome.tabs.query({ url: granted }) : []).map(tab => tab.id!)]);
     const tabs = await Promise.all([...ids].map(async tabId => {
@@ -112,6 +113,10 @@ chrome.runtime.onMessage.addListener((m: Message, sender, reply) => {
       return chrome.tabs.sendMessage(m.tabId, { target: 'content', type: 'stop' }).catch(() => undefined);
     });
     if (m.type === 'status') job = chrome.tabs.sendMessage(m.tabId, { target: 'content', type: 'status' }).catch(() => null);
+  } else if (m.type === 'compare' && (popup || options)) {
+    // Queued with the A/B shortcut: a switch that read the comparison before it ended cannot write it back after.
+    // Settings that go with it are written in the same step, whether or not the page that sent them is still open.
+    job = serial(() => saveCompare(sanitizeCompare(m.compare), m.saved && typeof m.saved === 'object' ? m.saved : {}));
   } else if (m.type === 'context' && sender.tab?.id !== undefined && sender.frameId === 0) {
     job = captured().then(id => id === sender.tab!.id ? chrome.runtime.sendMessage({ ...m, target: 'offscreen', tabId: id }) : undefined);
   } else if (m.type === 'release' && sender.tab?.id !== undefined) {
@@ -148,10 +153,7 @@ chrome.runtime.onStartup.addListener(() => { void chrome.storage.local.remove('c
 // A/B Comparison from the keyboard, so the two looks can be flipped while the video fills the screen.
 chrome.commands.onCommand.addListener(command => {
   if (command !== 'compare-switch') return;
-  void serial(async () => {
-    const compare = await loadCompare();
-    if (compare) await chrome.storage.local.set({ compare: { ...compare, active: compare.active === 'a' ? 'b' : 'a' } });
-  });
+  void serial(flipCompare);
 });
 chrome.tabs.onZoomChange.addListener(({ tabId, newZoomFactor }) => {
   void chrome.tabs.sendMessage(tabId, { target: 'content', type: 'zoom', factor: newZoomFactor }).catch(() => undefined);
