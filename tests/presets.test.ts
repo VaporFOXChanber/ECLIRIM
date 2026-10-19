@@ -1,8 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BUILT_IN, applyPreset, exportBackup, exportPreset, importJSON, matchesPreset, presetFrom, withoutListening } from '../src/shared/presets.ts';
+import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, importJSON, matchesPreset, presetFrom, withoutListening } from '../src/shared/presets.ts';
 import { COLOR, DEFAULTS, DIRECTOR, PULSE, SCHEMA, TRAILS, migrate, presetName, sanitize, sanitizePreset, sanitizePresets } from '../src/shared/settings.ts';
 import { editZones } from '../src/engine/zones.ts';
+import { Store } from '../src/ui/store.ts';
+import type { Presets } from '../src/shared/types.ts';
 
 test('the built-in presets are complete looks that never switch sound analysis on or the Flash Limiter off', () => {
   const names = BUILT_IN.map(p => p.name);
@@ -77,4 +79,85 @@ test('settings stored by 0.8.1 keep every value; what is new starts at its defau
   assert.deepEqual(sanitize({ pulse: { enabled: true, depth: -4, bass: 'x' }, color: { enabled: false, wideGamut: 'yes' }, trails: { length: 300 } }),
     { ...DEFAULTS, pulse: { ...PULSE, enabled: true, depth: 0 }, color: { ...COLOR, enabled: false }, trails: { ...TRAILS, length: 100 } });
   assert.equal(sanitize({ source: 'music' }).source, 'music');
+});
+
+test('an imported preset never loops, never overwrites, and keeps its number whole', () => {
+  const look = presetFrom(DEFAULTS), mine: Presets = {};
+  // Import the same file again and again, the way the settings page does.
+  const take = (name: string) => { const free = freePresetName(name, mine); assert.equal(presetName(free), free, 'stored exactly as named'); mine[free] = look; return free; };
+  for (const length of [40, 39, 38, 36, 12]) {
+    const name = 'あ'.repeat(length - 1) + 'x';
+    assert.equal(take(name), name);
+    for (let n = 2; n <= 12; n++) {
+      const next = take(name);
+      assert.ok(next.endsWith(` (${n})`) && next.length <= 40, `${length}: ${next}`);
+      assert.ok(!next.includes('  ') && next === next.trim());
+    }
+    assert.equal(Object.keys(mine).length, 12, `${length}: no import replaced another`);
+    for (const key of Object.keys(mine)) delete mine[key];
+  }
+  // A name that would end in a space once shortened loses the space, not the number.
+  assert.equal(freePresetName('a'.repeat(35) + ' bcd', { ['a'.repeat(35) + ' bcd']: look }), 'a'.repeat(35) + ' (2)');
+  assert.equal(freePresetName('  ', {}), ''); assert.equal(freePresetName(42, {}), '');
+});
+
+test('names are shortened between characters: an emoji is never cut in half, so a stored name is found again', () => {
+  const lone = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/, look = presetFrom(DEFAULTS);
+  // What Chrome keeps of a key (half a character becomes U+FFFD), read back the way loadPresets reads it.
+  const stored = (presets: Presets): Presets => sanitizePresets(Object.fromEntries(Object.entries(presets).map(([key, value]) => [key.replace(new RegExp(lone, 'g'), '�'), value])));
+  const name = 'a' + '😀'.repeat(19) + 'z';
+  assert.equal(name.length, 40); assert.equal(presetName(name), name, 'a whole name of 40 units stays as it is');
+  assert.equal(presetName('a' + '😀'.repeat(20)), 'a' + '😀'.repeat(19)); assert.equal(presetName('😀'.repeat(25)), '😀'.repeat(20));
+  let mine: Presets = {};
+  for (let n = 1; n <= 11; n++) {
+    const free = freePresetName(name, mine);
+    assert.ok(!lone.test(free) && free.length <= 40 && presetName(free) === free, free);
+    mine = stored({ ...mine, [free]: look });
+    assert.equal(Object.keys(mine).length, n, `import ${n} replaced nothing`); assert.ok(Object.hasOwn(mine, free), `${free} is found again`);
+  }
+  assert.ok(Object.hasOwn(mine, 'a' + '😀'.repeat(17) + ' (2)') && Object.hasOwn(mine, 'a' + '😀'.repeat(17) + ' (10)'));
+  // From (9) to (10) the number grows by one unit, and the name gives it up.
+  const plain = 'b'.repeat(40), taken: Presets = { [plain]: look };
+  for (let n = 2; n <= 9; n++) taken[freePresetName(plain, taken)] = look;
+  assert.ok(Object.hasOwn(taken, 'b'.repeat(36) + ' (9)'));
+  assert.equal(freePresetName(plain, taken), 'b'.repeat(35) + ' (10)');
+});
+
+test('standard preset names are taken in any case; the user\'s own are told apart exactly', () => {
+  assert.ok(builtInName('Overkill') && builtInName('overkill') && builtInName('SOFT AMBIENT') && !builtInName('Overkill 2'));
+  assert.equal(freePresetName('overkill', {}), 'overkill (2)');
+  assert.equal(freePresetName(' Cinematic Balanced ', {}), 'Cinematic Balanced (2)');
+  assert.equal(freePresetName('mine', { Mine: {} }), 'mine', 'a different case is a different preset of the user\'s');
+  for (const name of ['constructor', 'toString', 'hasOwnProperty', '__proto__']) assert.equal(freePresetName(name, {}), name, `${name} is free while nobody has it`);
+});
+
+test('presets named like object properties are kept, listed, read back, removed and backed up', async () => {
+  const look = presetFrom(sanitize({ mode: 'vivid' })), names = ['__proto__', 'constructor', 'toString', 'hasOwnProperty'];
+  const raw = JSON.parse('{' + names.map(name => JSON.stringify(name) + ':' + JSON.stringify(look)).join(',') + '}');
+  const clean = sanitizePresets(raw);
+  assert.deepEqual(Object.keys(clean).sort(), [...names].sort());
+  for (const name of names) { assert.ok(Object.hasOwn(clean, name), name); assert.deepEqual(clean[name], look, name); }
+  assert.equal(Object.getPrototypeOf(clean), Object.prototype, 'the dictionary keeps its prototype');
+  assert.equal(({} as Record<string, unknown>).mode, undefined, 'nothing reached Object.prototype');
+  const back = importJSON(exportBackup(DEFAULTS, {}, clean));
+  assert.equal(back.kind, 'backup'); if (back.kind === 'backup') assert.deepEqual(back.presets, clean);
+  // The store, with storage receiving what Chrome would.
+  const written: { presets?: unknown }[] = [];
+  (globalThis as any).chrome = { storage: { local: { set: async (items: Record<string, unknown>) => { written.push(JSON.parse(JSON.stringify(items))); } } } };
+  try {
+    const store = new Store(message => assert.fail(message));
+    (store as unknown as { loaded: boolean }).loaded = true;
+    for (const name of names) assert.equal(store.setPreset(name, look), name);
+    for (const name of names) assert.ok(Object.hasOwn(store.presets, name) && store.presets[name].mode === 'vivid', name);
+    assert.equal(freePresetName('__proto__', store.presets), '__proto__ (2)');
+    assert.equal(freePresetName('constructor', store.presets), 'constructor (2)');
+    store.setPreset('__proto__', null); store.setPreset('toString', null);
+    assert.deepEqual(Object.keys(store.presets).sort(), ['constructor', 'hasOwnProperty']);
+    await store.saved;
+    assert.deepEqual(Object.keys(sanitizePresets(written[written.length - 1].presets)).sort(), ['constructor', 'hasOwnProperty']);
+    store.restore(DEFAULTS, {}, clean);
+    assert.deepEqual(Object.keys(store.presets).sort(), [...names].sort());
+    await store.saved;
+    assert.deepEqual(sanitizePresets(written[written.length - 1].presets), clean, 'a restored backup is written whole');
+  } finally { delete (globalThis as any).chrome; }
 });

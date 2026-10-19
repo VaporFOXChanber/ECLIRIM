@@ -1,4 +1,4 @@
-import { DEFAULTS, LOOK_KEYS, compareSettings, loadCompare, loadPresets, loadProfiles, loadSettings, lookOf, presetName, resolveSettings, sanitize, sanitizeCompare, sanitizePreset, sanitizePresets, sanitizeProfile, sanitizeProfiles, savePresets, saveProfiles, saveSettings } from '../shared/settings';
+import { DEFAULTS, LOOK_KEYS, compareSettings, loadCompare, loadPresets, loadProfiles, loadSettings, lookOf, own, presetName, resolveSettings, sanitize, sanitizeCompare, sanitizePreset, sanitizePresets, sanitizeProfile, sanitizeProfiles, savePresets, saveProfiles, saveSettings } from '../shared/settings';
 import type { AudioStatus, Compare, LookKey, PresetLook, Presets, Profile, Profiles, Settings } from '../shared/types';
 
 /** What the popup and the settings page edit: the global settings, or one site's profile lying over them. */
@@ -100,7 +100,7 @@ export class Store {
     const clean = presetName(name);
     if (!clean) return '';
     const next = { ...this.presets };
-    if (preset) next[clean] = sanitizePreset(preset); else delete next[clean];
+    if (preset) own(next, clean, sanitizePreset(preset)); else delete next[clean];
     this.presets = next; this.queue(() => savePresets(next));
     return clean;
   }
