@@ -137,6 +137,7 @@ export interface CaptureSample { sampleMs: number; readMs: number; reader: Reade
 export type Message =
   | { target: 'background'; type: 'start' | 'capture' | 'stop' | 'status' | 'stop-capture'; tabId: number }
   | { target: 'background'; type: 'tabs' }
+  | { target: 'background'; type: 'compare'; compare: Compare | null; saved?: { settings?: unknown; profiles?: unknown; presets?: unknown } }
   | { target: 'content'; type: 'start' | 'stop' | 'status' | 'context' | 'capture-started' | 'probe' }
   | { target: 'content'; type: 'capture-ended'; detail: string }
   | ({ target: 'content'; type: 'colors'; colors: RGB[] } & CaptureSample)

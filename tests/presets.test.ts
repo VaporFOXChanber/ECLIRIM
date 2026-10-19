@@ -1,10 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, importJSON, matchesPreset, presetFrom, withoutListening } from '../src/shared/presets.ts';
-import { COLOR, DEFAULTS, DIRECTOR, PULSE, SCHEMA, TRAILS, migrate, presetName, sanitize, sanitizePreset, sanitizePresets } from '../src/shared/settings.ts';
+import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, guardRestore, importJSON, limiterKept, matchesPreset, presetFrom, resetProfile } from '../src/shared/presets.ts';
+import { COLOR, DEFAULTS, DIRECTOR, PULSE, SCHEMA, TRAILS, flipCompare, lookOf, migrate, presetName, sanitize, sanitizeCompare, sanitizePreset, sanitizePresets, saveCompare } from '../src/shared/settings.ts';
 import { editZones } from '../src/engine/zones.ts';
 import { Store } from '../src/ui/store.ts';
-import type { Presets } from '../src/shared/types.ts';
+import type { Message, Presets } from '../src/shared/types.ts';
 
 test('the built-in presets are complete looks that never switch sound analysis on or the Flash Limiter off', () => {
   const names = BUILT_IN.map(p => p.name);
@@ -61,12 +61,197 @@ test('a backup holds everything and restores it; reading one never starts sound 
   const back = importJSON(exportBackup(settings, profiles, presets));
   assert.deepEqual(back, { kind: 'backup', settings, profiles, presets });
   if (back.kind !== 'backup') return;
-  const quiet = withoutListening(back, DEFAULTS);
+  const quiet = guardRestore(back, { settings: DEFAULTS, profiles: {} });
   assert.equal(quiet.settings.pulse.enabled, false); assert.equal(quiet.settings.pulse.depth, 80); assert.equal(quiet.settings.source, 'video', 'Music Mode listens too');
   assert.equal(quiet.profiles['www.youtube.com'].pulse!.enabled, false); assert.equal(quiet.profiles['www.youtube.com'].mode, 'ambient');
-  assert.notEqual(quiet.settings.zones, null); assert.equal(quiet.settings.hud, true);
-  const already = withoutListening(back, sanitize({ source: 'music', pulse: { ...PULSE, enabled: true } }));
+  assert.notEqual(quiet.settings.zones, null); assert.equal(quiet.settings.hud, true); assert.ok(quiet.quieted && !quiet.limiter, "it says listening was kept off");
+  const already = guardRestore(back, { settings: sanitize({ source: 'music', pulse: { ...PULSE, enabled: true } }), profiles: {} });
   assert.equal(already.settings.pulse.enabled, true); assert.equal(already.settings.source, 'music'); assert.equal(already.profiles['www.youtube.com'].pulse!.enabled, true);
+  assert.ok(!already.quieted, "nothing was kept off");
+  // Listening is judged per site: a site where it is off here stays off, whatever the global switch says.
+  const site = guardRestore(back, { settings: sanitize({ source: 'music', pulse: { ...PULSE, enabled: true } }), profiles: { 'www.youtube.com': { pulse: { ...PULSE, enabled: false } }, 'quiet.example': { pulse: PULSE } } });
+  assert.equal(site.settings.pulse.enabled, true); assert.equal(site.profiles['www.youtube.com'].pulse!.enabled, false); assert.equal(site.profiles['www.youtube.com'].mode, 'ambient');
+  assert.equal(site.profiles['quiet.example'].pulse!.enabled, false, 'a site the backup does not have keeps listening off'); assert.ok(site.quieted, "it says listening was kept off");
+});
+
+test('applying a preset never turns a Flash Limiter that is on off; one that is off takes what the preset says', () => {
+  const loud = { ...BUILT_IN.find(p => p.name === 'Overkill')!.look, flashLimiter: false };
+  for (const listening of [true, false]) {
+    const on = sanitize({ flashLimiter: true, pulse: { ...PULSE, enabled: listening } }), patch = applyPreset(on, loud), next = sanitize({ ...on, ...patch });
+    assert.equal(next.flashLimiter, true, 'kept on'); assert.ok(limiterKept(on, loud), "it says so");
+    assert.equal(next.pulse.enabled, listening, 'Pulse protection still holds'); assert.equal(next.brightness, 100); assert.equal(next.mode, 'vivid'); assert.equal(next.saturation, 150, 'the rest of the look is applied');
+  }
+  const off = sanitize({ flashLimiter: false });
+  assert.equal(sanitize({ ...off, ...applyPreset(off, loud) }).flashLimiter, false); assert.ok(!limiterKept(off, loud), "nothing was kept");
+  assert.equal(sanitize({ ...off, ...applyPreset(off, BUILT_IN[0].look) }).flashLimiter, true, 'a preset may still turn it on');
+  assert.ok(!limiterKept(DEFAULTS, BUILT_IN[0].look) && !limiterKept(DEFAULTS, { mode: 'vivid' }), "nothing to keep");
+});
+
+test('restoring a backup keeps the Flash Limiter on wherever it is on, globally and on each site', () => {
+  const wanted = { settings: sanitize({ flashLimiter: false, brightness: 30 }), profiles: {
+    'off.example': { flashLimiter: false, mode: 'ambient' as const }, 'inherit.example': { brightness: 20 }, 'new.example': { flashLimiter: false } } };
+  // Here: on globally, and on mine.example through its own profile, which the backup does not have.
+  const here = { settings: sanitize({ flashLimiter: true }), profiles: { 'mine.example': { flashLimiter: true } } };
+  const kept = guardRestore(wanted, here);
+  assert.equal(kept.settings.flashLimiter, true); assert.equal(kept.settings.brightness, 30, 'the rest is restored'); assert.ok(kept.limiter && !kept.quieted, "it says the Flash Limiter was kept");
+  for (const site of ['off.example', 'inherit.example', 'new.example']) assert.equal(sanitize({ ...kept.settings, ...kept.profiles[site] }).flashLimiter, true, site);
+  assert.equal(kept.profiles['off.example'].mode, 'ambient'); assert.equal(kept.profiles['inherit.example'].brightness, 20);
+  // Off globally here, but on for one site: only that site keeps it, and a profile the backup lacks is kept to hold it.
+  const some = guardRestore(wanted, { settings: sanitize({ flashLimiter: false }), profiles: { 'off.example': { flashLimiter: true }, 'mine.example': { flashLimiter: true }, 'plain.example': { mode: 'vivid' } } });
+  assert.equal(some.settings.flashLimiter, false, 'off here: the backup decides');
+  assert.equal(some.profiles['off.example'].flashLimiter, true); assert.deepEqual(some.profiles['mine.example'], { flashLimiter: true });
+  assert.equal(some.profiles['new.example'].flashLimiter, false); assert.ok(!('plain.example' in some.profiles), 'a profile with nothing to protect is not kept'); assert.ok(some.limiter, "it says the Flash Limiter was kept");
+  // Off everywhere here: the backup is taken as it is.
+  const none = guardRestore(wanted, { settings: sanitize({ flashLimiter: false }), profiles: {} });
+  assert.deepEqual(none.settings, wanted.settings); assert.deepEqual(none.profiles, wanted.profiles); assert.ok(!none.limiter && !none.quieted, "nothing was kept");
+});
+
+test('each site takes what the backup asks of it, not what protecting the global settings gave', () => {
+  // Off on this site here, and the backup leaves it off there: it stays off, although the global settings keep it on.
+  const limiter = guardRestore({ settings: sanitize({ flashLimiter: false }), profiles: {} }, { settings: sanitize({ flashLimiter: true }), profiles: { 'off.example': { flashLimiter: false } } });
+  assert.equal(limiter.settings.flashLimiter, true); assert.deepEqual(limiter.profiles['off.example'], { flashLimiter: false });
+  // Listening on this site here, and the backup listens: it keeps listening, although the global settings stay quiet.
+  const pulse = guardRestore({ settings: sanitize({ pulse: { ...PULSE, enabled: true } }), profiles: {} }, { settings: DEFAULTS, profiles: { 'loud.example': { pulse: { ...PULSE, enabled: true } } } });
+  assert.equal(pulse.settings.pulse.enabled, false); assert.equal(pulse.profiles['loud.example'].pulse!.enabled, true);
+});
+
+test('restoring is judged by what is showing: the side of a comparison counts', () => {
+  const saved = sanitize({ flashLimiter: false }), wanted = { settings: sanitize({ flashLimiter: false }), profiles: { 'site.example': {} } };
+  const showing = (active: 'a' | 'b', target = '') => ({ active, a: lookOf(saved), b: { ...lookOf(saved), flashLimiter: true }, target });
+  const global = guardRestore(wanted, { settings: saved, profiles: {}, compare: showing('b') });
+  assert.equal(global.settings.flashLimiter, true); assert.ok(global.limiter, "it says the Flash Limiter was kept");
+  assert.equal(guardRestore(wanted, { settings: saved, profiles: {}, compare: showing('a') }).settings.flashLimiter, false, 'A is what is saved');
+  const site = guardRestore(wanted, { settings: saved, profiles: { 'site.example': {} }, compare: showing('b', 'site.example') });
+  assert.equal(site.settings.flashLimiter, false); assert.equal(site.profiles['site.example'].flashLimiter, true);
+});
+
+test('resetting a site profile keeps a Flash Limiter that is on and listening that is off', () => {
+  const global = sanitize({ flashLimiter: false, pulse: { ...PULSE, enabled: true } });
+  assert.deepEqual(resetProfile(sanitize({ flashLimiter: true, pulse: { ...PULSE, enabled: false } }), global), { flashLimiter: true, pulse: { ...PULSE, enabled: false } });
+  assert.deepEqual(resetProfile(sanitize({ flashLimiter: false, pulse: { ...PULSE, enabled: true, depth: 90 } }), global), {}, 'nothing to keep: the site follows the global settings');
+  assert.deepEqual(resetProfile(DEFAULTS, DEFAULTS), {});
+});
+
+/**
+ * A Store over a chrome.storage that records what is written and removed. Comparisons go to a background that queues
+ * them, and the A/B shortcut, one at a time as background.ts does. `hold` keeps every read waiting until it resolves.
+ * `closed`: the page is gone. What it asks for still happens, but nothing comes back to it, so it never goes on.
+ */
+function mockStore() {
+  const data: Record<string, unknown> = {}, clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
+  const io = { hold: Promise.resolve(), closed: false }, never = new Promise<never>(() => {});
+  let queue: Promise<unknown> = Promise.resolve(), inside = 0;
+  const serial = <T>(job: () => Promise<T>): Promise<T> => {
+    const run = async () => { inside++; try { return await job(); } finally { inside--; } };
+    const next = queue.then(run, run); queue = next.catch(() => undefined); return next;
+  };
+  const back = <T>(value: T): T | Promise<never> => io.closed && !inside ? never : value;
+  (globalThis as any).chrome = {
+    storage: { local: {
+      get: async (key: string) => { await io.hold; return key in data ? { [key]: clone(data[key]) } : {}; },
+      set: async (items: Record<string, unknown>) => { Object.assign(data, clone(items)); return back(undefined); },
+      remove: async (key: string) => { delete data[key]; return back(undefined); }
+    } },
+    runtime: { sendMessage: async (m: Message) => {
+      const reply = m.target === 'background' && m.type === 'compare' ? serial(() => saveCompare(sanitizeCompare(m.compare), clone(m.saved || {}))).then(() => ({ ok: true })) : undefined;
+      return back(reply);
+    } }
+  };
+  const store = new Store(message => assert.fail(message));
+  (store as unknown as { loaded: boolean }).loaded = true;
+  /** Once the page has sent what it was going to send: everything the background was given is done. */
+  const idle = async () => { await new Promise(resolve => setTimeout(resolve, 0)); await queue; };
+  return { store, data, io, serial, idle };
+}
+
+test('a page that closes right after restoring a backup or keeping B leaves storage whole', async () => {
+  try {
+    const { store, data, io, idle } = mockStore();
+    store.restore(sanitize({ brightness: 40 }), {}, {});
+    store.startCompare(); store.change({ brightness: 90, flashLimiter: false });
+    await store.saved;
+    io.closed = true;
+    store.restore(sanitize({ brightness: 25 }), { 'www.youtube.com': { mode: 'ambient' } }, { Mine: { mode: 'vivid' } });
+    await idle();
+    assert.equal(sanitize(data.settings).brightness, 25, 'the restored settings are stored'); assert.deepEqual(Object.keys(data.profiles as object), ['www.youtube.com']);
+    assert.deepEqual(Object.keys(data.presets as object), ['Mine']); assert.ok(!('compare' in data), 'and the comparison is ended with them');
+  } finally { delete (globalThis as any).chrome; }
+  for (const site of ['', 'site.example']) try {
+    const { store, data, io, idle } = mockStore();
+    store.restore(sanitize({ brightness: 40 }), site ? { [site]: {} } : {}, {}); store.target = site;
+    store.startCompare(); store.change({ brightness: 90 });
+    await store.saved;
+    io.closed = true;
+    assert.deepEqual(store.endCompare('b'), ['brightness']);
+    await idle();
+    const kept = site ? sanitize({ ...(data.settings as object), ...(data.profiles as Record<string, object>)[site] }) : sanitize(data.settings);
+    assert.equal(kept.brightness, 90, `${site || 'global'}: B is stored`); assert.ok(!('compare' in data), `${site || 'global'}: and the comparison is ended with it`);
+    if (site) assert.equal(sanitize(data.settings).brightness, 40, 'B went to the profile, not the global settings');
+  } finally { delete (globalThis as any).chrome; }
+});
+
+test('restoring during an A/B comparison ends it: keeping B afterwards cannot write over what was restored', async () => {
+  try {
+    const { store, data } = mockStore();
+    store.restore(sanitize({ brightness: 40 }), {}, {});
+    store.startCompare(); store.change({ brightness: 90 });
+    await store.saved;
+    assert.equal(store.settings.brightness, 90); assert.ok(data.compare, 'the comparison is stored');
+    store.restore(sanitize({ brightness: 25 }), { 'www.youtube.com': { mode: 'ambient' } }, {});
+    assert.equal(store.compare, null); assert.ok(!store.comparing, "nothing is compared"); assert.equal(store.settings.brightness, 25, 'the old B is no longer shown');
+    await store.saved;
+    assert.ok(!('compare' in data), 'the restore itself ends the stored comparison');
+    assert.deepEqual(store.endCompare('b'), [], 'there is no B left to keep');
+    await store.saved;
+    assert.equal(sanitize(data.settings).brightness, 25); assert.equal(store.global.brightness, 25);
+  } finally { delete (globalThis as any).chrome; }
+});
+
+test('the A/B shortcut cannot bring back a comparison that a restore ended while it was switching', async () => {
+  try {
+    const { store, data, io, serial } = mockStore();
+    store.restore(sanitize({ brightness: 40 }), {}, {});
+    store.startCompare(); store.change({ brightness: 90, flashLimiter: false });
+    await store.saved;
+    let release!: () => void;
+    io.hold = new Promise<void>(resolve => { release = resolve; });
+    const flip = serial(flipCompare);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    store.restore(sanitize({ brightness: 25 }), {}, {});
+    release(); await flip; await store.saved;
+    assert.ok(!('compare' in data), 'the switch read the comparison before the restore and wrote it first; the restore ended it after');
+    assert.equal(sanitize(data.settings).brightness, 25);
+  } finally { delete (globalThis as any).chrome; }
+});
+
+test('a backup restored while B shows the Flash Limiter on keeps it on, and ends the comparison', async () => {
+  try {
+    const { store, data } = mockStore();
+    store.restore(sanitize({ flashLimiter: false }), {}, {});
+    store.startCompare(); store.change(applyPreset(store.settings, { ...BUILT_IN[0].look, flashLimiter: true }));
+    assert.equal(store.settings.flashLimiter, true); assert.equal(store.global.flashLimiter, false);
+    const guarded = guardRestore({ settings: sanitize({ flashLimiter: false, brightness: 30 }), profiles: {} }, { settings: store.global, profiles: store.profiles, compare: store.compare });
+    store.restore(guarded.settings, guarded.profiles, {});
+    assert.ok(guarded.limiter, 'it says so'); assert.equal(store.settings.flashLimiter, true); assert.equal(store.settings.brightness, 30); assert.equal(store.compare, null);
+    await store.saved;
+    assert.equal(sanitize(data.settings).flashLimiter, true); assert.ok(!('compare' in data), 'the comparison is ended in storage too');
+  } finally { delete (globalThis as any).chrome; }
+});
+
+test('a preset compared as B is laid over A the way applying it would be', async () => {
+  try {
+    const { store } = mockStore();
+    const loud = { ...BUILT_IN.find(p => p.name === 'Overkill')!.look, flashLimiter: false, pulse: { ...PULSE, depth: 90 } };
+    store.restore(sanitize({ flashLimiter: true, pulse: { ...PULSE, enabled: true } }), {}, {});
+    store.startCompare(loud);
+    assert.equal(store.compare!.b.flashLimiter, true, 'the Flash Limiter stays on'); assert.equal(store.compare!.b.pulse!.enabled, true, 'listening stays as it is');
+    assert.equal(store.compare!.b.pulse!.depth, 90); assert.equal(store.compare!.b.brightness, 100);
+    assert.ok(!store.endCompare('b').includes('flashLimiter'), "keeping B leaves the Flash Limiter on"); assert.equal(store.global.flashLimiter, true);
+    store.restore(sanitize({ flashLimiter: false, pulse: PULSE }), {}, {});
+    store.startCompare({ ...loud, pulse: { ...PULSE, enabled: true } });
+    assert.equal(store.compare!.b.flashLimiter, false, 'off here: the preset decides'); assert.equal(store.compare!.b.pulse!.enabled, false, 'a preset never switches listening on');
+    await store.saved;
+  } finally { delete (globalThis as any).chrome; }
 });
 
 test('settings stored by 0.8.1 keep every value; what is new starts at its default, with sound analysis off', () => {
@@ -143,7 +328,8 @@ test('presets named like object properties are kept, listed, read back, removed 
   assert.equal(back.kind, 'backup'); if (back.kind === 'backup') assert.deepEqual(back.presets, clean);
   // The store, with storage receiving what Chrome would.
   const written: { presets?: unknown }[] = [];
-  (globalThis as any).chrome = { storage: { local: { set: async (items: Record<string, unknown>) => { written.push(JSON.parse(JSON.stringify(items))); } } } };
+  (globalThis as any).chrome = { storage: { local: { set: async (items: Record<string, unknown>) => { written.push(JSON.parse(JSON.stringify(items))); } } },
+    runtime: { sendMessage: async (m: Message) => { if (m.target === 'background' && m.type === 'compare' && m.saved) written.push(JSON.parse(JSON.stringify(m.saved))); return { ok: true }; } } };
   try {
     const store = new Store(message => assert.fail(message));
     (store as unknown as { loaded: boolean }).loaded = true;

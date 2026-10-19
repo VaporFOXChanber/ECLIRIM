@@ -1,9 +1,9 @@
 import { t, initI18n, localizeDocument, localizeText, getLanguagePreference, setLanguagePreference } from './shared/i18n';
-import { DEFAULTS, DIRECTOR, GLOW, HALO, autoZoneCount } from './shared/settings';
+import { DEFAULTS, DIRECTOR, GLOW, HALO, autoZoneCount, lookOf, resolveSettings } from './shared/settings';
 import type { Message, Settings, Status } from './shared/types';
 import { siteKey, sitePattern } from './shared/site';
 import { AUDIO_NAMES, Store, protectedSite } from './ui/store';
-import { BUILT_IN, applyPreset, matchesPreset } from './shared/presets';
+import { BUILT_IN, applyPreset, limiterKept, matchesPreset, resetProfile } from './shared/presets';
 void (async () => {
 await initI18n();
 localizeDocument();
@@ -29,6 +29,8 @@ for (const [key, label, min, max, unit, parent] of sliderSpecs) {
   wrap.append(l, input); $(parent).append(wrap);
 }
 function error(message: string): void { message = localizeText(message); $('error').textContent = message; $('error').hidden = !message; }
+/** Says what a preset or a reset left as it was ('' hides it). */
+function note(message: string): void { $('kept-note').textContent = message; $('kept-note').hidden = !message; }
 /** Saves a change where it belongs: look settings in this site's profile when it has one, everything else globally. */
 function change(patch: Partial<Settings>): void { store.change(patch); settings = store.settings; }
 function render(): void {
@@ -181,9 +183,10 @@ for (const key of ['depth', 'bloom'] as const) $<HTMLInputElement>(`pulse-${key}
 $<HTMLInputElement>('pulse').addEventListener('change', e => {
   change({ pulse: { ...settings.pulse, enabled: (e.target as HTMLInputElement).checked } }); render();
 });
-// Applying a preset changes the look only. Whether sound is analysed stays as it is.
+// Applying a preset changes the look only. Whether sound is analysed, and a Flash Limiter that is on, stay as they are.
 $<HTMLSelectElement>('library').addEventListener('change', e => {
   const value = (e.target as HTMLSelectElement).value, look = value.startsWith('b:') ? BUILT_IN.find(p => p.name === value.slice(2))?.look : store.presets[value.slice(2)];
+  note(!!look && limiterKept(settings, look) ? t("Flash Limiter はオンのままにしました（このプリセットではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。") : '');
   if (look) change(applyPreset(settings, look));
   render();
 });
@@ -219,8 +222,14 @@ document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => b.addEv
   change({ mode: b.dataset.mode as Settings['mode'] }); render();
 }));
 // "初期設定" resets what is being edited: a site profile goes back to inheriting everything, otherwise the global settings reset.
+// A site keeps only a Flash Limiter that is on, or listening that is off, where the global settings differ. During a
+// comparison the reset look goes to the side that is showing, like any other change.
 $('reset').addEventListener('click', () => {
-  if (store.profile) store.setProfile(store.target, {}); else change({ ...DEFAULTS, director: DIRECTOR, zones: null });
+  const kept = store.profile ? resetProfile(settings, store.global) : null;
+  if (!kept) change({ ...DEFAULTS, director: DIRECTOR, zones: null });
+  else if (store.comparing) change(lookOf(resolveSettings(store.global, kept)));
+  else store.setProfile(store.target, kept);
+  note(kept?.flashLimiter ? t("Flash Limiter はオンのままにしました（グローバル設定ではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。") : '');
   render();
 });
 // A profile is only a set of saved settings. Making one asks Chrome for nothing; "always light this site" stays a separate choice.

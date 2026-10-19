@@ -170,6 +170,24 @@ export async function savePresets(presets: Presets): Promise<void> {
 export async function loadCompare(): Promise<Compare | null> {
   return sanitizeCompare((await chrome.storage.local.get('compare')).compare);
 }
+/**
+ * Stores the comparison, or with null ends it, together with what is saved along with it (a side kept, a backup restored),
+ * checked like any stored settings. One write: no reader sees the one without the other. An ended comparison is written as
+ * null, then its key goes. Only the background calls this, one write at a time (see `Store`).
+ */
+export async function saveCompare(compare: Compare | null, saved: Stored = {}): Promise<void> {
+  const items: Record<string, unknown> = { compare };
+  if (saved.settings !== undefined) items.settings = sanitize(saved.settings);
+  if (saved.profiles !== undefined) items.profiles = sanitizeProfiles(saved.profiles);
+  if (saved.presets !== undefined) items.presets = sanitizePresets(saved.presets);
+  await chrome.storage.local.set(items);
+  if (!compare) await chrome.storage.local.remove('compare');
+}
+/** The A/B shortcut: the stored comparison shows its other side. */
+export async function flipCompare(): Promise<void> {
+  const compare = await loadCompare();
+  if (compare) await saveCompare({ ...compare, active: compare.active === 'a' ? 'b' : 'a' });
+}
 export async function loadProfiles(): Promise<Profiles> {
   return sanitizeProfiles((await chrome.storage.local.get('profiles')).profiles);
 }
