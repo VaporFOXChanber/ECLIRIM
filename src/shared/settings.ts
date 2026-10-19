@@ -103,12 +103,18 @@ export function sanitizePresets(raw: unknown): Presets {
   const presets: Presets = {};
   if (raw && typeof raw === 'object') for (const [name, look] of Object.entries(raw)) {
     const clean = presetName(name);
-    if (clean) presets[clean] = sanitizePreset(look);
+    if (clean) own(presets, clean, sanitizePreset(look));
   }
   return presets;
 }
+/** Puts `value` in `dict` as its own entry. Plain assignment would make `__proto__` the prototype instead of a name. */
+export function own<T>(dict: Record<string, T>, key: string, value: T): Record<string, T> {
+  return Object.defineProperty(dict, key, { value, enumerable: true, writable: true, configurable: true });
+}
 /** A preset name as it is stored and shown: plain text, at most 40 characters. '' = not usable. */
-export const presetName = (name: unknown): string => typeof name === 'string' ? name.replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 40) : '';
+export const presetName = (name: unknown): string => typeof name === 'string' ? cut(name.replace(/[\u0000-\u001f<>]/g, '').trim(), 40) : '';
+/** At most `max` UTF-16 units of `text`, never half of a character written with two (an emoji): Chrome would store that half as �. */
+export const cut = (text: string, max: number): string => /[\uD800-\uDBFF]/.test(text[max - 1] || '') ? text.slice(0, max - 1) : text.slice(0, max);
 /** The settings a page uses: the global ones, with its site profile laid over them. */
 export const resolveSettings = (global: Settings, profile?: Profile | null): Settings => profile ? sanitize({ ...global, ...profile }) : global;
 /** The whole look of these settings: every key a profile can hold. */

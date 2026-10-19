@@ -1,5 +1,5 @@
 import type { PresetLook, Presets, Profiles, Settings } from './types';
-import { COLOR, DIRECTOR, EXPOSURE, GLOW, HALO, PULSE, SCHEMA, TRAILS, presetName, sanitize, sanitizePreset, sanitizePresets, sanitizeProfiles } from './settings';
+import { COLOR, DIRECTOR, EXPOSURE, GLOW, HALO, PULSE, SCHEMA, TRAILS, cut, presetName, sanitize, sanitizePreset, sanitizePresets, sanitizeProfiles } from './settings';
 
 /**
  * Preset Library. A preset is a complete look: everything a site profile can hold except zone trims, which belong to one
@@ -33,6 +33,22 @@ export const BUILT_IN: readonly BuiltIn[] = [
       color: { ...COLOR, shadows: 80, highlights: 30, vibrance: 80 }, trails: { ...TRAILS, length: 100, strength: 100 },
       glow: { ...GLOW, thickness: 85, curve: 60, falloff: 25, softness: 60 }, exposure: { ...EXPOSURE, dark: 20, bright: 20, speed: 70 } }) }
 ];
+
+/** Whether a name is a standard preset's. Case does not count: the two lists are shown side by side. */
+export const builtInName = (name: string): boolean => BUILT_IN.some(p => p.name.toLowerCase() === name.toLowerCase());
+/**
+ * The name to keep an incoming preset under, as it will be stored (`presetName`): its own if neither the user's presets
+ * nor a standard one has it, otherwise with " (2)", " (3)"… The name is shortened to make room for the number, so the
+ * number is never cut off and every try is a new name. '' = not a usable name.
+ */
+export function freePresetName(name: unknown, mine: Presets): string {
+  const base = presetName(name), taken = (candidate: string) => Object.hasOwn(mine, candidate) || builtInName(candidate);
+  if (!base || !taken(base)) return base;
+  for (let n = 2; ; n++) {
+    const suffix = ` (${n})`, candidate = cut(base, 40 - suffix.length).trimEnd() + suffix;
+    if (!taken(candidate)) return candidate;
+  }
+}
 
 /** The settings change that applying a preset makes. Whether the Pulse Engine is on stays as the user has it. */
 export function applyPreset(current: Settings, preset: PresetLook): Partial<Settings> {

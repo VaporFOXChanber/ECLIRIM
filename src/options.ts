@@ -1,9 +1,9 @@
 import { t, initI18n, localizeDocument, localizeText, getLanguagePreference, setLanguagePreference } from './shared/i18n';
-import { DIRECTOR, GLOW, HALO, LOOK_KEYS, PULSE, clamp, effectiveSettings, glowDepth, sanitize } from './shared/settings';
+import { DIRECTOR, GLOW, HALO, LOOK_KEYS, PULSE, clamp, effectiveSettings, glowDepth, presetName, sanitize } from './shared/settings';
 import type { ColorSettings, DirectorSettings, ExposureSettings, GlowSettings, GuardSettings, LookKey, Message, PresetLook, Profile, PulseSettings, RGB, Settings, Status, TrailSettings } from './shared/types';
 import { siteKey } from './shared/site';
 import { AUDIO_NAMES, LOOK_NAMES, Store, protectedSite } from './ui/store';
-import { BUILT_IN, applyPreset, exportBackup, exportPreset, importJSON, matchesPreset, presetFrom, withoutListening, type Imported } from './shared/presets';
+import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, importJSON, matchesPreset, presetFrom, withoutListening, type Imported } from './shared/presets';
 import { WIZARD, WIZARD_START, WIZARD_STEPS, closestPreset, recommend, type WizardAnswers } from './shared/wizard';
 import { glowProfile } from './engine/emission';
 import { guardCap } from './engine/guard';
@@ -215,7 +215,7 @@ $('wizard-compare').addEventListener('click', () => {
 $('wizard-save').addEventListener('submit', e => {
   e.preventDefault();
   const input = $<HTMLInputElement>('wizard-name');
-  if (BUILT_IN.some(p => p.name.toLowerCase() === input.value.trim().toLowerCase())) { wizardSay(t("標準のプリセットと同じ名前は使えません。")); return; }
+  if (builtInName(presetName(input.value))) { wizardSay(t("標準のプリセットと同じ名前は使えません。")); return; }
   const name = store.setPreset(input.value, recommend(answers));
   wizardSay(name ? t("「{0}」として Preset Library に保存しました。Presets のタブからいつでも適用できます。", [name]) : t("名前を入力してください。"));
   if (name) input.value = '';
@@ -432,7 +432,7 @@ function renderPresets(): void {
 $('preset-form').addEventListener('submit', e => {
   e.preventDefault();
   const input = $<HTMLInputElement>('preset-name');
-  if (BUILT_IN.some(p => p.name.toLowerCase() === input.value.trim().toLowerCase())) { say('preset-message', t("標準のプリセットと同じ名前は使えません。")); return; }
+  if (builtInName(presetName(input.value))) { say('preset-message', t("標準のプリセットと同じ名前は使えません。")); return; }
   const name = store.setPreset(input.value, presetFrom(settings));
   say('preset-message', name ? t("いまの設定を「{0}」として保存しました。", [name]) : t("名前を入力してください。"));
   if (name) input.value = '';
@@ -444,9 +444,8 @@ function take(text: string): void {
   pending = null; $('import-confirm').hidden = true;
   if (result.kind === 'error') { say('import-message', localizeText(result.error)); return; }
   if (result.kind === 'preset') {
-    let name = result.name;
-    for (let n = 2; store.presets[name] || BUILT_IN.some(p => p.name === name); n++) name = `${result.name} (${n})`.slice(0, 40);
-    store.setPreset(name, result.look);
+    // Never over an existing one: the user's own presets and the standard ones are both kept.
+    const name = store.setPreset(freePresetName(result.name, store.presets), result.look);
     say('import-message', t("プリセット「{0}」を追加しました。使うには、上の一覧で「適用」を押してください。", [name]));
     render(); return;
   }
