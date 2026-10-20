@@ -367,7 +367,9 @@ try {
   await options.screenshot({ path: 'artifacts/20-ab-comparison.png' });
   await options.locator('#compare-keep-a').click();
   await until(async () => !(await stored()).compare, 'decided for A');
-  assert.deepEqual((await stored()).settings, before.settings, 'A was the saved look: nothing is rewritten'); assert.match(await options.locator('#compare-result').textContent(), /何も書き換えていません/);
+  assert.deepEqual((await stored()).settings, before.settings, 'A was the saved look: nothing is rewritten');
+  // Said once the background has answered, which may come a moment after storage shows it.
+  await until(async () => /何も書き換えていません/.test(await options.locator('#compare-result').textContent()), 'it says nothing was rewritten');
   await until(async () => (await status()).compare === '' && (await used()).brightness === before.settings.brightness, 'the tab is back on the saved settings');
   // Deciding for B writes what differs, and only that.
   await options.locator('#compare-start').click(); await until(async () => (await stored()).compare, 'a second comparison');
@@ -376,7 +378,8 @@ try {
   await until(async () => { const c = (await stored()).compare; return c?.b.brightness === 80 && c.b.glow.style === 'halo'; }, 'B is ready');
   await options.locator('#compare-keep-b').click(); await until(async () => !(await stored()).compare, 'decided for B');
   const decided = (await stored()).settings;
-  assert.deepEqual(decided, { ...before.settings, brightness: 80, glow: HALO }); assert.match(await options.locator('#compare-result').textContent(), /保存した項目: 明るさ、Glow Designer/);
+  assert.deepEqual(decided, { ...before.settings, brightness: 80, glow: HALO });
+  await until(async () => /保存した項目: 明るさ、Glow Designer/.test(await options.locator('#compare-result').textContent()), 'it says what was saved');
   // Giving up leaves everything as it was.
   await options.locator('#compare-start').click(); await until(async () => (await stored()).compare, 'a third comparison');
   await options.locator('[data-tab="lighting"]').click(); await slide(options, '#brightness', 5); await until(async () => (await stored()).compare?.b.brightness === 5, 'B changed');
@@ -399,6 +402,37 @@ try {
   await sw.evaluate(() => chrome.storage.local.set({ profiles: {} })); await page.bringToFront();
   record('A/B Comparison: both sides start as the current look, changes go to the side showing, the lit tab follows a switch at once, the saved settings stay untouched until a side is chosen; A, B and giving up each store exactly what they should; a profile is compared on its own site only',
     { switchMs, light: { a: lightA, b: lightB } });
+
+  // ── The popup closed right after a slider move, while an earlier change is still being written.
+  await set({ brightness: 65, mode: 'cinema' });
+  popup = await openPopupOn();
+  // Every write in the background waits at a gate until the test opens it: the mode change below is still being written as the popup goes.
+  assert.ok(await sw.evaluate(() => {
+    const local = chrome.storage.local, write = local.set.bind(local), gate = { write, waiting: 0, open: () => {} };
+    const opened = new Promise(resolve => { gate.open = resolve; });
+    const held = (...args) => { gate.waiting++; return opened.then(() => write(...args)); };
+    globalThis.__eclirimGate = gate; local.set = held;
+    return local.set === held;
+  }), 'writes can be held');
+  const popupGone = async () => !(await cdp.send('Target.getTargets')).targetInfos.some(t => t.url === `chrome-extension://${id}/popup.html`);
+  try {
+    await pop('document.querySelector("[data-mode=vivid]").click()');
+    await until(() => sw.evaluate(() => globalThis.__eclirimGate.waiting === 1), 'the mode change waits at the gate');
+    // The last move and the close in one go: well inside the 50 ms the popup gathers slider moves for, so only the flush on
+    // pagehide can send it. Not awaited: a closing popup may never answer, so it is the popup's target going away that is waited for.
+    void pop(`(() => {
+      const el = document.querySelector("#brightness");
+      for (const v of [30, 35, 41]) { el.value = String(v); el.dispatchEvent(new Event("input", { bubbles: true })); }
+      window.close();
+    })()`).catch(() => undefined);
+    await until(popupGone, 'the popup is closed');
+    assert.equal(await sw.evaluate(() => globalThis.__eclirimGate.waiting), 1, 'the gate still holds the earlier change, and nothing behind it was written');
+    assert.notEqual((await stored()).settings.mode, 'vivid', 'the earlier change was still being written when the popup closed');
+    await sw.evaluate(() => globalThis.__eclirimGate.open());
+    await until(async () => { const s = (await stored()).settings; return s.mode === 'vivid' && s.brightness === 41; }, 'the earlier change and the last slider move are both stored');
+  } finally { await sw.evaluate(() => { globalThis.__eclirimGate.open(); chrome.storage.local.set = globalThis.__eclirimGate.write; }); }
+  await set({ brightness: 65, mode: 'cinema' });
+  record('A popup closed right after its last slider move, behind a change still being written, leaves both stored');
 
   // ── Calibration Wizard: three answers, a whole look, nothing saved before the user says so.
   popup = await openPopupOn();
