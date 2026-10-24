@@ -1,6 +1,6 @@
 import { t, initI18n, localizeDocument, localizeText, getLanguagePreference, setLanguagePreference } from './shared/i18n';
 import { DEFAULTS, DIRECTOR, GLOW, HALO, autoZoneCount, lookOf, resolveSettings } from './shared/settings';
-import type { Message, Settings, Status } from './shared/types';
+import type { Message, SaveResult, Settings, Status } from './shared/types';
 import { siteKey, sitePattern } from './shared/site';
 import { AUDIO_NAMES, Store, protectedSite } from './ui/store';
 import { BUILT_IN, applyPreset, limiterKept, matchesPreset, resetProfile } from './shared/presets';
@@ -11,7 +11,9 @@ const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getEleme
 let settings: Settings = DEFAULTS, tabId: number | undefined, latest: Status | null = null;
 let site: string | null = null, host: string | null = null, confirmReturn = 0;
 let lastSourceHint = '';
-const store = new Store(message => error(message));
+// A change the background refused or could not store: the popup shows what is stored again, and says so.
+const store = new Store(message => { error(message); render(); });
+store.onChange = () => render();
 const sliderSpecs = [
   ['brightness', t("Brightness · 明るさ"), 0, 100, '%', 'main-sliders'],
   ['glowWidth', t("Glow Width · 光の幅"), 2, 20, '%', 'main-sliders'],
@@ -25,14 +27,17 @@ for (const [key, label, min, max, unit, parent] of sliderSpecs) {
   const l = document.createElement('label'); l.htmlFor = key; l.textContent = label;
   const out = document.createElement('output'); out.id = `${key}-value`; out.htmlFor = key; l.append(out);
   const input = document.createElement('input'); input.type = 'range'; input.id = key; input.min = String(min); input.max = String(max);
-  input.addEventListener('input', () => { out.textContent = input.value + unit; change({ [key]: input.valueAsNumber }); });
+  input.addEventListener('input', () => { out.textContent = input.value + unit; slide({ [key]: input.valueAsNumber }); });
+  input.addEventListener('change', () => store.flush());
   wrap.append(l, input); $(parent).append(wrap);
 }
 function error(message: string): void { message = localizeText(message); $('error').textContent = message; $('error').hidden = !message; }
 /** Says what a preset or a reset left as it was ('' hides it). */
 function note(message: string): void { $('kept-note').textContent = message; $('kept-note').hidden = !message; }
 /** Saves a change where it belongs: look settings in this site's profile when it has one, everything else globally. */
-function change(patch: Partial<Settings>): void { store.change(patch); settings = store.settings; }
+function change(patch: Partial<Settings>): Promise<SaveResult> { const saved = store.change(patch); settings = store.settings; return saved; }
+/** The same while a slider is being dragged: the moves are gathered, and the last one is always sent. */
+function slide(patch: Partial<Settings>): void { store.slide(patch); settings = store.settings; }
 function render(): void {
   settings = store.settings;
   for (const [key, , , , unit] of sliderSpecs) {
@@ -165,21 +170,28 @@ async function refresh(): Promise<void> {
 async function action(type: 'start' | 'capture' | 'stop-capture'): Promise<void> {
   error(''); $<HTMLButtonElement>('start').disabled = $<HTMLButtonElement>('capture').disabled = true;
   try {
-    change({ enabled: true }); await store.saved; render(); await request(type); await refresh();
+    const saved = change({ enabled: true }); render();
+    // Refused with no error: pressed before the stored settings were read, so nothing was changed. Starting goes on as before.
+    const result = await saved; if (!result.ok && result.error) return;
+    await request(type); await refresh();
   } catch (e) { error(String(e instanceof Error ? e.message : e)); }
   finally { $<HTMLButtonElement>('start').disabled = $<HTMLButtonElement>('capture').disabled = false; }
 }
 $('start').addEventListener('click', () => void action('start'));
 $('capture').addEventListener('click', () => void action(latest?.source === 'capture' ? 'stop-capture' : 'capture'));
 for (const key of ['enabled', 'flashLimiter'] as const) $<HTMLInputElement>(key).addEventListener('change', async e => {
-  change({ [key]: (e.target as HTMLInputElement).checked });
-  if (key === 'enabled') { await store.saved; if (settings.enabled) await action('start'); else await request('stop').catch(e => error(String(e))); }
+  const saved = change({ [key]: (e.target as HTMLInputElement).checked });
+  const result = await saved;
+  if (key === 'enabled' && (result.ok || !result.error)) { if (settings.enabled) await action('start'); else await request('stop').catch(e => error(String(e))); }
   await refresh();
 });
-for (const key of ['depth', 'bloom'] as const) $<HTMLInputElement>(`pulse-${key}`).addEventListener('input', e => {
-  const value = (e.target as HTMLInputElement).valueAsNumber;
-  $(`pulse-${key}-value`).textContent = `${value}%`; change({ pulse: { ...settings.pulse, [key]: value } });
-});
+for (const key of ['depth', 'bloom'] as const) {
+  $<HTMLInputElement>(`pulse-${key}`).addEventListener('input', e => {
+    const value = (e.target as HTMLInputElement).valueAsNumber;
+    $(`pulse-${key}-value`).textContent = `${value}%`; slide({ pulse: { ...settings.pulse, [key]: value } });
+  });
+  $<HTMLInputElement>(`pulse-${key}`).addEventListener('change', () => store.flush());
+}
 $<HTMLInputElement>('pulse').addEventListener('change', e => {
   change({ pulse: { ...settings.pulse, enabled: (e.target as HTMLInputElement).checked } }); render();
 });
@@ -267,6 +279,9 @@ $('always').addEventListener('change', async e => {
   }
 });
 window.addEventListener('eclirim-language', () => { void store.saved.then(() => location.reload()); });
+// The popup closes the moment the user looks away: a slider move still being gathered goes out now.
+window.addEventListener('pagehide', () => store.flush());
+document.addEventListener('visibilitychange', () => { if (document.hidden) store.flush(); });
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local' || !changes.settings && !changes.profiles && !changes.presets && !changes.compare) return;
   if (store.adopt(changes)) render();

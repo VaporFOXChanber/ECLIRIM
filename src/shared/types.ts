@@ -67,8 +67,41 @@ export type Profiles = Record<string, Profile>;
 /**
  * A/B Comparison: two looks for the same settings (`target`: a site's profile, or '' for the global ones). The lit tabs
  * those settings govern show the `active` side. Nothing is written to the settings until the user adopts a side.
+ * `id` names this one comparison: a change meant for one that has ended, or for an earlier one, is refused.
  */
-export interface Compare { active: 'a' | 'b'; a: Profile; b: Profile; target: string }
+export interface Compare { id: string; active: 'a' | 'b'; a: Profile; b: Profile; target: string }
+/** The groups of settings a change can name one part of (`{ pulse: { depth: 50 } }`): the rest of the group stays as it is stored. */
+export type GroupKey = 'director' | 'pulse' | 'color' | 'trails' | 'glow' | 'guard' | 'exposure';
+export type Patch = Partial<Omit<Settings, GroupKey>> & { [K in GroupKey]?: Partial<Settings[K]> };
+/**
+ * One change the popup or the settings page asks the background to store. Each is laid over what is stored at the moment
+ * it is written (`applyOp`), not over what the page last saw.
+ * change: settings, laid where they belong for `site` ('' = global), or with `compare` onto that side of that comparison.
+ * profile: a site's profile replaced, or with null removed. inherit: some keys of a profile go back to the global settings.
+ * preset: one preset kept, or with null removed. import: a preset added, never over another: named (the next free number
+ * when its own is taken) by the background alone, in what is stored then (`name` in the answer).
+ * restore: a backup replaces everything (guarded as `guardRestore` does).
+ * show / end: one comparison switched to a side, or ended (with a side, that look is stored). flip: the keyboard shortcut.
+ */
+export type SaveOp =
+  | { kind: 'change'; site: string; patch: Patch; compare?: { id: string; side: 'a' | 'b' } }
+  | { kind: 'profile'; site: string; profile: Profile | null }
+  | { kind: 'inherit'; site: string; keys: LookKey[] }
+  | { kind: 'preset'; name: string; preset: PresetLook | null }
+  | { kind: 'import'; name: string; preset: PresetLook }
+  | { kind: 'restore'; settings: unknown; profiles: unknown; presets: unknown }
+  | { kind: 'start'; id: string; site: string; b?: Profile | null }
+  | { kind: 'show'; id: string; side: 'a' | 'b' }
+  | { kind: 'end'; id: string; adopt: 'a' | 'b' | null }
+  | { kind: 'flip' };
+/**
+ * What the background answers for one change. `rev`: the stored revision that holds it. `written`: the look keys a side
+ * kept changed. `name`: the name an imported preset was stored under.
+ * `quieted` / `limiter` / `compared`: a restore kept listening off, kept the Flash Limiter on, ended a comparison.
+ */
+export type SaveResult =
+  | { ok: true; rev: number; written?: LookKey[]; name?: string; quieted?: boolean; limiter?: boolean; compared?: boolean }
+  | { ok: false; error: string };
 export type State = 'Active' | 'Waiting for Video' | 'Capture Required' | 'Protected Content'
   | 'Capture Unavailable' | 'Paused' | 'Disabled' | 'Fullscreen Unsupported' | 'Compatibility Mode';
 /** What the Light Director saw in the last frame it analysed. Velocity is in picture widths / heights per second. */
@@ -137,7 +170,7 @@ export interface CaptureSample { sampleMs: number; readMs: number; reader: Reade
 export type Message =
   | { target: 'background'; type: 'start' | 'capture' | 'stop' | 'status' | 'stop-capture'; tabId: number }
   | { target: 'background'; type: 'tabs' }
-  | { target: 'background'; type: 'compare'; compare: Compare | null; saved?: { settings?: unknown; profiles?: unknown; presets?: unknown } }
+  | { target: 'background'; type: 'save'; op: SaveOp }
   | { target: 'content'; type: 'start' | 'stop' | 'status' | 'context' | 'capture-started' | 'probe' }
   | { target: 'content'; type: 'capture-ended'; detail: string }
   | ({ target: 'content'; type: 'colors'; colors: RGB[] } & CaptureSample)

@@ -3303,5 +3303,25 @@
     "id": "m_5005fce6f30b",
     "ja": "Flash Limiter はオンのままにしました（グローバル設定ではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。",
     "en": "The Flash Limiter stays on (the global settings have it off). To turn it off, use the Flash Limiter switch yourself."
+  },
+  {
+    "id": "m_9263e23c7b7a",
+    "ja": "この A/B 比較はすでに終わっています。画面を最新の状態にしました。",
+    "en": "This A/B comparison has already ended. The page now shows the current settings."
+  },
+  {
+    "id": "m_8fe373d03546",
+    "ja": "A/B 比較の途中です。保存してある設定は、比較を終えるまで変わりません。画面を最新の状態にしました。",
+    "en": "An A/B comparison is in progress. The saved settings stay as they are until it ends. The page now shows the current settings."
+  },
+  {
+    "id": "m_fa6189cb7197",
+    "ja": "このサイトのプロファイルは、別の画面で削除されています。",
+    "en": "This site's profile was removed on another screen."
+  },
+  {
+    "id": "m_6f67eda5093e",
+    "ja": "ECLIRIM の応答がありませんでした。",
+    "en": "ECLIRIM did not respond."
   }
 ]

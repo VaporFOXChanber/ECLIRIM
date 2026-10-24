@@ -1,8 +1,21 @@
-import { DEFAULTS, LOOK_KEYS, compareSettings, loadCompare, loadPresets, loadProfiles, loadSettings, lookOf, own, presetName, resolveSettings, sanitize, sanitizeCompare, sanitizePreset, sanitizePresets, sanitizeProfile, sanitizeProfiles, savePresets, saveProfiles, saveSettings, type Stored } from '../shared/settings';
-import { applyPreset } from '../shared/presets';
-import type { AudioStatus, Compare, LookKey, Message, PresetLook, Presets, Profile, Profiles, Settings } from '../shared/types';
+import { DEFAULTS, LOOK_KEYS, compareSettings, presetName, resolveSettings, sanitize, sanitizeCompare, sanitizePresets, sanitizeProfiles } from '../shared/settings';
+import { SAVED_KEYS, applyOp, differing, merged, readSaved, type Saved, type State } from '../shared/save';
+import type { AudioStatus, Compare, LookKey, Message, Patch, PresetLook, Presets, Profile, Profiles, SaveOp, SaveResult, Settings } from '../shared/types';
 
-/** What the popup and the settings page edit: the global settings, or one site's profile lying over them. */
+/** How long slider moves are gathered into one change. The lit tabs still follow a slider while it is dragged. */
+export const SLIDE_MS = 50;
+/** One of this page's own changes: being gathered (a slider), sent, or written (`rev`) but not yet heard of from storage. */
+interface Mine { op: SaveOp; done?: Promise<SaveResult>; rev?: number }
+type ChangeOp = Extract<SaveOp, { kind: 'change' }>;
+const refused = (error = ''): Promise<SaveResult> => Promise.resolve({ ok: false, error });
+
+/**
+ * What the popup and the settings page edit: the global settings, or one site's profile lying over them.
+ * Every change goes to the background the moment it is made, as a change and not as a copy of everything: the background
+ * lays it over what is stored then, one at a time (`applyOp`), so a page that closes, a page that is behind, or two pages
+ * at once lose nothing of each other's. What this page shows is what storage holds, with its own changes that storage does
+ * not hold yet laid over it again.
+ */
 export class Store {
   global: Settings = DEFAULTS; profiles: Profiles = {};
   /** The user's own presets, by name. */
@@ -11,25 +24,49 @@ export class Store {
   target = '';
   /** A/B Comparison in progress, if any. It belongs to one set of settings (its `target`). */
   compare: Compare | null = null;
-  private saving: Promise<void> = Promise.resolve(); private pending = 0; private loaded = false;
-  constructor(private readonly failed: (message: string) => void) {}
+  /** What storage holds, as last heard from it. */
+  private base: Saved = { settings: DEFAULTS, profiles: {}, presets: {}, compare: null, rev: 0 };
+  private mine: Mine[] = []; private draft: Mine | null = null; private timer: ReturnType<typeof setTimeout> | undefined; private loaded = false;
+  /** Called when what this page shows changes without a storage change to say so: an answer that came after the storage change it was part of. */
+  onChange: () => void = () => {};
+  /**
+   * `failed` hears of a change the background refused or could not write, once this page shows storage without it again.
+   * `send` carries a message to the background.
+   */
+  constructor(private readonly failed: (message: string) => void, private readonly send: (message: Message) => Promise<unknown> = m => chrome.runtime.sendMessage(m)) {}
   async load(): Promise<void> {
-    [this.global, this.profiles, this.presets, this.compare] = await Promise.all([loadSettings(), loadProfiles(), loadPresets(), loadCompare()]);
+    await this.read();
+    // Nothing is sent before what is stored has been read: a control touched in that first moment must not change anything.
     this.loaded = true;
-    if (this.target && !this.profiles[this.target]) this.target = '';
+  }
+  private async read(): Promise<void> {
+    const stored = readSaved(await chrome.storage.local.get([...SAVED_KEYS, 'revision']));
+    // A change heard of while reading is newer than what was read.
+    if (stored.rev >= this.base.rev) this.base = stored;
+    this.prune(); this.show();
   }
   /**
-   * Takes over a change made elsewhere (the popup and the settings page can be open together).
-   * While this page's own changes are still being written it keeps its own, newer state: false means nothing was taken.
+   * Takes over what changed in storage, by this page or elsewhere (the popup and the settings page can be open together).
+   * Own changes not stored yet stay laid over it. Returns whether what this page shows changed.
    */
   adopt(changes: Record<string, chrome.storage.StorageChange>): boolean {
-    if (this.pending) return false;
-    if (changes.settings) this.global = sanitize(changes.settings.newValue);
-    if (changes.profiles) this.profiles = sanitizeProfiles(changes.profiles.newValue);
-    if (changes.presets) this.presets = sanitizePresets(changes.presets.newValue);
-    if (changes.compare) this.compare = sanitizeCompare(changes.compare.newValue);
+    const b = this.base, value = (key: string) => changes[key]?.newValue, rev = value('revision');
+    this.base = { settings: changes.settings ? sanitize(value('settings')) : b.settings, profiles: changes.profiles ? sanitizeProfiles(value('profiles')) : b.profiles,
+      presets: changes.presets ? sanitizePresets(value('presets')) : b.presets, compare: changes.compare ? sanitizeCompare(value('compare')) : b.compare,
+      rev: typeof rev === 'number' ? rev : b.rev };
+    this.prune();
+    return this.show();
+  }
+  /** Forgets own changes that storage now holds. */
+  private prune(): void { this.mine = this.mine.filter(m => m.rev === undefined || m.rev > this.base.rev); }
+  private show(): boolean {
+    let state: State = this.base;
+    // An import is named by the background alone: it is shown once the answer says under which name (see `post`).
+    for (const { op } of this.mine) if (op.kind !== 'import') try { state = applyOp(state, op); } catch { /* The background refuses it as well. */ }
+    const before = JSON.stringify([this.global, this.profiles, this.presets, this.compare]);
+    ({ settings: this.global, profiles: this.profiles, presets: this.presets, compare: this.compare } = state);
     if (this.target && !this.profiles[this.target]) this.target = '';
-    return true;
+    return JSON.stringify([this.global, this.profiles, this.presets, this.compare]) !== before;
   }
   get profile(): Profile | null { return this.target ? this.profiles[this.target] || null : null; }
   /** What is saved for what is being edited, whatever is being compared. */
@@ -38,102 +75,121 @@ export class Store {
   get comparing(): boolean { return !!this.compare && this.compare.target === this.target; }
   /** The settings in effect for what is being edited: during a comparison, the side that is switched to. */
   get settings(): Settings { return compareSettings(this.kept, this.compare, this.target); }
-  private queue(job: () => Promise<void>): void {
-    // Nothing is written before what is stored has been read: a control touched in that first moment must not put the defaults in its place.
-    if (!this.loaded) return;
-    this.pending++;
-    this.saving = this.saving.then(job).catch(e => this.failed(`設定を保存できませんでした: ${e}`)).finally(() => { this.pending--; });
+  /** Sends a change at once, after a slider move still being gathered. Resolves with what the background answered. */
+  private push(op: SaveOp): Promise<SaveResult> {
+    if (!this.loaded) return refused();
+    this.flush();
+    const mine: Mine = { op }; this.mine.push(mine);
+    return this.post(mine);
+  }
+  private post(mine: Mine): Promise<SaveResult> {
+    mine.done = this.send({ target: 'background', type: 'save', op: mine.op } satisfies Message).then(
+      reply => (reply as SaveResult | undefined)?.ok ? reply as SaveResult : { ok: false as const, error: (reply as { error?: string } | undefined)?.error || 'ECLIRIM の応答がありませんでした。' },
+      e => ({ ok: false as const, error: String(e?.message || e) })
+    ).then(async (result): Promise<SaveResult> => {
+      // Storage may have told of this change, and of others after it, before this answer came: while it was not known to be
+      // stored it was laid over them again. Now it is known, what storage holds is shown as it is.
+      if (result.ok) {
+        // A named import is from now on that one preset, kept under that name: laid again, it stays one.
+        if (mine.op.kind === 'import' && result.name) mine.op = { kind: 'preset', name: result.name, preset: mine.op.preset };
+        mine.rev = result.rev; this.prune(); if (this.show()) this.onChange(); return result;
+      }
+      // Refused or not written: this page shows storage as it is, without it, before it says so.
+      this.mine = this.mine.filter(m => m !== mine);
+      await this.read().catch(() => this.show());
+      this.failed(`設定を保存できませんでした: ${result.error}`);
+      return result;
+    });
+    this.show();
+    return mine.done;
+  }
+  /** A change of what is being edited, as it is sent: only what differs from what is shown, for the side shown during a comparison. */
+  private changeOp(patch: Patch): ChangeOp | null {
+    if (!this.loaded) return null;
+    const diff = differing(patch, this.settings), compare = this.compare;
+    const look = Object.keys(diff).some(key => LOOK_KEYS.includes(key as LookKey));
+    return { kind: 'change', site: this.target, patch: diff, ...(this.comparing && look ? { compare: { id: compare!.id, side: compare!.active } } : {}) };
   }
   /**
    * Look settings go to the profile being edited; everything else is global.
    * During an A/B comparison, look settings go to the side that is showing instead: the saved settings stay as they are.
    */
-  change(patch: Partial<Settings>): void {
-    if (this.comparing) {
-      const look: Profile = {}, rest: Partial<Settings> = {};
-      for (const [key, value] of Object.entries(patch)) Object.assign(LOOK_KEYS.includes(key as LookKey) ? look : rest, { [key]: value });
-      if (Object.keys(look).length) { const c = this.compare!; this.setCompare({ ...c, [c.active]: sanitizeProfile({ ...c[c.active], ...look }) }); }
-      if (!Object.keys(rest).length) return;
-      patch = rest;
-    }
-    const { profiles, settings } = this.lay(patch);
-    if (profiles) this.queue(() => saveProfiles(profiles));
-    if (settings) this.queue(() => saveSettings(settings));
+  change(patch: Patch): Promise<SaveResult> { const op = this.changeOp(patch); return op ? this.push(op) : refused(); }
+  /**
+   * A slider being moved: shown at once, and sent at most every SLIDE_MS with its latest value. `flush` sends what is left
+   * at once: when the slider is let go, when the page is hidden or closes, and before any other change.
+   */
+  slide(patch: Patch): void {
+    const op = this.changeOp(patch), last = this.draft?.op as ChangeOp | undefined;
+    if (!op) return;
+    if (last && last.site === op.site && JSON.stringify(last.compare) === JSON.stringify(op.compare)) this.draft!.op = { ...last, patch: merged(last.patch, op.patch) };
+    else { this.flush(); this.draft = { op }; this.mine.push(this.draft); }
+    this.show();
+    this.timer ??= setTimeout(() => { this.timer = undefined; this.flush(); }, SLIDE_MS);
   }
-  /** Lays a change over what is saved, here: returns what then has to be stored. */
-  private lay(patch: Partial<Settings>): { settings?: Settings; profiles?: Profiles } {
-    const profile = this.profile ? { ...this.profile } : null, global: Partial<Settings> = {}, stored: { settings?: Settings; profiles?: Profiles } = {};
-    for (const [key, value] of Object.entries(patch)) Object.assign(profile && LOOK_KEYS.includes(key as LookKey) ? profile : global, { [key]: value });
-    if (profile) stored.profiles = this.profiles = sanitizeProfiles({ ...this.profiles, [this.target]: profile });
-    if (Object.keys(global).length) stored.settings = this.global = sanitize({ ...this.global, ...global });
-    return stored;
+  flush(): void {
+    clearTimeout(this.timer); this.timer = undefined;
+    const draft = this.draft; this.draft = null;
+    if (draft) void this.post(draft);
   }
   /** Creates or replaces a site's profile; null removes it, which returns that site to the global settings. */
-  setProfile(site: string, profile: Profile | null): void {
-    const next = { ...this.profiles };
-    if (profile) next[site] = profile; else delete next[site];
-    this.profiles = sanitizeProfiles(next);
-    if (this.target && !this.profiles[this.target]) this.target = '';
-    const snapshot = this.profiles; this.queue(() => saveProfiles(snapshot));
-  }
-  private setCompare(compare: Compare | null): void {
-    this.compare = compare;
-    this.queue(() => sendCompare(compare));
-  }
+  setProfile(site: string, profile: Profile | null): Promise<SaveResult> { return this.push({ kind: 'profile', site, profile }); }
+  /** Returns these settings of a site's profile to the global ones; the rest of the profile stays as it is stored. */
+  inherit(site: string, keys: LookKey[]): Promise<SaveResult> { return this.push({ kind: 'inherit', site, keys }); }
   /**
-   * Starts an A/B comparison of the settings being edited. A is their look as it is saved now. B starts as the same look,
+   * Starts an A/B comparison of the settings being edited. A is their look as it is saved. B starts as the same look,
    * or as A with `b` laid over it (a preset, a wizard result) the way `applyPreset` lays it: listening and a Flash Limiter
    * that is on stay as they are. B is the side shown first: it is the one to be changed.
    */
-  startCompare(b?: Profile | null): void {
-    const a = lookOf(this.kept);
-    this.setCompare({ active: 'b', a, b: sanitizeProfile({ ...a, ...(b ? applyPreset(this.kept, b) : {}) }), target: this.target });
-  }
+  startCompare(b?: Profile | null): Promise<SaveResult> { return this.push({ kind: 'start', id: crypto.randomUUID(), site: this.target, b: b ?? null }); }
   /** Switches the lit tabs, and this page, to the other look. */
-  showSide(side: 'a' | 'b'): void { if (this.compare && this.compare.active !== side) this.setCompare({ ...this.compare, active: side }); }
+  showSide(side: 'a' | 'b'): Promise<SaveResult> {
+    return this.compare && this.compare.active !== side ? this.push({ kind: 'show', id: this.compare.id, side }) : Promise.resolve({ ok: true, rev: this.base.rev });
+  }
   /**
    * Ends the comparison. With a side, that look becomes the saved one (only what differs from before is written, in the
-   * same write that ends the comparison); with null everything stays as it was saved. Returns what was written.
+   * same write that ends the comparison: `written`); with null everything stays as it was saved. A comparison that has
+   * ended elsewhere in the meantime is not brought back and nothing is kept from it: the answer is then an error.
    */
-  endCompare(adopt: 'a' | 'b' | null): LookKey[] {
-    const compare = this.compare, mine = this.comparing, before = lookOf(this.kept), patch: Profile = {};
-    this.compare = null;
-    if (adopt && compare && mine) for (const key of LOOK_KEYS)
-      if (key in compare[adopt] && JSON.stringify(compare[adopt][key]) !== JSON.stringify(before[key])) Object.assign(patch, { [key]: compare[adopt][key] });
-    const stored = Object.keys(patch).length ? this.lay(patch) : {};
-    this.queue(() => sendCompare(null, stored));
-    return Object.keys(patch) as LookKey[];
+  endCompare(adopt: 'a' | 'b' | null): Promise<SaveResult> {
+    if (!this.compare) return Promise.resolve({ ok: true, rev: this.base.rev, written: [] });
+    return this.push({ kind: 'end', id: this.compare.id, adopt: this.comparing ? adopt : null });
   }
-  /** Keeps a preset under this name, or with null removes it. Returns the name as it was stored ('' = not a usable name). */
-  setPreset(name: string, preset: PresetLook | null): string {
-    const clean = presetName(name);
-    if (!clean) return '';
-    const next = { ...this.presets };
-    if (preset) own(next, clean, sanitizePreset(preset)); else delete next[clean];
-    this.presets = next; this.queue(() => savePresets(next));
-    return clean;
-  }
+  /** Keeps a preset under this name, or with null removes it. A name that is not usable (`presetName`) is refused with no error. */
+  setPreset(name: string, preset: PresetLook | null): Promise<SaveResult> { return presetName(name) ? this.push({ kind: 'preset', name, preset }) : refused(); }
   /**
-   * Replaces everything at once: reading a backup. A comparison in progress ends without a side being kept: its A is no
-   * longer what is saved, and keeping its B would write over what was just restored.
+   * Adds an imported preset, never over another one: under its own name, or the next free number (`freePresetName`), as
+   * the background finds them free when it writes. `name` in the answer is the name it was stored under; the list shows
+   * it from then on, not before.
    */
-  restore(settings: Settings, profiles: Profiles, presets: Presets): void {
-    this.global = sanitize(settings); this.profiles = sanitizeProfiles(profiles); this.presets = sanitizePresets(presets); this.compare = null;
-    if (this.target && !this.profiles[this.target]) this.target = '';
-    const all = { settings: this.global, profiles: this.profiles, presets: this.presets };
-    this.queue(() => sendCompare(null, all));
-  }
-  /** Resolves once everything changed so far is stored. */
-  get saved(): Promise<void> { return this.saving; }
+  importPreset(name: string, preset: PresetLook): Promise<SaveResult> { return presetName(name) ? this.push({ kind: 'import', name, preset }) : refused(); }
+  /**
+   * Replaces everything at once with a backup as it was read. It is guarded (`guardRestore`) against what is stored and
+   * showing when it is written. A comparison in progress ends without a side being kept: its A is no longer what is saved,
+   * and keeping its B would write over what was just restored.
+   */
+  restore(settings: Settings, profiles: Profiles, presets: Presets): Promise<SaveResult> { return this.push({ kind: 'restore', settings, profiles, presets }); }
+  /** Resolves once everything changed so far has been answered. */
+  get saved(): Promise<void> { this.flush(); return Promise.all(this.mine.map(m => m.done)).then(() => undefined); }
 }
+type Backup = { settings: Settings; profiles: Profiles; presets: Presets };
 /**
- * The comparison is written by the background, which also switches it from the keyboard (`saveCompare`): one write at a
- * time there, so a switch that read it before it ended cannot write it back afterwards. What has to be stored with it
- * (`saved`: a side kept, a backup restored) goes in the same message, so the page closing cannot leave half of it.
+ * A backup read on the settings page, waiting for the second press that restores it. Each file read replaces what is
+ * offered (`offer`, null for none). A restore that fails offers its backup again, unless another file has been read in the
+ * meantime: that one is what is offered then, and `confirm` answers null (the answer no longer speaks for what is shown).
  */
-async function sendCompare(compare: Compare | null, saved?: Stored): Promise<void> {
-  const reply = await chrome.runtime.sendMessage({ target: 'background', type: 'compare', compare, saved } satisfies Message);
-  if (!reply?.ok) throw new Error(reply?.error || 'A/B');
+export class BackupOffer {
+  backup: Backup | null = null; private reads = 0;
+  offer(backup: Backup | null): void { this.backup = backup; this.reads++; }
+  async confirm(store: Store): Promise<SaveResult | null> {
+    const backup = this.backup, reads = this.reads;
+    if (!backup) return null;
+    this.backup = null;
+    const result = await store.restore(backup.settings, backup.profiles, backup.presets);
+    if (reads !== this.reads) return null;
+    if (!result.ok) this.backup = backup;
+    return result;
+  }
 }
 
 /** Human names of what a profile can hold, for listing its differences from the global settings. */

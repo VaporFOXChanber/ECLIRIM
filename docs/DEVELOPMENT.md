@@ -43,6 +43,7 @@ Optional tools `scripts/real-pulse.mjs`, `real-ui.mjs` and `real-video.mjs` take
 |---|---|
 | `public/` | Manifest, extension HTML/CSS, offscreen page, icons |
 | `src/background.ts`, `src/content.ts`, `src/offscreen.ts` | User actions, injection, rendering lifecycle and video-only capture |
+| `src/service.ts`, `src/shared/save.ts` | What the background does, importable without Chrome's listeners (tested through `handleMessage`); its one-at-a-time settings writes, each change laid over what is stored |
 | `src/popup.ts`, `src/options.ts`, `src/ui/` | Popup, settings, comparison and feedback controls |
 | `src/capture/` | Video readback, audio copy, color metadata and UI geometry |
 | `src/engine/` | Color, effects, zones and adaptive quality |
