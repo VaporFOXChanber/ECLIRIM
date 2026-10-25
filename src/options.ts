@@ -1,9 +1,9 @@
-import { t, initI18n, localizeDocument, localizeText, getLanguagePreference, setLanguagePreference } from './shared/i18n';
+import { t, initI18n, localizeDocument, localizeText, getLanguage, getLanguagePreference, setLanguagePreference } from './shared/i18n';
 import { DIRECTOR, GLOW, HALO, LOOK_KEYS, PULSE, clamp, effectiveSettings, glowDepth, presetName, sanitize } from './shared/settings';
 import type { ColorSettings, DirectorSettings, ExposureSettings, GlowSettings, GuardSettings, LookKey, Message, PresetLook, Profile, PulseSettings, RGB, Settings, Status, TrailSettings } from './shared/types';
 import { siteKey } from './shared/site';
-import { AUDIO_NAMES, LOOK_NAMES, Store, protectedSite } from './ui/store';
-import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, importJSON, matchesPreset, presetFrom, withoutListening, type Imported } from './shared/presets';
+import { AUDIO_NAMES, BackupOffer, LOOK_NAMES, Store, protectedSite } from './ui/store';
+import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, importJSON, limiterKept, matchesPreset, presetFrom } from './shared/presets';
 import { WIZARD, WIZARD_START, WIZARD_STEPS, closestPreset, recommend, type WizardAnswers } from './shared/wizard';
 import { glowProfile } from './engine/emission';
 import { guardCap } from './engine/guard';
@@ -22,20 +22,25 @@ function make<K extends keyof HTMLElementTagNameMap>(tag: K, props: Record<strin
   const el = document.createElement(tag); Object.assign(el, props); el.append(...children); return el;
 }
 function error(message: string): void { message = localizeText(message); $('error').textContent = message; $('error').hidden = !message; }
-const store = new Store(error);
+// A change the background refused or could not store: the page shows what is stored again, and says so.
+const store = new Store(message => { error(message); render(); });
+store.onChange = () => render();
 let settings: Settings = store.settings;
 const zoneLabel = (zone: number, count: number) => rawZoneLabel(zone, count).replace(/[上下左右]/g, side => t(side));
 const refreshers: Array<() => void> = [];
 
+/** Whether the change being made comes from a slider being dragged: those are gathered (`Store.slide`), the last always sent. */
+let sliding = false;
 /** A labelled range input. `read` takes its value from the settings on every render, `write` stores a change. */
 function slider(parent: string, id: string, label: string, min: number, max: number, read: () => number, write: (value: number) => void): HTMLInputElement {
   const out = make('output'), input = make('input', { type: 'range', id, min: String(min), max: String(max) });
-  input.addEventListener('input', () => { out.textContent = `${input.value}%`; write(input.valueAsNumber); });
+  input.addEventListener('input', () => { out.textContent = `${input.value}%`; sliding = true; try { write(input.valueAsNumber); } finally { sliding = false; } });
+  input.addEventListener('change', () => store.flush());
   $(parent).append(make('div', { className: 'slider' }, make('label', { htmlFor: id }, label, out), input));
   refreshers.push(() => { input.value = String(Math.round(read())); out.textContent = `${input.value}%`; });
   return input;
 }
-function change(patch: Partial<Settings>): void { store.change(patch); render(); }
+function change(patch: Partial<Settings>): void { if (sliding) store.slide(patch); else void store.change(patch); render(); }
 
 // ───── Lighting
 for (const [key, label, min, max] of [
@@ -115,16 +120,20 @@ function renderGlow(): void {
 // ───── A/B Comparison
 $('compare-start').addEventListener('click', () => { store.startCompare(); render(); });
 document.querySelectorAll<HTMLButtonElement>('[data-side]').forEach(b => b.addEventListener('click', () => { store.showSide(b.dataset.side as 'a' | 'b'); render(); }));
-const decide = (side: 'a' | 'b' | null) => {
-  const written = store.endCompare(side);
-  error(''); $('compare-result').textContent = !side ? t("比較をやめました。保存してある設定は、比較の前のままです。")
+// What was kept is said once the background has stored it; a refusal (the comparison ended elsewhere) says nothing here.
+const decide = async (side: 'a' | 'b' | null) => {
+  const saved = store.endCompare(side);
+  error(''); render();
+  const result = await saved;
+  if (!result.ok) return;
+  const written = result.written || [];
+  $('compare-result').textContent = !side ? t("比較をやめました。保存してある設定は、比較の前のままです。")
     : written.length ? t("{0} に決めました。保存した項目: {1}", [side.toUpperCase(), written.map(key => t(LOOK_NAMES[key])).join(t("、"))])
     : t("{0} に決めました。保存してある設定と同じだったため、何も書き換えていません。", [side.toUpperCase()]);
-  render();
 };
-$('compare-keep-a').addEventListener('click', () => decide('a'));
-$('compare-keep-b').addEventListener('click', () => decide('b'));
-$('compare-cancel').addEventListener('click', () => decide(null));
+$('compare-keep-a').addEventListener('click', () => void decide('a'));
+$('compare-keep-b').addEventListener('click', () => void decide('b'));
+$('compare-cancel').addEventListener('click', () => void decide(null));
 document.addEventListener('keydown', e => {
   const key = e.key.toLowerCase(), typing = (e.target as HTMLElement).matches?.('input:not([type=checkbox]):not([type=range]),select,textarea');
   if (!store.compare || typing || e.metaKey || e.ctrlKey || e.altKey || key !== 'a' && key !== 'b') return;
@@ -200,26 +209,29 @@ const wizardSay = (text: string) => { $('wizard-message').textContent = text; };
 $('wizard-next').addEventListener('click', () => { wizardStep = Math.min(WIZARD_STEPS.length, wizardStep + 1); wizardSay(''); renderWizard(); });
 $('wizard-back').addEventListener('click', () => { wizardStep = Math.max(0, wizardStep - 1); wizardSay(''); renderWizard(); });
 $('wizard-restart').addEventListener('click', () => { wizardStep = 0; Object.assign(answers, WIZARD_START); wizardSay(''); renderWizard(); });
-$('wizard-apply').addEventListener('click', () => {
-  change(wizardLook(answers));
-  wizardSay(store.comparing ? t("おすすめの設定を、比較中の {0} に入れました。使うには、上の比較バーで決めてください。", [store.compare!.active.toUpperCase()])
-    : t("おすすめの設定を{0}に保存しました。Lighting や Glow Designer のタブで、ここからさらに調整できます。", [store.target ? t("{0} のプロファイル", [store.target]) : t("グローバル設定")]));
+$('wizard-apply').addEventListener('click', async () => {
+  const side = store.comparing ? store.compare!.active.toUpperCase() : '', where = store.target ? t("{0} のプロファイル", [store.target]) : t("グローバル設定");
+  const saved = store.change(wizardLook(answers)); wizardSay(''); render();
+  if (!(await saved).ok) return;
+  wizardSay(side ? t("おすすめの設定を、比較中の {0} に入れました。使うには、上の比較バーで決めてください。", [side])
+    : t("おすすめの設定を{0}に保存しました。Lighting や Glow Designer のタブで、ここからさらに調整できます。", [where]));
 });
 // Compare first, decide later: A stays what is saved now, B becomes the wizard's result.
-$('wizard-compare').addEventListener('click', () => {
+// Both are sent at once; it says the comparison started only once each was stored.
+$('wizard-compare').addEventListener('click', async () => {
   const look = wizardLook(answers);
-  if (store.compare) store.endCompare(null);
-  store.startCompare(look); render();
-  wizardSay(t("A/B 比較を始めました。A がいまの設定、B がおすすめの設定です。点灯中のタブを見ながら、上の比較バー（または A / B キー）で切り替えてください。"));
+  const steps = [...(store.compare ? [store.endCompare(null)] : []), store.startCompare(look)]; wizardSay(''); render();
+  if ((await Promise.all(steps)).every(result => result.ok))
+    wizardSay(t("A/B 比較を始めました。A がいまの設定、B がおすすめの設定です。点灯中のタブを見ながら、上の比較バー（または A / B キー）で切り替えてください。"));
 });
-$('wizard-save').addEventListener('submit', e => {
+$('wizard-save').addEventListener('submit', async e => {
   e.preventDefault();
   const input = $<HTMLInputElement>('wizard-name');
-  if (builtInName(presetName(input.value))) { wizardSay(t("標準のプリセットと同じ名前は使えません。")); return; }
-  const name = store.setPreset(input.value, recommend(answers));
-  wizardSay(name ? t("「{0}」として Preset Library に保存しました。Presets のタブからいつでも適用できます。", [name]) : t("名前を入力してください。"));
-  if (name) input.value = '';
-  render();
+  const name = presetName(input.value);
+  if (builtInName(name)) { wizardSay(t("標準のプリセットと同じ名前は使えません。")); return; }
+  if (!name) { wizardSay(t("名前を入力してください。")); return; }
+  const saved = store.setPreset(name, recommend(answers)); input.value = ''; wizardSay(''); render();
+  if ((await saved).ok) wizardSay(t("「{0}」として Preset Library に保存しました。Presets のタブからいつでも適用できます。", [name]));
 });
 
 // ───── Light Director
@@ -351,7 +363,7 @@ function renderProfiles(): void {
     const chips = keys.map(key => {
       const drop = make('button', { type: 'button', className: 'drop', textContent: '×', title: t("この項目をグローバル設定に戻す") });
       drop.setAttribute('aria-label', t("{0} をグローバル設定に戻す", [t(LOOK_NAMES[key])]));
-      drop.addEventListener('click', () => { const next = { ...store.profiles[site] }; delete next[key]; store.setProfile(site, next); render(); });
+      drop.addEventListener('click', () => { void store.inherit(site, [key]); render(); });
       return make('span', { className: 'chip' }, `${t(LOOK_NAMES[key])}: ${summary(key, profile)}`, drop);
     });
     const edit = make('button', { type: 'button', textContent: store.target === site ? t("編集中") : t("編集") }); edit.dataset.edit = site;
@@ -359,10 +371,10 @@ function renderProfiles(): void {
     const copy = make('button', { type: 'button', textContent: t("複製") });
     copy.addEventListener('click', () => { $<HTMLSelectElement>('profile-from').value = site; $('profile-site').focus(); message(t("「{0}」を写します。複製先のホスト名を入力して「作成」を押してください。", [site])); });
     const remove = make('button', { type: 'button', className: 'danger', textContent: confirming === site ? t("もう一度押すと削除") : t("削除（グローバルに戻す）") }); remove.dataset.remove = site;
-    remove.addEventListener('click', () => {
-      if (confirming !== site) { confirming = site; window.setTimeout(() => { if (confirming === site) { confirming = ''; render(); } }, 4000); }
-      else { confirming = ''; store.setProfile(site, null); message(t("「{0}」のプロファイルを削除しました。このサイトはグローバル設定に従います。", [site])); }
-      render();
+    remove.addEventListener('click', async () => {
+      if (confirming !== site) { confirming = site; window.setTimeout(() => { if (confirming === site) { confirming = ''; render(); } }, 4000); render(); return; }
+      confirming = ''; const saved = store.setProfile(site, null); message(''); render();
+      if ((await saved).ok) message(t("「{0}」のプロファイルを削除しました。このサイトはグローバル設定に従います。", [site]));
     });
     const notes = [
       granted.some(origin => origin.includes(`//${site}/`)) ? t("「このサイトでは常に点灯」: 許可あり（ポップアップで変更）") : t("「このサイトでは常に点灯」: なし。プロファイルだけでは自動で点灯しません。"),
@@ -385,20 +397,22 @@ function renderProfiles(): void {
   from.replaceChildren(make('option', { value: '', textContent: t("なし（グローバル設定に従う）") }), ...sites.map(site => make('option', { value: site, textContent: site })));
   from.value = sites.includes(chosen) ? chosen : '';
 }
-$('profile-form').addEventListener('submit', e => {
+$('profile-form').addEventListener('submit', async e => {
   e.preventDefault();
   const input = $<HTMLInputElement>('profile-site'), typed = input.value.trim().toLowerCase(), from = $<HTMLSelectElement>('profile-from').value;
   const site = typed === 'file' ? 'file' : siteKey(/^https?:\/\//.test(typed) ? typed : `https://${typed}`);
   if (!typed || !site) { message(t("ホスト名を入力してください（例: www.youtube.com）。")); return; }
   if (store.profiles[site]) { message(t("「{0}」のプロファイルはすでにあります。", [site])); return; }
-  store.setProfile(site, from ? { ...store.profiles[from] } : {}); store.target = site; input.value = '';
-  message(t("「{0}」のプロファイルを作成しました。{1}上の「編集する設定」で選んだ状態です。", [site, from ? t("「{0}」の内容を写しています。", [from]) : t("まだ違いは無く、グローバル設定に従います。")]));
-  render();
+  const saved = store.setProfile(site, from ? { ...store.profiles[from] } : {}); store.target = site; input.value = ''; message(''); render();
+  if ((await saved).ok) message(t("「{0}」のプロファイルを作成しました。{1}上の「編集する設定」で選んだ状態です。", [site, from ? t("「{0}」の内容を写しています。", [from]) : t("まだ違いは無く、グローバル設定に従います。")]));
 });
 
 // ───── Presets
-let removing = '', pending: Extract<Imported, { kind: 'backup' }> | null = null;
+let removing = '';
+const offered = new BackupOffer();
 const say = (id: string, text: string) => { $(id).textContent = text; };
+/** Messages one after another, as each language writes them. */
+const sentences = (...texts: (string | false)[]) => texts.filter(Boolean).join(getLanguage() === 'ja' ? '' : ' ');
 function download(name: string, text: string): void {
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' })), link = make('a', { href: url, download: name });
   document.body.append(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -408,8 +422,16 @@ function renderPresets(): void {
   const row = (name: string, note: string, look: PresetLook, own: boolean) => {
     const active = matchesPreset(settings, look), apply = make('button', { type: 'button', textContent: active ? t("適用中") : t("適用"), disabled: active });
     apply.dataset.apply = name;
-    // Only the look changes. Whether sound is analysed stays the user's own switch.
-    apply.addEventListener('click', () => { change(applyPreset(settings, look)); say('preset-message', t("「{0}」を{1}に適用しました。", [name, store.target ? t("{0} のプロファイル", [store.target]) : t("グローバル設定")])); });
+    // Only the look changes. Whether sound is analysed, and a Flash Limiter that is on, stay the user's own switches.
+    // During a comparison the look goes to the side that is showing, like any other change: nothing saved is written until a side is kept.
+    apply.addEventListener('click', async () => {
+      const kept = limiterKept(settings, look), side = store.comparing ? store.compare!.active.toUpperCase() : '', where = store.target ? t("{0} のプロファイル", [store.target]) : t("グローバル設定");
+      const saved = store.change(applyPreset(settings, look)); say('preset-message', ''); render();
+      if (!(await saved).ok) return;
+      say('preset-message', sentences(side ? t("「{0}」を比較中の {1} に入れました。使うには、上の比較バーで決めてください。", [name, side])
+        : t("「{0}」を{1}に適用しました。", [name, where]),
+        kept && t("Flash Limiter はオンのままにしました（このプリセットではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。")));
+    });
     const save = make('button', { type: 'button', textContent: t("書き出す") }); save.dataset.export = name;
     save.addEventListener('click', () => { download(fileName(name), exportPreset(name, look)); say('preset-message', t("「{0}」をJSONファイルに書き出しました。", [name])); });
     const copy = make('button', { type: 'button', textContent: t("JSONをコピー") });
@@ -417,10 +439,10 @@ function renderPresets(): void {
     const actions = [apply, save, copy];
     if (own) {
       const remove = make('button', { type: 'button', className: 'danger', textContent: removing === name ? t("もう一度押すと削除") : t("削除") }); remove.dataset.removePreset = name;
-      remove.addEventListener('click', () => {
-        if (removing !== name) { removing = name; window.setTimeout(() => { if (removing === name) { removing = ''; render(); } }, 4000); }
-        else { removing = ''; store.setPreset(name, null); say('preset-message', t("「{0}」を削除しました。", [name])); }
-        render();
+      remove.addEventListener('click', async () => {
+        if (removing !== name) { removing = name; window.setTimeout(() => { if (removing === name) { removing = ''; render(); } }, 4000); render(); return; }
+        removing = ''; const saved = store.setPreset(name, null); say('preset-message', ''); render();
+        if ((await saved).ok) say('preset-message', t("「{0}」を削除しました。", [name]));
       });
       actions.push(remove);
     }
@@ -429,45 +451,57 @@ function renderPresets(): void {
   const mine = Object.keys(store.presets).sort();
   $('preset-list').replaceChildren(...BUILT_IN.map(p => row(p.name, t(p.note), p.look, false)), ...mine.map(name => row(name, t("自分で保存したプリセット。"), store.presets[name], true)));
 }
-$('preset-form').addEventListener('submit', e => {
+$('preset-form').addEventListener('submit', async e => {
   e.preventDefault();
-  const input = $<HTMLInputElement>('preset-name');
-  if (builtInName(presetName(input.value))) { say('preset-message', t("標準のプリセットと同じ名前は使えません。")); return; }
-  const name = store.setPreset(input.value, presetFrom(settings));
-  say('preset-message', name ? t("いまの設定を「{0}」として保存しました。", [name]) : t("名前を入力してください。"));
-  if (name) input.value = '';
-  render();
+  const input = $<HTMLInputElement>('preset-name'), name = presetName(input.value);
+  if (builtInName(name)) { say('preset-message', t("標準のプリセットと同じ名前は使えません。")); return; }
+  if (!name) { say('preset-message', t("名前を入力してください。")); return; }
+  const saved = store.setPreset(name, presetFrom(settings)); input.value = ''; say('preset-message', ''); render();
+  if ((await saved).ok) say('preset-message', t("いまの設定を「{0}」として保存しました。", [name]));
 });
 /** Takes in a file made by this page. A preset is added to the list, not applied. A backup is only shown; replacing needs a second press. */
-function take(text: string): void {
+async function take(text: string): Promise<void> {
   const result = importJSON(text);
-  pending = null; $('import-confirm').hidden = true;
+  offered.offer(null); $('import-confirm').hidden = true;
   if (result.kind === 'error') { say('import-message', localizeText(result.error)); return; }
   if (result.kind === 'preset') {
-    // Never over an existing one: the user's own presets and the standard ones are both kept.
-    const name = store.setPreset(freePresetName(result.name, store.presets), result.look);
-    say('import-message', t("プリセット「{0}」を追加しました。使うには、上の一覧で「適用」を押してください。", [name]));
-    render(); return;
+    // Never over an existing one: the user's own presets and the standard ones are both kept, also against another page importing at once.
+    const saved = store.importPreset(result.name, result.look);
+    say('import-message', ''); render();
+    const added = await saved;
+    if (added.ok) say('import-message', t("プリセット「{0}」を追加しました。使うには、上の一覧で「適用」を押してください。", [added.name]));
+    return;
   }
-  pending = result; $('import-confirm').hidden = false;
-  say('import-message', t("バックアップです（プロファイル {0} 件、プリセット {1} 件）。読み込むと、現在のグローバル設定・プロファイル・プリセットがすべて置き換わります。よければ「現在の設定をすべて置き換える」を押してください。", [Object.keys(result.profiles).length, Object.keys(result.presets).length]));
+  offered.offer(result); offer();
+}
+/** Shows the backup that is offered, and the press that restores it. */
+function offer(): void {
+  const backup = offered.backup!; $('import-confirm').hidden = false;
+  say('import-message', t("バックアップです（プロファイル {0} 件、プリセット {1} 件）。読み込むと、現在のグローバル設定・プロファイル・プリセットがすべて置き換わります。よければ「現在の設定をすべて置き換える」を押してください。", [Object.keys(backup.profiles).length, Object.keys(backup.presets).length]));
 }
 $('import-pick').addEventListener('click', () => $('import-file').click());
 $('import-file').addEventListener('change', async e => {
   const input = e.target as HTMLInputElement, file = input.files?.[0];
-  if (file) take(file.size > 400_000 ? 'x'.repeat(400_001) : await file.text());
+  if (file) void take(file.size > 400_000 ? 'x'.repeat(400_001) : await file.text());
   input.value = '';
 });
-$('import-paste').addEventListener('click', () => take($<HTMLTextAreaElement>('import-text').value));
-$('import-confirm').addEventListener('click', () => {
-  if (!pending) return;
-  // A backup may come from someone else: reading it never starts sound analysis that is not already on here.
-  const guarded = withoutListening(pending, store.global);
-  const quieted = guarded.settings.pulse.enabled !== pending.settings.pulse.enabled || guarded.settings.source !== pending.settings.source;
-  store.restore(guarded.settings, guarded.profiles, pending.presets);
-  pending = null; $('import-confirm').hidden = true; $<HTMLTextAreaElement>('import-text').value = '';
-  say('import-message', t("バックアップを読み込みました。{0}", [quieted ? t("音の解析（Pulse Engine・Music Mode）は、この読み込みではオンにしていません。使う場合はご自身でオンにしてください。") : '']));
-  render();
+$('import-paste').addEventListener('click', () => void take($<HTMLTextAreaElement>('import-text').value));
+$('import-confirm').addEventListener('click', async () => {
+  if (!offered.backup) return;
+  // A backup may come from someone else: reading it never starts sound analysis that is not already on here, and never turns a Flash Limiter off.
+  // Judged by what is stored and showing when it is written, a comparison's side included; the comparison then ends with the restore.
+  const saved = offered.confirm(store);
+  $('import-confirm').hidden = true; say('import-message', ''); render();
+  const result = await saved;
+  // Another file was read meanwhile: what is shown is about that one, and stays.
+  if (!result) return;
+  // Not stored: the backup is offered again, as it was before the press.
+  if (!result.ok) { offer(); return; }
+  $<HTMLTextAreaElement>('import-text').value = '';
+  say('import-message', t("バックアップを読み込みました。{0}", [sentences(
+    !!result.quieted && t("音の解析（Pulse Engine・Music Mode）は、この読み込みではオンにしていません。使う場合はご自身でオンにしてください。"),
+    !!result.limiter && t("Flash Limiter は、オンだったところではオンのままにしました（バックアップではオフ）。オフにする場合は、ご自身で切り替えてください。"),
+    !!result.compared && t("進めていた A/B 比較は終了しました。"))]));
 });
 $('backup-export').addEventListener('click', () => {
   download('eclirim-backup.json', exportBackup(store.global, store.profiles, store.presets));
@@ -607,6 +641,9 @@ window.addEventListener('resize', () => {
   glowPreview.update(previewSettings(settings)); glowLive?.update(previewSettings(settings));
 });
 window.addEventListener('eclirim-language', () => { void store.saved.then(() => location.reload()); });
+// A slider move still being gathered goes out when the page is hidden or closed.
+window.addEventListener('pagehide', () => store.flush());
+document.addEventListener('visibilitychange', () => { if (document.hidden) store.flush(); });
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && (changes.settings || changes.profiles || changes.presets || changes.compare) && store.adopt(changes)) render();
 });

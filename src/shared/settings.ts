@@ -124,7 +124,7 @@ export function sanitizeCompare(raw: unknown): Compare | null {
   const input = raw as Partial<Compare> | null;
   if (!input || typeof input !== 'object' || !input.a || !input.b || typeof input.a !== 'object' || typeof input.b !== 'object') return null;
   const target = typeof input.target === 'string' && /^[a-z0-9.-]{1,253}$/.test(input.target) ? input.target : '';
-  return { active: input.active === 'b' ? 'b' : 'a', a: sanitizeProfile(input.a), b: sanitizeProfile(input.b), target };
+  return { id: typeof input.id === 'string' ? input.id.slice(0, 64) : '', active: input.active === 'b' ? 'b' : 'a', a: sanitizeProfile(input.a), b: sanitizeProfile(input.b), target };
 }
 /** The settings a tab shows while a comparison of the settings that govern it (`target`) is running. */
 export const compareSettings = (settings: Settings, compare: Compare | null, target: string): Settings =>
@@ -158,23 +158,14 @@ export function effectiveSettings(s: Settings, pageZoom = 1): Settings {
 export async function loadSettings(): Promise<Settings> {
   return sanitize((await chrome.storage.local.get('settings')).settings);
 }
-export async function saveSettings(s: Settings): Promise<void> {
-  await chrome.storage.local.set({ settings: sanitize(s) });
-}
 export async function loadPresets(): Promise<Presets> {
   return sanitizePresets((await chrome.storage.local.get('presets')).presets);
-}
-export async function savePresets(presets: Presets): Promise<void> {
-  await chrome.storage.local.set({ presets: sanitizePresets(presets) });
 }
 export async function loadCompare(): Promise<Compare | null> {
   return sanitizeCompare((await chrome.storage.local.get('compare')).compare);
 }
 export async function loadProfiles(): Promise<Profiles> {
   return sanitizeProfiles((await chrome.storage.local.get('profiles')).profiles);
-}
-export async function saveProfiles(profiles: Profiles): Promise<void> {
-  await chrome.storage.local.set({ profiles: sanitizeProfiles(profiles) });
 }
 export function fallbackColors(s: Settings, time: number): RGB[] {
   let rgb: RGB = PRESETS[s.preset];
