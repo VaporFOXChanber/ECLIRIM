@@ -1,8 +1,9 @@
 import type { RGB } from '../shared/types';
 
+/** The test patterns of Zone Studio, by name (catalog sources: shown through `t`). */
 export const PATTERNS = {
-  sample: 'Sample Scene', rainbow: 'Rainbow', rgb: 'Red / Green / Blue', moving: 'Moving Light',
-  corners: 'Corner Test', gradient: 'Brightness Gradient', identify: 'Zone Identification'
+  sample: 'サンプル映像', rainbow: 'レインボー', rgb: '赤・緑・青', moving: '動く光',
+  corners: '四隅の確認', gradient: '明るさのグラデーション', identify: '選んだゾーンの確認'
 } as const;
 export type Pattern = keyof typeof PATTERNS;
 

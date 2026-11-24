@@ -31,7 +31,12 @@ export class LightingRenderer {
    * been counted (null = leave the light alone). While it is set the loop keeps running, since sound can move the light
    * when the picture does not.
    */
-  pulse: ((count: number, dt: number) => PulseDrive | null) | null = null;
+  get pulse(): ((count: number, dt: number) => PulseDrive | null) | null { return this.drive; }
+  /** Setting it wakes a loop that has gone to sleep: nothing else would, when the picture and its colours stand still. */
+  set pulse(drive: ((count: number, dt: number) => PulseDrive | null) | null) { const was = this.drive; this.drive = drive; if (drive && !was) this.wake(); }
+  private drive: ((count: number, dt: number) => PulseDrive | null) | null = null;
+  /** Beat Bloom: the light back at its own depth at once (tab capture is about to read the picture next to it). */
+  unswell(): void { this.swell(null, 0); }
   // Beat Bloom: how far each side's light is swollen into the page right now (0 = not at all), and what the Pulse Engine last asked to lift.
   private swollen = [0, 0, 0, 0]; private lift: ArrayLike<number> | null = null;
   private raf = 0; private last = 0; private awakeUntil = 0; private active = false; private maskKey = '';

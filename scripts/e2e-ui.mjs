@@ -26,7 +26,7 @@ try {
   const video = await context.newPage(); await video.goto('http://localhost:4187');
   const cdp = await context.browser().newBrowserCDPSession(); popup = await openPopup(cdp, id, video.url());
   await popup.evaluate('document.querySelector("#start").click()');
-  await until(() => popup.evaluate('document.querySelector("#state").textContent === "Active"'), 'active popup');
+  await until(() => popup.evaluate('document.querySelector("#state").dataset.state === "Active"'), 'active popup');
   const geometry = await popup.evaluate('(() => { const r=document.querySelector("#brightness").getBoundingClientRect(),m=document.querySelector("main").getBoundingClientRect(); return {top:r.top,bottom:r.bottom,height:innerHeight,mainBottom:m.bottom,hit:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.id,scrollHeight:document.querySelector("main").scrollHeight}; })()');
   assert.ok(geometry.top < 400 && geometry.bottom <= geometry.mainBottom && geometry.bottom <= geometry.height, JSON.stringify(geometry));
   assert.equal(geometry.hit, 'brightness', 'utility buttons do not cover the brightness control');
@@ -44,7 +44,7 @@ try {
   await until(() => video.locator('#player video').evaluate(v => !!v.mediaKeys && v.currentTime > .1), 'owned ClearKey fixture playing');
   popup = await openPopup(cdp, id, video.url());
   const protectedState = process.platform === 'darwin' ? 'Protected Content' : 'Compatibility Mode';
-  await until(() => popup.evaluate(`document.querySelector("#state").textContent === ${JSON.stringify(protectedState)}`), 'protected popup state');
+  await until(() => popup.evaluate(`document.querySelector("#state").dataset.state === ${JSON.stringify(protectedState)}`), 'protected popup state');
   assert.equal(await popup.evaluate('document.querySelector("#source-details").open'), true, 'source guidance opens on a protected-video state');
   await popup.evaluate('document.querySelector("#source-details").open = false'); await sleep(1200);
   assert.equal(await popup.evaluate('document.querySelector("#source-details").open'), false, 'refresh does not reopen a source panel the user closed');

@@ -355,7 +355,7 @@ try {
   const diagnostics = await windowed; diagnostics.on('pageerror', e => errors.push(`diagnostics: ${e}`));
   const read = () => diagnostics.evaluate(() => Object.fromEntries([...document.querySelectorAll('#diag-simple dt, #diag-full dt')].map(dt => [dt.textContent, dt.nextElementSibling.textContent])));
   const simple = await until(async () => { const v = await read(); return /fps/.test(v['Analysis FPS'] || '') && /fps/.test(v['Rendering FPS'] || '') ? v : false; }, 'live figures of the playing tab', 15000);
-  assert.equal(simple['状態'], 'Active'); assert.equal(simple['描画方式'], 'Canvas 直接解析'); assert.match(simple['ゾーン'], /^64（光るゾーン 64）/);
+  assert.equal(simple['状態'], '点灯中'); assert.equal(simple['描画方式'], 'Canvas 直接解析'); assert.match(simple['ゾーン'], /^64（光るゾーン 64）/);
   assert.match(simple['Light Director'], /動作中/); assert.equal(simple['プロファイル'], 'グローバル設定');
   assert.ok(parseFloat(simple['Analysis FPS']) > 8 && parseFloat(simple['Rendering FPS']) > 20);
   assert.equal(await diagnostics.locator('#diag-full').isHidden(), true, 'developer detail is off until asked for');

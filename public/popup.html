@@ -9,8 +9,8 @@
       <p id="detail"><span data-i18n="m_adfd7be1861a">動画のあるタブで開始してください。</span></p>
       <details id="status-details" class="status-details" hidden><summary><span data-i18n="m_d2698a3a6c0f">動作の詳細</span></summary><div id="metrics"></div></details>
     </section>
-    <button id="start" class="primary"><span data-i18n="m_845640c965aa">このタブで照明を開始 </span><span>↗</span></button>
-  <div class="tools"><button id="wizard" class="secondary"><span data-i18n="m_3386930b101a">かんたん設定</span></button><button id="open-options" class="secondary"><span data-i18n="m_7b89b24f2697">詳細設定</span></button><button id="feedback" class="secondary"><span data-i18n="m_ef222409da5f">フィードバック</span></button></div>
+    <button id="start" class="primary"><span id="start-label" data-i18n="m_845640c965aa">このタブで照明を開始</span></button>
+  <div class="tools"><button id="wizard" class="secondary"><span data-i18n="m_3386930b101a">かんたん設定</span></button><button id="open-options" class="secondary"><span data-i18n="m_7b89b24f2697">詳細設定</span></button></div>
     <div id="compare-bar" class="compare" hidden>
       <div class="compare-head"><b><span data-i18n="m_378c39a64b92">A/B 比較</span></b><span id="compare-note"></span></div>
       <div class="ab" role="group" aria-label="表示する設定" data-i18n-aria-label="m_005008b8c032"><button data-side="a" aria-pressed="false">A<small><span data-i18n="m_3d7b4ade8107">元の設定</span></small></button><button data-side="b" aria-pressed="false">B<small><span data-i18n="m_dd5808dc5315">試す設定</span></small></button></div>
@@ -44,7 +44,7 @@
     <details id="source-details"><summary><span data-i18n="m_875f06c267db">映像・サイトの設定</span></summary>
       <label class="select-row" for="source"><span><span data-i18n="m_60646ad33352">照明のソース</span></span><select id="source"><option value="video" data-i18n="m_f7850c87be2b">映像に連動 · RGB解析</option><option value="compatibility" data-i18n="m_e09e1918b67e">DRM互換描画 · CSS</option><option value="manual" data-i18n="m_a405e5a216e9">固定カラー</option><option value="preset" data-i18n="m_1b6605b4e422">Cinemaプリセット</option><option value="drift" data-i18n="m_da77497f06e1">ゆっくり変化</option><option value="music" data-i18n="m_3cf5cda7ac3e">Music Mode · 音だけで発光</option></select></label>
       <p id="source-note" class="hint"></p>
-      <label class="select-row" for="protectedLight"><span><span data-i18n="m_f5f64cbd91a6">保護された動画</span></span><select id="protectedLight"><option value="off" data-i18n="m_253bb41e4be5">光らせない</option><option value="preset" data-i18n="m_1b6605b4e422">Cinemaプリセット</option><option value="drift" data-i18n="m_da77497f06e1">ゆっくり変化</option><option value="manual" data-i18n="m_a405e5a216e9">固定カラー</option></select></label>
+      <label class="select-row" for="protectedLight"><span><span data-i18n="m_951ccc950935">保護された動画での照明</span></span><select id="protectedLight"><option value="off" data-i18n="m_253bb41e4be5">光らせない</option><option value="preset" data-i18n="m_1b6605b4e422">Cinemaプリセット</option><option value="drift" data-i18n="m_da77497f06e1">ゆっくり変化</option><option value="manual" data-i18n="m_a405e5a216e9">固定カラー</option></select></label>
       <p class="hint"><span data-i18n="m_5b1ccef0e606">MacのChromeでは、保護された動画は初期設定で光らせません。固定の照明を選んでも、映像には連動しません。</span></p>
       <div id="manual-row" hidden><label class="select-row"><span data-i18n="m_a405e5a216e9">固定カラー</span><input type="color" id="manualColor" value="#ffb477"></label></div>
       <div id="preset-row" hidden><label class="select-row"><span data-i18n="m_1b6605b4e422">Cinemaプリセット</span><select id="preset"><option value="warm" data-i18n="m_1cc6e552f2f0">Warm · 琥珀</option><option value="moon" data-i18n="m_842cf4c7918b">Moon · 月明かり</option><option value="dusk" data-i18n="m_9cf28188c1f6">Dusk · 薄暮</option></select></label></div>
@@ -57,13 +57,13 @@
     </details>
     <details id="advanced-details"><summary><span data-i18n="m_b0cbb90912f6">細かな調整・比較</span></summary><div class="sliders" id="advanced-sliders"></div>
       <label class="select-row"><span data-i18n="m_152fda33ca26">LEDゾーン数</span><select id="zoneMode"><option value="auto" data-i18n="m_e34a8a76d0e3">解像度に合わせて自動</option><option value="manual" data-i18n="m_0c6235ee884a">手動で指定</option></select></label>
-      <label class="select-row" id="zone-count-row">Zone Count<select id="zoneCount"><option>32</option><option selected>64</option><option>96</option><option>128</option></select></label>
+      <label class="select-row" id="zone-count-row"><span data-i18n="m_e2a27cac6d84">ゾーン数</span><select id="zoneCount"><option>32</option><option selected>64</option><option>96</option><option>128</option></select></label>
       <p id="zone-note" class="hint"></p>
       <label class="check-row"><span><span data-i18n="m_0c26f0fcfad2">急な明滅を抑える · Flash Limiter</span></span><input type="checkbox" id="flashLimiter"></label>
       <button id="compare-start" class="secondary"><span data-i18n="m_a720a24b73f4">A/B 比較を始める</span></button>
     </details>
     <p id="error" role="alert" hidden></p>
   </main>
-  <footer><span class="privacy-dot"></span><span data-i18n="m_db6bf523753c">ローカル処理 · 映像の送信なし </span><button id="reset"><span data-i18n="m_817138da929d">初期設定</span></button></footer>
+  <footer><span class="privacy-dot"></span><span data-i18n="m_970d9e38c4ee">ローカル処理 · 送信なし</span><span class="footer-actions"><button id="feedback"><span data-i18n="m_ef222409da5f">フィードバック</span></button><button id="reset"><span data-i18n="m_817138da929d">初期設定</span></button></span></footer>
   <script src="popup.js"></script>
 </body></html>

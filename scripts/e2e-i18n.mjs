@@ -58,7 +58,7 @@ try {
     const cdp = await context.browser().newBrowserCDPSession(); let popup = await openPopup(cdp,id,video.url());
     await until(() => popup.evaluate('document.querySelector("#start") && !document.documentElement.hasAttribute("data-i18n-pending")'), 'popup initialized');
     await popup.evaluate('document.querySelector("#start").click()');
-    await until(() => popup.evaluate('document.querySelector("#state").textContent === "Active"'), 'video active');
+    await until(() => popup.evaluate('document.querySelector("#state").dataset.state === "Active"'), 'video active');
     if (locale !== 'ja') assert.ok(!japanese.test(await popup.evaluate('document.body.innerText')), 'English popup has no Japanese');
     await popup.evaluate('document.body.style.width="320px";document.documentElement.style.width="320px"');
     await pause(250);

@@ -1,6 +1,12 @@
 import { t } from '../shared/i18n';
-import { FEEDBACK_ENDPOINT, FEEDBACK_KEY, feedbackContent, feedbackDraft, feedbackText, hasFeedback, postFeedback } from '../shared/feedback';
+import { FEEDBACK_ENDPOINT, FEEDBACK_KEY, type FeedbackDraft, feedbackContent, feedbackDraft, feedbackText, hasFeedback, postFeedback } from '../shared/feedback';
 import { diagnosticsSummary, diagnosticsText, type DiagnosticsSummary } from '../shared/diagnostics';
+
+import type { Message } from '../shared/types';
+/** Draft changes sent from this page and not yet answered. */
+const inflight = new Set<Promise<void>>();
+/** Resolves once every draft change made so far on this page has been answered (before the page reloads itself). */
+export const feedbackSaved = (): Promise<void> => Promise.all([...inflight]).then(() => undefined);
 
 export interface DiagnosticsChoice { id: string; label: string; summary: DiagnosticsSummary }
 
@@ -17,7 +23,7 @@ export async function setupFeedback(loadDiagnostics: () => Promise<DiagnosticsCh
   const diagnosticsConfirm = $<HTMLInputElement>('feedback-diagnostics-confirm');
   const version = chrome.runtime.getManifest().version;
   const keys = ['kind', 'rating', 'context', 'good', 'problem', 'idea', 'steps'] as const;
-  let draft = feedbackDraft(), writes = Promise.resolve(), clearing = 0, sending = false;
+  let draft = feedbackDraft(), clearing = 0, sending = false;
   // A reviewed snapshot is deliberately session-only. Reopening the page requires a new review.
   let choices: DiagnosticsChoice[] = [], snapshot: DiagnosticsSummary | undefined, reviewed = false, loading = false, reading = 0;
   const say = (text: string) => { status.textContent = text; };
@@ -42,22 +48,52 @@ export async function setupFeedback(loadDiagnostics: () => Promise<DiagnosticsCh
     diagnosticsTab.replaceChildren(); diagnosticsPreview.value = ''; $('feedback-diagnostics-status').textContent = '';
   };
   const fill = () => { for (const key of keys) $<HTMLInputElement>(`feedback-${key}`).value = String(draft[key]); render(); };
-  // Keep rapid typing and an immediate clear in order; an older write cannot put a cleared draft back.
-  const save = () => {
-    const snapshot = { ...draft };
-    writes = writes.then(() => chrome.storage.local.set({ [FEEDBACK_KEY]: snapshot })).catch(() => {
+  // Every change goes to the background as the fields it changes (a clear as all of them), and the background lays it over
+  // the draft as it is stored then, one change at a time: two settings pages editing different fields keep both, and an
+  // older change can never put a cleared draft back. `pending` counts, per field, the changes sent from here and not yet
+  // answered: until then this page's value of that field stands, whatever storage says.
+  type Key = typeof keys[number];
+  const pending = new Map<Key, number>();
+  let deferred = false;
+  /** Shows the draft as stored, except the fields this page has changes on their way for. Fields already showing it are left alone. */
+  const take = (incoming: FeedbackDraft) => {
+    const next = feedbackDraft({ ...incoming, ...Object.fromEntries(keys.filter(key => pending.get(key)).map(key => [key, draft[key]])) });
+    if (JSON.stringify(next) === JSON.stringify(draft)) return;
+    draft = next;
+    for (const key of keys) { const field = $<HTMLInputElement>(`feedback-${key}`); if (field.value !== String(draft[key])) field.value = String(draft[key]); }
+    render();
+  };
+  const save = (changed: readonly Key[] | null) => {
+    for (const key of changed || keys) pending.set(key, (pending.get(key) || 0) + 1);
+    const patch = changed ? Object.fromEntries(changed.map(key => [key, draft[key]])) : null;
+    const release = () => { for (const key of changed || keys) pending.set(key, (pending.get(key) || 1) - 1); };
+    const done: Promise<void> = chrome.runtime.sendMessage({ target: 'background', type: 'draft', patch } satisfies Message).then((reply: { ok?: boolean; draft?: unknown } | undefined) => {
+      release();
+      if (!reply?.ok) throw new Error('draft');
+      if (!sending) take(feedbackDraft(reply.draft));
+    }, error => { release(); throw error; }).catch(() => {
       say(t("下書きを保存できませんでした。入力内容は、この画面からコピーできます。"));
-    });
+    }).finally(() => inflight.delete(done));
+    inflight.add(done);
   };
   try { draft = feedbackDraft((await chrome.storage.local.get(FEEDBACK_KEY))[FEEDBACK_KEY]); }
   catch { say(t("下書きを読み込めませんでした。新しく入力してコピーできます。")); }
   fill(); fields.disabled = false;
   form.addEventListener('input', event => {
     if ((event.target as HTMLElement).closest('#feedback-diagnostics')) return;
+    const before = draft;
     draft = feedbackDraft(Object.fromEntries(keys.map(key => [key, $<HTMLInputElement>(`feedback-${key}`).value])));
-    cancelClear(); say(''); render(); save();
+    const changed = keys.filter(key => draft[key] !== before[key]);
+    cancelClear(); say(''); render(); if (changed.length) save(changed);
   });
   form.addEventListener('submit', event => event.preventDefault());
+  // Another settings page writing the same draft: this form shows what it wrote. While a report is being sent, what is
+  // shown stays as it is, and catches up once sending has finished.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local' || !changes[FEEDBACK_KEY]) return;
+    if (sending) { deferred = true; return; }
+    take(feedbackDraft(changes[FEEDBACK_KEY].newValue));
+  });
   diagnosticsLoad.addEventListener('click', () => {
     const current = ++reading, selected = diagnosticsTab.value;
     cancelClear();
@@ -112,7 +148,10 @@ export async function setupFeedback(loadDiagnostics: () => Promise<DiagnosticsCh
       say(code === 'DIAGNOSTICS_UNAVAILABLE' ? t("診断要約の添付をいまは受け付けられません。添付のチェックを外すか、あとでお試しください。")
         : code === 'RATE_LIMITED' || code === 'BUSY' ? t("いまは送信が混み合っています。時間を置いて、もう一度お試しください。")
         : t("送信結果を確認できませんでした。下書きは残っています。接続を確認して、もう一度お試しください。"));
-    }).finally(() => { sending = false; render(); });
+    }).finally(() => {
+      sending = false; render();
+      if (deferred) { deferred = false; void chrome.storage.local.get(FEEDBACK_KEY).then(stored => take(feedbackDraft(stored[FEEDBACK_KEY]))).catch(() => undefined); }
+    });
   });
   clear.addEventListener('click', () => {
     if (!clearing) {
@@ -120,7 +159,7 @@ export async function setupFeedback(loadDiagnostics: () => Promise<DiagnosticsCh
       clearing = window.setTimeout(() => { clearing = 0; clear.textContent = t("下書きを消す"); }, 4000);
       return;
     }
-    clearTimeout(clearing); clearing = 0; draft = feedbackDraft(); clearDiagnostics(); fill(); save();
+    clearTimeout(clearing); clearing = 0; draft = feedbackDraft(); clearDiagnostics(); fill(); save(null);
     clear.textContent = t("下書きを消す"); say(t("下書きを消しました。")); $<HTMLSelectElement>('feedback-kind').focus();
   });
 }

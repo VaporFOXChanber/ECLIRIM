@@ -121,6 +121,13 @@ export function exportPreset(name: string, preset: PresetLook): string {
 export function exportBackup(settings: Settings, profiles: Profiles, presets: Presets): string {
   return JSON.stringify({ app: APP, kind: 'backup', schema: SCHEMA, settings: sanitize(settings), profiles: sanitizeProfiles(profiles), presets: sanitizePresets(presets) }, null, 2);
 }
+/**
+ * The largest file read as a preset or backup. Well above what any backup this extension writes can reach (every site
+ * profile with every zone trimmed stays far below it), so a file it exported can always be read back.
+ */
+export const IMPORT_LIMIT = 5_000_000;
+/** The size of a text as a file, in bytes (UTF-8): what the limit is measured in, for a file picked, text pasted or a backup written. */
+export const fileBytes = (text: string): number => new TextEncoder().encode(text).length;
 export type Imported =
   | { kind: 'preset'; name: string; look: PresetLook }
   | { kind: 'backup'; settings: Settings; profiles: Profiles; presets: Presets }
@@ -130,7 +137,7 @@ export type Imported =
  * settings: unknown keys are dropped, values are clamped, and nothing in it is ever executed or fetched.
  */
 export function importJSON(text: string): Imported {
-  if (text.length > 400_000) return { kind: 'error', error: 'ファイルが大きすぎます（400KBまで）。' };
+  if (text.length > IMPORT_LIMIT || fileBytes(text) > IMPORT_LIMIT) return { kind: 'error', error: 'ファイルが大きすぎます（5MBまで）。' };
   let data: Record<string, unknown>;
   try { data = JSON.parse(text); } catch { return { kind: 'error', error: 'JSONとして読めませんでした。' }; }
   if (!data || typeof data !== 'object' || data.app !== APP && data.app !== FORMER) return { kind: 'error', error: 'ECLIRIMの書き出しファイルではありません。' };
@@ -140,6 +147,11 @@ export function importJSON(text: string): Imported {
     if (!name || !data.look || typeof data.look !== 'object') return { kind: 'error', error: 'プリセットの名前か内容がありません。' };
     return { kind: 'preset', name, look: sanitizePreset(data.look) };
   }
-  if (data.kind === 'backup') return { kind: 'backup', settings: sanitize(data.settings), profiles: sanitizeProfiles(data.profiles), presets: sanitizePresets(data.presets) };
+  if (data.kind === 'backup') {
+    // Restoring replaces everything, so a file missing a part would silently reset or delete it: every part must be there.
+    const part = (v: unknown) => !!v && typeof v === 'object' && !Array.isArray(v);
+    if (!part(data.settings) || !part(data.profiles) || !part(data.presets)) return { kind: 'error', error: 'バックアップの内容が足りません（設定・プロファイル・プリセットのどれかがありません）。ECLIRIMで書き出したファイルをそのまま読み込んでください。' };
+    return { kind: 'backup', settings: sanitize(data.settings), profiles: sanitizeProfiles(data.profiles), presets: sanitizePresets(data.presets) };
+  }
   return { kind: 'error', error: '種類のわからないファイルです。' };
 }

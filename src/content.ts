@@ -71,11 +71,12 @@ if (!world.__eclirim) {
     const next = findVideo();
     if (next !== video) {
       if (capture) void send({ target: 'background', type: 'release' });
-      video = next; blocked = false; encrypted = !!next?.mediaKeys;
+      // A different element starts afresh: what the previous one needed (tab capture) is not carried over to it.
+      video = next; blocked = false; captureRequested = false; encrypted = !!next?.mediaKeys;
       lastVideoTime = -1; sampler.reset(); frames = 0; firstFrame = 0; stamps.length = 0; colourAt = 0;
     }
-    // Music Mode also listens to players that have no picture.
-    soundOnly = settings.source === 'music' && !next ? findMedia() : null;
+    // Music Mode also listens to players that have no picture, and to the one that is playing when the video found is not.
+    soundOnly = settings.source === 'music' && (!next || next.paused || next.ended) ? findMedia() : null;
     discoverAt = performance.now(); needsDiscovery = false;
   }
   const observer = new MutationObserver(records => {
@@ -140,6 +141,8 @@ if (!world.__eclirim) {
       if (document.hidden) {
         renderer.hide(); compatibility.hide(); hud.hide(); watch.stop(); lastOutput = ''; lastVideoTime = -1; status('Paused', 'タブが非表示のため休止中です。');
         if (capture) void send({ target: 'background', type: 'release' });
+        // Sound switched off while this tab is hidden: the copy of it is closed now, not when the tab is shown again.
+        if (!settings.pulse.enabled && settings.source !== 'music') { tap.detach(); renderer.pulse = null; }
         fastTick = false; stamps.length = 0; state.perf = measure();
         timer = window.setTimeout(tick, 800); return;
       }
@@ -166,12 +169,15 @@ if (!world.__eclirim) {
       state.guard = { state: !settings.guard.enabled ? 'off' : guarding ? 'active' : 'unavailable', regions: watch.regions, held: guarding ? renderer.guardHeld : 0, ms: watch.ms };
       // Sound is read only where the user asked for it and where the light is ours to move: never for protected media,
       // and not on the CSS path, whose light the page compositor makes without us.
-      const media = video || soundOnly, music = settings.source === 'music';
-      const listening = (settings.pulse.enabled || music) && !compat && path !== 'unreadable' && !context.fullscreenUnsupported;
-      tap.attach(listening ? media : null, context.protected);
+      const music = settings.source === 'music', media = music && soundOnly && !soundOnly.paused && !soundOnly.ended ? soundOnly : video || soundOnly;
+      // Tab capture takes the picture only: the light then does not answer sound either (and so never swells into the region it reads).
+      const listening = (settings.pulse.enabled || music) && !compat && path !== 'unreadable' && !context.fullscreenUnsupported && !capture;
+      // Protection is that of the player listened to: a paused protected video does not silence another, unprotected player.
+      const guarded = media === video ? context.protected : !!media && (!!media.mediaKeys || encryptedMedia.has(media));
+      tap.attach(listening ? media : null, guarded);
       renderer.pulse = listening && media && !media.paused && !media.ended ? hear : null;
       // Asked for, but this media is protected: say so. Its sound is never requested from Chrome at all.
-      state.audio = { state: !(settings.pulse.enabled || music) ? 'off' : context.protected ? 'protected' : listening ? tap.state : 'off',
+      state.audio = { state: !(settings.pulse.enabled || music) ? 'off' : guarded ? 'protected' : listening ? tap.state : 'off',
         low: pulse.frame.low, mid: pulse.frame.mid, high: pulse.frame.high, beats: pulse.beats };
       // A wide-gamut video is read and painted in Display P3 when this display can show it; everything else stays sRGB.
       if (now - colourAt > 3000) { colourAt = now; colour = colorInfo(path === 'analysis' && !context.protected && !blocked ? video : null); }
@@ -208,10 +214,15 @@ if (!world.__eclirim) {
         else if (tap.state === 'protected') { dark(); status('Protected Content', '保護されたコンテンツの音は解析しません。Music Mode はここでは光りません。'); }
         else if (tap.state === 'blocked') { dark(); status('Capture Unavailable', 'この音声は別のサイトから配信されていて、Chromeが読み取りを許可しません。'); }
         else if (media.ended || media.paused) { dark(); status('Paused', '再生を待っています。'); }
-        else {
+        else if (tap.state === 'muted') {
+          // Nothing is heard while the player is muted: the light goes dark instead of moving on with the last sound heard.
+          dark(); pulse.hush(); status('Active', 'Music Mode：プレイヤーがミュート中のため、光は止まっています。', 'music');
+        } else if (tap.state === 'none') {
+          // A player with no sound in it (a silent video, or one not loaded yet): nothing of the player heard before moves the light.
+          dark(); pulse.hush(); status('Active', 'Music Mode：いまは音が聞こえないため、光は止まっています。', 'music');
+        } else {
           renderer.target(musicColors(pulse.frame, settings.zoneCount, now / 1000)); lastOutput = 'music';
-          status('Active', tap.state === 'muted' ? 'Music Mode：プレイヤーがミュート中のため、光は止まっています。'
-            : tap.state === 'waiting' ? 'Music Mode：ページを一度クリックすると、音の解析が始まります。'
+          status('Active', tap.state === 'waiting' ? 'Music Mode：ページを一度クリックすると、音の解析が始まります。'
             : 'Music Mode：音だけで光っています。映像の色は使いません。再生音は変えていません。', 'music');
         }
       } else if (settings.source !== 'video') {
@@ -277,7 +288,9 @@ if (!world.__eclirim) {
     if (m.type === 'zoom') { pageZoom = m.factor; reply(true); }
     if (m.type === 'context') { discover(); reply({ context: contextFor(video, encrypted), settings }); }
     if (m.type === 'capture-started') {
-      capture = true; captureRequested = true; dark(); status('Capture Required', '映像のみ取得中。最初のフレームを待っています。'); reply(true);
+      // Before the first frame is read: the light stops answering sound and draws back to its own depth.
+      capture = true; captureRequested = true; tap.detach(); renderer.pulse = null; renderer.unswell(); pulse.hush();
+      dark(); status('Capture Required', '映像のみ取得中。最初のフレームを待っています。'); reply(true);
     }
     if (m.type === 'capture-ended') {
       capture = false; dark(); status('Capture Required', m.detail); reply(true);
@@ -298,6 +311,7 @@ if (!world.__eclirim) {
     resolve(); lastOutput = '';
     if (!settings.enabled) { stop(); return; }
     renderer.update(settings); lastVideoTime = -1;
+    if (!settings.pulse.enabled && settings.source !== 'music') { tap.detach(); renderer.pulse = null; }
     if (settings.source !== 'video' && capture) void send({ target: 'background', type: 'release' });
     if (running) renderer.show();
   }
@@ -305,8 +319,11 @@ if (!world.__eclirim) {
   world.__eclirim = { alive: () => { try { return !!chrome.runtime.id; } catch { return false; } }, dispose };
   chrome.storage.onChanged.addListener(onStorage);
   // The moment media turns out to be protected, or a player starts loading something else, the copy of its sound is closed.
-  document.addEventListener('encrypted', e => { if (e.target === video) { encrypted = true; tap.detach(); } }, { capture: true, signal: abort.signal });
+  // A player that announced encrypted media stays protected until it loads something else, even before its keys are set.
+  const encryptedMedia = new WeakSet<EventTarget>();
+  document.addEventListener('encrypted', e => { if (e.target) encryptedMedia.add(e.target); if (e.target === video) { encrypted = true; tap.detach(); } else if (e.target === soundOnly) tap.detach(); }, { capture: true, signal: abort.signal });
   document.addEventListener('loadstart', e => {
+    if (e.target) encryptedMedia.delete(e.target);
     if (e.target === video || e.target === soundOnly) tap.detach();
     if (e.target !== video) return;
     if (capture) void send({ target: 'background', type: 'release' });

@@ -81,10 +81,13 @@ export type Patch = Partial<Omit<Settings, GroupKey>> & { [K in GroupKey]?: Part
  * preset: one preset kept, or with null removed. import: a preset added, never over another: named (the next free number
  * when its own is taken) by the background alone, in what is stored then (`name` in the answer).
  * restore: a backup replaces everything (guarded as `guardRestore` does).
+ * zones: a trim set on some zones of a layout of `count` zones, laid over the zone trims stored then (two pages trimming
+ * different zones keep both).
  * show / end: one comparison switched to a side, or ended (with a side, that look is stored). flip: the keyboard shortcut.
  */
 export type SaveOp =
   | { kind: 'change'; site: string; patch: Patch; compare?: { id: string; side: 'a' | 'b' } }
+  | { kind: 'zones'; site: string; count: number; zones: number[]; trim: Partial<Record<'brightness' | 'saturation' | 'intensity' | 'on', number>>; compare?: { id: string; side: 'a' | 'b' } }
   | { kind: 'profile'; site: string; profile: Profile | null }
   | { kind: 'inherit'; site: string; keys: LookKey[] }
   | { kind: 'preset'; name: string; preset: PresetLook | null }
@@ -181,6 +184,7 @@ export type Message =
   | { target: 'background'; type: 'capture-closed'; tabId: number; detail: string }
   | { target: 'background'; type: 'release' }
   | { target: 'background'; type: 'heartbeat' }
+  | { target: 'background'; type: 'draft'; patch: Record<string, unknown> | null }
   | { target: 'offscreen'; type: 'start'; tabId: number; streamId: string; context: VideoContext; settings: Settings }
   | { target: 'offscreen'; type: 'context'; tabId: number; context: VideoContext; settings: Settings }
   | { target: 'offscreen'; type: 'stop' | 'status' };

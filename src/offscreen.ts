@@ -7,7 +7,7 @@ video.muted = true; video.playsInline = true;
 const sampler = new FrameSampler(), quality = new AdaptiveQuality();
 let level = 0;
 let stream: MediaStream | null = null, tabId: number | null = null, timer = 0, epoch = 0;
-let context: VideoContext, settings: Settings, contextTime = 0, blackSince = 0, frames = 0, firstSample = 0;
+let context: VideoContext, settings: Settings, contextTime = 0, blackSince = 0, frames = 0, firstSample = 0, closedWith = '';
 function stop(): void {
   epoch++; clearTimeout(timer); stream?.getTracks().forEach(track => track.stop());
   stream = null; video.pause(); video.srcObject = null; sampler.close(); quality.reset(); level = 0; tabId = null;
@@ -16,7 +16,7 @@ function relay(message: Message): void {
   if (tabId !== null) void chrome.runtime.sendMessage({ target: 'background', type: 'relay', tabId, message }).catch(stop);
 }
 function close(detail: string): void {
-  const id = tabId; stop();
+  const id = tabId; stop(); closedWith = detail;
   if (id !== null) void chrome.runtime.sendMessage({ target: 'background', type: 'capture-closed', tabId: id, detail });
 }
 function tick(): void {
@@ -73,7 +73,9 @@ chrome.runtime.onMessage.addListener((m: Message, sender, reply) => {
         media.getVideoTracks()[0].addEventListener('ended', () => close('Chrome側で映像取得が終了しました。'), { once: true });
         await video.play();
         if (generation !== epoch) return;
-        contextTime = performance.now(); tick(); reply({ ok: true });
+        contextTime = performance.now(); tick();
+        // The first look may already end it (too little of the video left to read): then starting has failed, and says why.
+        reply(generation === epoch ? { ok: true } : { ok: false, error: closedWith });
       } catch (e) { stop(); reply({ ok: false, error: String(e) }); }
     })(); return true;
   }

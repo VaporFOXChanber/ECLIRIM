@@ -1,5 +1,6 @@
 import { DEFAULTS, LOOK_KEYS, lookOf, own, presetName, resolveSettings, sanitize, sanitizeCompare, sanitizePreset, sanitizePresets, sanitizeProfile, sanitizeProfiles } from './settings';
 import { applyPreset, freePresetName, guardRestore } from './presets';
+import { editZones } from '../engine/zones';
 import type { Compare, GroupKey, LookKey, Patch, Presets, Profile, Profiles, SaveOp, Settings } from './types';
 
 /**
@@ -92,16 +93,36 @@ export function applyOp(s: State, op: SaveOp): State & { written?: LookKey[]; na
       }
       return next;
     }
+    case 'zones': {
+      // Laid over the zone trims as they are stored now (or on the side shown), not over the copy the page last saw.
+      const site = text(op.site), count = Number(op.count);
+      if (![32, 64, 96, 128].includes(count)) throw new Error('count');
+      const shown = op.compare ? (() => { const c = running(op.compare!.id); return sanitize({ ...kept(site), ...c[op.compare!.side === 'b' ? 'b' : 'a'] }); })() : kept(site);
+      const zones = (Array.isArray(op.zones) ? op.zones : []).filter(z => Number.isInteger(z) && z >= 0 && z < count);
+      const trim: Record<string, number> = {};
+      for (const key of ['brightness', 'saturation', 'intensity', 'on'] as const) {
+        const v = op.trim?.[key];
+        if (typeof v === 'number' && Number.isFinite(v)) trim[key] = key === 'on' ? (v ? 1 : 0) : Math.min(200, Math.max(0, Math.round(v)));
+      }
+      const map = editZones(shown.zones, count, zones, trim);
+      // Nothing changes: nothing is written, so a profile that inherits the zone trims goes on inheriting them.
+      if (same(map, shown.zones)) return next;
+      return applyOp(s, { kind: 'change', site, patch: { zones: map }, ...(op.compare ? { compare: op.compare } : {}) });
+    }
     case 'profile': {
       const site = text(op.site), profiles = { ...s.profiles };
       if (!/^[a-z0-9.-]{1,253}$/.test(site)) throw new Error('site');
       if (op.profile) profiles[site] = op.profile; else delete profiles[site];
       next.profiles = sanitizeProfiles(profiles);
+      // A comparison of the profile removed ends with it, in the same write: nothing is left for its sides to belong to.
+      if (!op.profile && s.compare?.target === site) next.compare = null;
       return next;
     }
     case 'inherit': {
       const site = text(op.site);
       if (!Object.hasOwn(s.profiles, site)) return next;
+      // The saved settings under a comparison stay as they are until a side is kept (as for any other change of them).
+      if (s.compare?.target === site) throw new Error(COMPARE_RUNNING);
       const rest: Record<string, unknown> = { ...s.profiles[site] };
       for (const key of Array.isArray(op.keys) ? op.keys : []) delete rest[key];
       next.profiles = sanitizeProfiles({ ...s.profiles, [site]: rest });

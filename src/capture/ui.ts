@@ -30,6 +30,8 @@ function at(x: number, y: number): Element | null {
   return found;
 }
 
+/** How old a measurement of where an element's letters are may be before it is taken again (ms). */
+const LETTERS_MS = 250;
 /**
  * UI Guard, the looking part: finds controls, icons and text that lie under the light near the edges of the page.
  *
@@ -45,7 +47,7 @@ export class UiScanner {
   private range = document.createRange();
   private known = new Map<Element, Kind>();
   // Text is measured letter by letter, which costs more: it is only measured again when its element has moved.
-  private letters = new WeakMap<Element, { at: string; rect: Rect | null }>();
+  private letters = new WeakMap<Element, { at: string; when: number; rect: Rect | null }>();
   private points: Float32Array[] = [new Float32Array(0), new Float32Array(0), new Float32Array(0), new Float32Array(0)];
   private cursor = [0, 0, 0, 0]; private plan = ''; private turn = 0;
   /** How many full rounds of the edges have been made since the last `forget`. */
@@ -132,11 +134,13 @@ export class UiScanner {
       if (kind === CONTROLS) { if (this.small(r, area)) out.push(box(r)); continue; }
       if (kind === ICON) { out.push(box(r)); continue; }
       // The text itself, not the block it sits in: a short label in a wide bar guards only its own letters.
-      const key = `${r.left}|${r.top}|${r.width}|${r.height}`; let text = this.letters.get(el);
-      if (!text || text.at !== key) {
+      // The letters can change inside a box that keeps its size (a caption line replaced by a longer one), so they are
+      // measured again at least every LETTERS_MS. The text itself is never read: only where its letters are.
+      const key = `${r.left}|${r.top}|${r.width}|${r.height}`, now = performance.now(); let text = this.letters.get(el);
+      if (!text || text.at !== key || now - text.when > LETTERS_MS) {
         this.range.selectNodeContents(el);
         const t = this.range.getBoundingClientRect();
-        text = { at: key, rect: t.width > 0 && t.height > 0 ? box(t) : null }; this.letters.set(el, text);
+        text = { at: key, when: now, rect: t.width > 0 && t.height > 0 ? box(t) : null }; this.letters.set(el, text);
       }
       if (text.rect) out.push(text.rect);
     }

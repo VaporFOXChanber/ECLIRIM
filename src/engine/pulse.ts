@@ -70,6 +70,16 @@ export class PulseAnalyser {
     this.frame = { low: 0, mid: 0, high: 0, beat: 0, impact: 0, onset: false, share: [0, 0, 0], silent: true };
   }
   /**
+   * Forgets the sound heard so far, as when the player is muted or a different player is listened to, so nothing of it
+   * goes on moving the light. Unlike `reset`, the time since the last beat and the beat count stay: a beat right after
+   * this still has to wait out the Flash Limiter's spacing.
+   */
+  hush(): void {
+    this.reference = [0, 0, 0]; this.level = [0, 0, 0]; this.centre = [0, 0, 0]; this.last = [0, 0, 0];
+    this.beat = this.impact = 0; this.quiet = 9; this.hits = []; this.bass = [];
+    this.frame = { low: 0, mid: 0, high: 0, beat: 0, impact: 0, onset: false, share: [0, 0, 0], silent: true };
+  }
+  /**
    * One reading of the spectrum. `decibels` is what AnalyserNode.getFloatFrequencyData gives: one value per frequency bin
    * up to half the sample rate. `calm` (Flash Limiter on) keeps beats at least a third of a second apart.
    */

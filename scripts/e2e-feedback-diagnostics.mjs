@@ -28,7 +28,7 @@ try {
   const video = await context.newPage(); await video.goto('http://localhost:4188');
   popup = await openPopup(await context.browser().newBrowserCDPSession(), id, video.url());
   await popup.evaluate('document.querySelector("#start").click()');
-  await until(() => popup.evaluate('document.querySelector("#state").textContent === "Active"'), 'lit video'); await popup.close();
+  await until(() => popup.evaluate('document.querySelector("#state").dataset.state === "Active"'), 'lit video'); await popup.close();
   page = await context.newPage(); page.on('pageerror', e => errors.push(String(e)));
   await page.goto(`chrome-extension://${id}/options.html#feedback`); await page.waitForFunction(() => !document.querySelector('#feedback-fields').disabled);
   const fields = ['settings', 'profiles', 'presets'], before = await sw.evaluate(keys => chrome.storage.local.get(keys), fields);

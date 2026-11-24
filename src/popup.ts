@@ -2,7 +2,8 @@ import { t, initI18n, localizeDocument, localizeText, getLanguagePreference, set
 import { DEFAULTS, DIRECTOR, GLOW, HALO, autoZoneCount, lookOf, resolveSettings } from './shared/settings';
 import type { Message, SaveResult, Settings, Status } from './shared/types';
 import { siteKey, sitePattern } from './shared/site';
-import { AUDIO_NAMES, Store, protectedSite } from './ui/store';
+import { hidesProtectedVideo } from './shared/capture-policy';
+import { AUDIO_NAMES, STATE_NAMES, Store, protectedSite } from './ui/store';
 import { BUILT_IN, applyPreset, limiterKept, matchesPreset, resetProfile } from './shared/presets';
 void (async () => {
 await initI18n();
@@ -10,17 +11,18 @@ localizeDocument();
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id)! as T;
 let settings: Settings = DEFAULTS, tabId: number | undefined, latest: Status | null = null;
 let site: string | null = null, host: string | null = null, confirmReturn = 0;
-let lastSourceHint = '';
+let lastSourceHint = '', confirmReset = 0, resetAbout = '';
+const platform = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform || navigator.platform;
 // A change the background refused or could not store: the popup shows what is stored again, and says so.
 const store = new Store(message => { error(message); render(); });
 store.onChange = () => render();
 const sliderSpecs = [
-  ['brightness', t("Brightness · 明るさ"), 0, 100, '%', 'main-sliders'],
-  ['glowWidth', t("Glow Width · 光の幅"), 2, 20, '%', 'main-sliders'],
-  ['intensity', t("Glow Intensity · 光の拡散"), 0, 100, '%', 'advanced-sliders'],
-  ['saturation', t("Saturation · 彩度"), 0, 180, '%', 'advanced-sliders'],
-  ['smoothing', t("Smoothing · 滑らかさ"), 0, 100, '%', 'advanced-sliders'],
-  ['responseSpeed', t("Response Speed · 追従速度"), 25, 200, '%', 'advanced-sliders']
+  ['brightness', t("明るさ"), 0, 100, '%', 'main-sliders'],
+  ['glowWidth', t("光の幅"), 2, 20, '%', 'main-sliders'],
+  ['intensity', t("光の広がり"), 0, 100, '%', 'advanced-sliders'],
+  ['saturation', t("色の鮮やかさ"), 0, 180, '%', 'advanced-sliders'],
+  ['smoothing', t("変化のなめらかさ"), 0, 100, '%', 'advanced-sliders'],
+  ['responseSpeed', t("映像への追従の速さ"), 25, 200, '%', 'advanced-sliders']
 ] as const;
 for (const [key, label, min, max, unit, parent] of sliderSpecs) {
   const wrap = document.createElement('div'); wrap.className = 'slider';
@@ -90,7 +92,9 @@ function describe(): void {
     : auto
     ? t("保護された配信のため、自動でDRM互換描画（CSS合成）に切り替えています。64ゾーン解析・時間平滑化・Flash Limiterは適用されません。")
     : compat ? t("映像の画素を読み出さないCSS合成。64ゾーン解析・時間平滑化・Flash Limiterは適用できません。DRM配信での表示は環境により異なります。")
-    : settings.source === 'video' ? t("映像の位置に対応する色を、画面の最外周へ。Netflix・Prime Videoなど保護された動画では、自動でDRM互換描画に切り替わります。")
+    : settings.source === 'video' ? (hidesProtectedVideo(platform)
+      ? t("映像の位置に対応する色を、画面の最外周へ。Netflix・Prime Videoなど保護された動画の色はこのMacのChromeでは読み取れないため、下の「保護された動画での照明」の設定に従います。")
+      : t("映像の位置に対応する色を、画面の最外周へ。Netflix・Prime Videoなど保護された動画では、自動でDRM互換描画に切り替わります。"))
     : settings.source === 'music' ? t("Music Mode：再生中の音だけで光ります。映像の色は読みません。音は端末の中で解析し、録音・保存・送信はしません。再生音は変えません。保護されたコンテンツでは光りません。")
     : t("映像の取得・解析を行わない照明です。");
   captureControls(auto);
@@ -102,7 +106,7 @@ function describe(): void {
   // The Light Director reads the picture, so it only exists where the picture can be read.
   const reads = settings.source === 'video' && !compat;
   $<HTMLInputElement>('director').disabled = !reads;
-  $('director-note').textContent = !reads ? t("映像を解析できる照明（映像に連動 · RGB解析）でのみ働きます。")
+  $('director-note').textContent = !reads ? t("映像を解析できる照明（映像に連動（標準））でのみ働きます。")
     : latest?.perf?.director === 'reduced' ? t("動作中。解析に時間がかかっているため、少し粗く見ています（自動で戻ります）。")
     : t("映像の中の光源と、急に現れた光を外周へ。強さや感度は詳細設定で調整できます。");
   // UI Guard and Adaptive Brightness say what they are doing in this tab, not only what is set.
@@ -115,7 +119,7 @@ function describe(): void {
     : t("操作UI・字幕・文字の上だけ、光を自動で弱めて読みやすさを保ちます。");
   const exposure = latest?.exposure;
   $<HTMLInputElement>('exposure').disabled = !reads;
-  $('exposure-note').textContent = !reads ? t("映像を解析できる照明（映像に連動 · RGB解析）でのみ働きます。")
+  $('exposure-note').textContent = !reads ? t("映像を解析できる照明（映像に連動（標準））でのみ働きます。")
     : !settings.exposure.enabled ? t("オフ。場面の明るさに関係なく、同じ強さで光ります。")
     : exposure?.state === 'active' && exposure.level < .97 ? t("場面の明るさに合わせて、明るいゾーンの光を {0}% 暗くしています。", [Math.round((1 - exposure.level) * 100)])
     : t("暗い場面では明るい光を抑え、明るい場面では全体を少し下げます。");
@@ -137,7 +141,8 @@ function captureControls(auto: boolean): void {
   $('capture').hidden = settings.source !== 'video' || guarded;
   $('capture-note').hidden = settings.source !== 'video';
   $('capture-note').textContent = guarded
-    ? t("画質への影響を避けるため、この動画ではタブ取得を使用しません。「DRM互換描画」をお試しください。")
+    ? hidesProtectedVideo(platform) ? t("画質への影響を避けるため、この動画ではタブ取得を使用しません。保護された動画の照明は、下の「保護された動画での照明」で選べます。")
+      : t("画質への影響を避けるため、この動画ではタブ取得を使用しません。「DRM互換描画」をお試しください。")
     : t("直接解析できない場合に使用。映像のみを取得し、録画・保存は行いません。");
 }
 async function request(type: 'start' | 'stop' | 'status' | 'capture' | 'stop-capture'): Promise<any> {
@@ -150,8 +155,10 @@ async function refresh(): Promise<void> {
   try {
     latest = await request('status');
     describe();
-    $('state').textContent = latest?.state || 'Disabled';
-    $('detail').textContent = latest?.detail ? localizeText(latest.detail) : t("動画のあるタブで「照明を開始」を押してください。");
+    // Not lit here yet, with lighting switched on: that is "not started in this tab", not "off".
+    const raw = latest?.state || 'Disabled', idle = raw === 'Disabled' && settings.enabled;
+    $('state').dataset.state = raw; $('state').textContent = idle ? t("このタブでは未開始") : t(STATE_NAMES[raw] || raw);
+    $('detail').textContent = latest?.detail && !idle ? localizeText(latest.detail) : t("動画のあるタブで「このタブで照明を開始」を押してください。");
     $('service').textContent = latest?.service || '';
     $('dot').classList.toggle('active', ['Active', 'Compatibility Mode'].includes(latest?.state || ''));
     $('capture').textContent = latest?.source === 'capture' ? t("タブの取得を停止") : t("タブの映像を取得");
@@ -164,7 +171,8 @@ async function refresh(): Promise<void> {
     $('status-details').hidden = !$('metrics').textContent;
     if (latest?.state !== lastSourceHint && latest && ['Protected Content', 'Capture Required', 'Compatibility Mode'].includes(latest.state)) $<HTMLDetailsElement>('source-details').open = true;
     lastSourceHint = latest?.state || '';
-    $('start').innerHTML = latest && ['Active', 'Compatibility Mode'].includes(latest.state) ? t("このタブの照明を更新 <span>↗</span>") : t("このタブで照明を開始 <span>↗</span>");
+    const lit = !!latest && ['Active', 'Compatibility Mode'].includes(latest.state);
+    $('start').classList.toggle('running', lit); $('start-label').textContent = lit ? t("このタブの照明を更新") : t("このタブで照明を開始");
   } catch (e) { error(String(e)); }
 }
 async function action(type: 'start' | 'capture' | 'stop-capture'): Promise<void> {
@@ -237,12 +245,27 @@ document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => b.addEv
 // A site keeps only a Flash Limiter that is on, or listening that is off, where the global settings differ. During a
 // comparison the reset look goes to the side that is showing, like any other change.
 $('reset').addEventListener('click', () => {
+  // A reset replaces what is being edited at once, so it asks for a second press first, like removing a profile does.
+  // The second press counts only for what the first one was about: the same settings, comparison and side.
+  const about = JSON.stringify([store.target, store.compare?.id, store.compare?.active]);
+  if (confirmReset && about !== resetAbout) { clearTimeout(confirmReset); confirmReset = 0; }
+  if (!confirmReset) {
+    resetAbout = about; $('reset').classList.add('confirm'); $('reset').textContent = t("もう一度押すと初期化");
+    confirmReset = window.setTimeout(() => { confirmReset = 0; $('reset').classList.remove('confirm'); $('reset').textContent = t("初期設定"); }, 4000);
+    return;
+  }
+  clearTimeout(confirmReset); confirmReset = 0; $('reset').classList.remove('confirm'); $('reset').textContent = t("初期設定"); resetAbout = '';
   const kept = store.profile ? resetProfile(settings, store.global) : null;
-  if (!kept) change({ ...DEFAULTS, director: DIRECTOR, zones: null });
-  else if (store.comparing) change(lookOf(resolveSettings(store.global, kept)));
-  else store.setProfile(store.target, kept);
-  note(kept?.flashLimiter ? t("Flash Limiter はオンのままにしました（グローバル設定ではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。") : '');
-  render();
+  const saved = !kept ? change({ ...DEFAULTS, director: DIRECTOR, zones: null })
+    : store.comparing ? change(lookOf(resolveSettings(store.global, kept))) : store.setProfile(store.target, kept);
+  note(''); render();
+  // Said once it is stored, where it was pressed for a moment as well as in the note at the top. A refusal says so itself (`error`).
+  void saved.then(result => {
+    if (!result.ok) return;
+    note(kept?.flashLimiter ? t("Flash Limiter はオンのままにしました（グローバル設定ではオフ）。オフにする場合は、Flash Limiter のスイッチでご自身で切り替えてください。") : t("初期設定に戻しました。"));
+    $('reset').textContent = t("戻しました"); resetAbout = 'done';
+    confirmReset = window.setTimeout(() => { confirmReset = 0; $('reset').textContent = t("初期設定"); }, 2000);
+  });
 });
 // A profile is only a set of saved settings. Making one asks Chrome for nothing; "always light this site" stays a separate choice.
 $('profile-toggle').addEventListener('click', () => {

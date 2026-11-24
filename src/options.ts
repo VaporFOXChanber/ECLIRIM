@@ -2,16 +2,16 @@ import { t, initI18n, localizeDocument, localizeText, getLanguage, getLanguagePr
 import { DIRECTOR, GLOW, HALO, LOOK_KEYS, PULSE, clamp, effectiveSettings, glowDepth, presetName, sanitize } from './shared/settings';
 import type { ColorSettings, DirectorSettings, ExposureSettings, GlowSettings, GuardSettings, LookKey, Message, PresetLook, Profile, PulseSettings, RGB, Settings, Status, TrailSettings } from './shared/types';
 import { siteKey } from './shared/site';
-import { AUDIO_NAMES, BackupOffer, LOOK_NAMES, Store, protectedSite } from './ui/store';
-import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, importJSON, limiterKept, matchesPreset, presetFrom } from './shared/presets';
+import { AUDIO_NAMES, BackupOffer, LOOK_NAMES, STATE_NAMES, Store, protectedSite } from './ui/store';
+import { BUILT_IN, IMPORT_LIMIT, applyPreset, fileBytes, builtInName, exportBackup, exportPreset, importJSON, limiterKept, matchesPreset, presetFrom } from './shared/presets';
 import { WIZARD, WIZARD_START, WIZARD_STEPS, closestPreset, recommend, type WizardAnswers } from './shared/wizard';
 import { glowProfile } from './engine/emission';
 import { guardCap } from './engine/guard';
 import { LightingRenderer } from './render/lighting';
-import { NEUTRAL, editZones, zoneLabel as rawZoneLabel, zoneTrim, zoneTrims, type ZoneTrim } from './engine/zones';
+import { NEUTRAL, zoneLabel as rawZoneLabel, zoneTrim, zoneTrims, type ZoneTrim } from './engine/zones';
 import { PATTERNS, testPattern, type Pattern } from './engine/patterns';
 import { ANALYSIS_BUDGET_MS, RENDER_BUDGET_MS } from './engine/adaptive';
-import { setupFeedback } from './ui/feedback';
+import { feedbackSaved, setupFeedback } from './ui/feedback';
 import { diagnosticsFromStatus } from './shared/diagnostics';
 
 void (async () => {
@@ -44,8 +44,8 @@ function change(patch: Partial<Settings>): void { if (sliding) store.slide(patch
 
 // ───── Lighting
 for (const [key, label, min, max] of [
-  ['brightness', t("Brightness · 明るさ"), 0, 100], ['glowWidth', t("Glow Width · 光の幅"), 2, 20], ['intensity', t("Glow Intensity · 光の拡散"), 0, 100],
-  ['saturation', t("Saturation · 彩度"), 0, 180], ['smoothing', t("Smoothing · 滑らかさ"), 0, 100], ['responseSpeed', t("Response Speed · 追従速度"), 25, 200]
+  ['brightness', t("明るさ"), 0, 100], ['glowWidth', t("光の幅"), 2, 20], ['intensity', t("光の広がり"), 0, 100],
+  ['saturation', t("色の鮮やかさ"), 0, 180], ['smoothing', t("変化のなめらかさ"), 0, 100], ['responseSpeed', t("映像への追従の速さ"), 25, 200]
 ] as const) slider('look-sliders', key, label, min, max, () => settings[key], value => change({ [key]: value }));
 document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => b.addEventListener('click', () => change({ mode: b.dataset.mode as Settings['mode'] })));
 for (const key of ['flashLimiter', 'enabled', 'hud', 'adaptive'] as const)
@@ -54,7 +54,7 @@ const checked = (id: string, write: (on: boolean) => void) => $<HTMLInputElement
 
 // ───── Color Engine 2.0
 const tone = (patch: Partial<ColorSettings>) => change({ color: { ...settings.color, ...patch } });
-for (const [key, label] of [['shadows', t("Shadows · 暗い場面の色")], ['highlights', t("Highlights · 明るい側の丸め")], ['vibrance', t("Vibrance · 彩度の補正")]] as const)
+for (const [key, label] of [['shadows', t("暗い場面の色")], ['highlights', t("明るい色の白飛び防止")], ['vibrance', t("自然な鮮やかさ")]] as const)
   slider('color-sliders', `color-${key}`, label, 0, 100, () => settings.color[key], value => tone({ [key]: value }));
 checked('color-enabled', enabled => tone({ enabled })); checked('color-wide', wideGamut => tone({ wideGamut }));
 for (const key of ['source', 'protectedLight', 'manualColor', 'preset', 'zoneMode', 'zoneCount'] as const)
@@ -62,16 +62,16 @@ for (const key of ['source', 'protectedLight', 'manualColor', 'preset', 'zoneMod
 
 // ───── UI Guard and Adaptive Brightness
 const guardSet = (patch: Partial<GuardSettings>) => change({ guard: { ...settings.guard, ...patch } });
-slider('guard-sliders', 'guard-strength', t("Guard Strength · 弱める強さ"), 0, 100, () => settings.guard.strength, value => guardSet({ strength: value }));
+slider('guard-sliders', 'guard-strength', t("光を弱める強さ"), 0, 100, () => settings.guard.strength, value => guardSet({ strength: value }));
 checked('guard-enabled', enabled => guardSet({ enabled })); checked('guard-pointer', pointer => guardSet({ pointer }));
 const expose = (patch: Partial<ExposureSettings>) => change({ exposure: { ...settings.exposure, ...patch } });
-for (const [key, label] of [['dark', t("Dark Scenes · 暗い場面で明るい光を抑える")], ['bright', t("Bright Scenes · 明るい場面で光を下げる")], ['speed', t("Adaptation Speed · 追従の速さ")]] as const)
+for (const [key, label] of [['dark', t("暗い場面でまぶしさを抑える")], ['bright', t("明るい場面で光を下げる")], ['speed', t("自動調整の速さ")]] as const)
   slider('exposure-sliders', `exposure-${key}`, label, 0, 100, () => settings.exposure[key], value => expose({ [key]: value }));
 checked('exposure-enabled', enabled => expose({ enabled }));
 
 // ───── Glow Designer
 const shapeGlow = (patch: Partial<GlowSettings>) => change({ glow: { ...settings.glow, ...patch } });
-for (const [key, label] of [['thickness', t("Source Thickness · 光源の太さ")], ['curve', t("Diffusion Curve · 拡散曲線")], ['falloff', t("Falloff · 減衰")], ['softness', t("Softness · 柔らかさ")]] as const)
+for (const [key, label] of [['thickness', t("縁の光の太さ")], ['curve', t("広がりのカーブ")], ['falloff', t("光の消え方")], ['softness', t("光の柔らかさ")]] as const)
   slider('glow-sliders', `glow-${key}`, label, 0, 100, () => settings.glow[key], value => shapeGlow({ [key]: value }));
 // Choosing a style also moves the sliders to that style's own starting point.
 document.querySelectorAll<HTMLButtonElement>('[data-glow]').forEach(b => b.addEventListener('click', () => { if (b.dataset.glow !== settings.glow.style) change({ glow: b.dataset.glow === 'halo' ? HALO : GLOW }); }));
@@ -93,22 +93,26 @@ function previewColors(): RGB[] {
 function animateGlow(): void { const colors = previewColors(); glowPreview.target(colors); glowLive?.target(colors); }
 /** The opacity of the glow from the screen edge inward, for this screen, with the standard Edge Light shape behind it. */
 function drawCurve(): void {
-  const canvas = $<HTMLCanvasElement>('glow-graph'), ctx = canvas.getContext('2d')!, w = canvas.width, h = canvas.height, pad = 34;
+  // Drawn at the size it is shown, so its labels stay readable from a phone to a wide window.
+  const canvas = $<HTMLCanvasElement>('glow-graph'), ctx = canvas.getContext('2d')!, dpr = Math.min(devicePixelRatio || 1, 2);
+  const w = Math.max(280, Math.round(canvas.clientWidth || 540)), h = Math.round(clamp(w * .3, 150, 220)), pad = 26;
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const depth = glowDepth(screen.width, screen.height, settings.glowWidth), strip = clamp(depth * .03, 2, 6) / depth, spread = settings.intensity / 100;
   const x = (t: number) => pad + t * (w - pad * 2), y = (v: number) => h - pad - v * (h - pad * 2);
-  ctx.clearRect(0, 0, w, h); ctx.lineWidth = 1; ctx.strokeStyle = '#272a32'; ctx.fillStyle = '#7f8897'; ctx.font = '20px -apple-system, sans-serif';
+  ctx.clearRect(0, 0, w, h); ctx.lineWidth = 1; ctx.strokeStyle = '#272a32'; ctx.fillStyle = '#9aa2b1'; ctx.font = '11px -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif';
   for (const v of [0, .5, 1]) { ctx.beginPath(); ctx.moveTo(x(0), y(v)); ctx.lineTo(x(1), y(v)); ctx.stroke(); }
   ctx.fillText(t("縁"), x(0), h - 8); ctx.textAlign = 'right'; ctx.fillText(t("内側 {0}px", [depth]), x(1), h - 8); ctx.textAlign = 'left';
   // Where the UI Guard holds the light over controls and text.
   if (settings.guard.enabled) {
-    ctx.setLineDash([4, 8]); ctx.strokeStyle = '#6f8f9c'; ctx.beginPath(); ctx.moveTo(x(0), y(guardCap(settings.guard.strength))); ctx.lineTo(x(1), y(guardCap(settings.guard.strength))); ctx.stroke();
-    ctx.fillStyle = '#6f8f9c'; ctx.textAlign = 'right'; ctx.fillText(t("UI Guard の上限（UIの上だけ）"), x(1), y(guardCap(settings.guard.strength)) - 8); ctx.textAlign = 'left';
+    ctx.setLineDash([3, 4]); ctx.strokeStyle = '#7fa3b1'; ctx.beginPath(); ctx.moveTo(x(0), y(guardCap(settings.guard.strength))); ctx.lineTo(x(1), y(guardCap(settings.guard.strength))); ctx.stroke();
+    ctx.fillStyle = '#8fb3c1'; ctx.textAlign = 'right'; ctx.fillText(t("UI Guard の上限（UIの上だけ）"), x(1), y(guardCap(settings.guard.strength)) - 5); ctx.textAlign = 'left';
   }
   const line = (glow: GlowSettings | null) => { ctx.beginPath(); for (let i = 0; i <= 400; i++) { const t = i / 400; ctx[i ? 'lineTo' : 'moveTo'](x(t), y(glowProfile(t, strip, spread, glow))); } };
-  ctx.setLineDash([10, 8]); ctx.strokeStyle = '#5d6470'; ctx.lineWidth = 2; line(null); ctx.stroke();
+  ctx.setLineDash([5, 4]); ctx.strokeStyle = '#6b7280'; ctx.lineWidth = 1.5; line(null); ctx.stroke();
   ctx.setLineDash([]); line(settings.glow); ctx.lineTo(x(1), y(0)); ctx.lineTo(x(0), y(0)); ctx.closePath();
   const fill = ctx.createLinearGradient(x(0), 0, x(1), 0); fill.addColorStop(0, '#ffc98a99'); fill.addColorStop(1, '#8d86ff22'); ctx.fillStyle = fill; ctx.fill();
-  ctx.strokeStyle = '#f3d0a5'; ctx.lineWidth = 3; line(settings.glow); ctx.stroke();
+  ctx.strokeStyle = '#f3d0a5'; ctx.lineWidth = 2; line(settings.glow); ctx.stroke();
 }
 function renderGlow(): void {
   glowPreview.update(previewSettings(settings)); glowLive?.update(previewSettings(settings));
@@ -181,6 +185,15 @@ function renderWizard(): void {
         const mini = make('div', { className: 'mini' }), card = make('button', { type: 'button', className: 'choice' }, mini, make('b', {}, t(option.name)), make('span', {}, t(option.note)));
         card.setAttribute('role', 'radio'); card.dataset.answer = String(i);
         card.addEventListener('click', () => { answers[key] = i; renderWizard(); });
+        // A radio group: the arrow keys move the choice, and Tab leaves the group from the one chosen.
+        card.addEventListener('keydown', event => {
+          const last = step.options.length - 1;
+          const next = ['ArrowRight', 'ArrowDown'].includes(event.key) ? (i + 1) % (last + 1) : ['ArrowLeft', 'ArrowUp'].includes(event.key) ? (i + last) % (last + 1)
+            : event.key === 'Home' ? 0 : event.key === 'End' ? last : -1;
+          if (next < 0) return;
+          event.preventDefault(); answers[key] = next; renderWizard();
+          document.querySelector<HTMLElement>(`#wizard-options .choice[data-answer="${next}"]`)?.focus();
+        });
         wizardPreviews.push(new LightingRenderer(wizardSettings({ ...answers, [key]: i }), mini));
         return card;
       }));
@@ -188,7 +201,10 @@ function renderWizard(): void {
       for (const [i, preview] of wizardPreviews.entries()) { preview.show(); preview.update(wizardSettings({ ...answers, [key]: i })); }
       wizardShown = wizardStep;
     }
-    document.querySelectorAll<HTMLElement>('#wizard-options .choice').forEach(card => card.setAttribute('aria-checked', String(Number(card.dataset.answer) === answers[key])));
+    document.querySelectorAll<HTMLElement>('#wizard-options .choice').forEach(card => {
+      const chosen = Number(card.dataset.answer) === answers[key];
+      card.setAttribute('aria-checked', String(chosen)); card.tabIndex = chosen ? 0 : -1;
+    });
   } else {
     if (wizardShown !== wizardStep) {
       for (const preview of wizardPreviews) preview.hide();
@@ -198,8 +214,8 @@ function renderWizard(): void {
     const look = recommend(answers), closest = closestPreset(look), used = sanitize({ ...settings, ...wizardLook(answers) });
     rows('wizard-summary', [
       ...WIZARD_STEPS.map(key => [t(WIZARD[key].title), t(WIZARD[key].options[answers[key]].name)] as [string, string]),
-      [t("照明モード"), ({ cinema: 'Cinema', vivid: 'Vivid', ambient: 'Ambient' })[used.mode]], ['Brightness', `${used.brightness}%`], ['Glow Width', `${used.glowWidth}%`],
-      ['Glow Style', used.glow.style === 'halo' ? 'Soft Halo' : 'Edge Light'], ['Smoothing', `${used.smoothing}%`], ['Light Director', t("強さ {0}%", [used.director.strength])]
+      [t("照明モード"), ({ cinema: 'Cinema', vivid: 'Vivid', ambient: 'Ambient' })[used.mode]], [t("明るさ"), `${used.brightness}%`], [t("光の幅"), `${used.glowWidth}%`],
+      [t("光の形"), used.glow.style === 'halo' ? 'Soft Halo' : 'Edge Light'], [t("変化のなめらかさ"), `${used.smoothing}%`], ['Light Director', t("強さ {0}%", [used.director.strength])]
     ]);
     $('wizard-closest').textContent = closest.exact ? t("標準プリセット「{0}」と同じ設定です。", [closest.name]) : t("標準プリセットの中では「{0}」にいちばん近い設定です。", [closest.name]);
   }
@@ -214,7 +230,7 @@ $('wizard-apply').addEventListener('click', async () => {
   const saved = store.change(wizardLook(answers)); wizardSay(''); render();
   if (!(await saved).ok) return;
   wizardSay(side ? t("おすすめの設定を、比較中の {0} に入れました。使うには、上の比較バーで決めてください。", [side])
-    : t("おすすめの設定を{0}に保存しました。Lighting や Glow Designer のタブで、ここからさらに調整できます。", [where]));
+    : t("おすすめの設定を{0}に保存しました。「基本設定」や「光の形」のタブで、ここからさらに調整できます。", [where]));
 });
 // Compare first, decide later: A stays what is saved now, B becomes the wizard's result.
 // Both are sent at once; it says the comparison started only once each was stored.
@@ -231,25 +247,25 @@ $('wizard-save').addEventListener('submit', async e => {
   if (builtInName(name)) { wizardSay(t("標準のプリセットと同じ名前は使えません。")); return; }
   if (!name) { wizardSay(t("名前を入力してください。")); return; }
   const saved = store.setPreset(name, recommend(answers)); input.value = ''; wizardSay(''); render();
-  if ((await saved).ok) wizardSay(t("「{0}」として Preset Library に保存しました。Presets のタブからいつでも適用できます。", [name]));
+  if ((await saved).ok) wizardSay(t("「{0}」としてプリセットに保存しました。「プリセット」のタブからいつでも適用できます。", [name]));
 });
 
 // ───── Light Director
 const direct = (patch: Partial<DirectorSettings>) => change({ director: { ...settings.director, ...patch } });
 for (const [key, label] of [
-  ['strength', t("Effect Strength · 効果の強さ")], ['source', t("Light Source Sensitivity · 光源への感度")], ['motion', t("Motion Sensitivity · 動きへの感度")],
-  ['response', t("Response Speed · 反応の速さ")], ['smoothing', t("Cinematic Smoothing · 余韻の長さ")]
+  ['strength', t("効果の強さ")], ['source', t("光源への反応")], ['motion', t("動きへの反応")],
+  ['response', t("反応の速さ")], ['smoothing', t("余韻の長さ")]
 ] as const) slider('director-sliders', `director-${key}`, label, 0, 100, () => settings.director[key], value => direct({ [key]: value }));
 $<HTMLInputElement>('director-enabled').addEventListener('change', e => direct({ enabled: (e.target as HTMLInputElement).checked }));
 $('director-reset').addEventListener('click', () => change({ director: DIRECTOR }));
 const trail = (patch: Partial<TrailSettings>) => change({ trails: { ...settings.trails, ...patch } });
-for (const [key, label] of [['length', t("Trail Length · 残光の長さ")], ['strength', t("Trail Strength · 残光の強さ")]] as const)
+for (const [key, label] of [['length', t("残光の長さ")], ['strength', t("残光の強さ")]] as const)
   slider('trails-sliders', `trails-${key}`, label, 0, 100, () => settings.trails[key], value => trail({ [key]: value }));
 checked('trails-enabled', enabled => trail({ enabled }));
 
 // ───── Pulse Engine
 const beat = (patch: Partial<PulseSettings>) => change({ pulse: { ...settings.pulse, ...patch } });
-for (const [key, label] of [['depth', t("Pulse Depth · 反応の深さ")], ['bass', t("Bass · 低音")], ['mid', t("Mid · 中音")], ['treble', t("Treble · 高音")], ['sensitivity', t("Beat Sensitivity · ビートの感度")], ['wave', t("Beat Wave · ビートが走る時間")], ['bloom', t("Beat Bloom · ビートで光が広がる量")]] as const)
+for (const [key, label] of [['depth', t("反応の深さ")], ['bass', t("低音")], ['mid', t("中音")], ['treble', t("高音")], ['sensitivity', t("ビートの感度")], ['wave', t("ビートが走る時間")], ['bloom', t("ビートで光が広がる量")]] as const)
   slider('pulse-sliders', `pulse-${key}`, label, 0, 100, () => settings.pulse[key], value => beat({ [key]: value }));
 checked('pulse-enabled', enabled => beat({ enabled }));
 // Back to the default response. Whether it listens at all is the user's switch and is left as it is.
@@ -260,7 +276,7 @@ checked('music-mode', on => change({ source: on ? 'music' : 'video' }));
 let studioCount = 64, pattern: Pattern = 'sample', anchor = -1, live: LightingRenderer | null = null, studioTimer = 0;
 const selected = new Set<number>();
 const preview = new LightingRenderer({ ...settings, zoneCount: studioCount }, $('stage'));
-const trimKeys = [['brightness', t("Brightness · 明るさ")], ['saturation', t("Saturation · 彩度")], ['intensity', t("Glow Intensity · 光の広がり")]] as const;
+const trimKeys = [['brightness', t("明るさ")], ['saturation', t("色の鮮やかさ")], ['intensity', t("光の広がり")]] as const;
 /** What the selected zones have in common. A value that differs between them is reported as mixed and shown from the first zone. */
 function selection(): ZoneTrim & { mixed: boolean } {
   const trims = [...selected].map(zone => zoneTrim(settings.zones, studioCount, zone));
@@ -268,7 +284,8 @@ function selection(): ZoneTrim & { mixed: boolean } {
   const mixed = trims.some(t => t.mixed || (['brightness', 'saturation', 'intensity', 'on'] as const).some(key => t[key] !== trims[0][key]));
   return { ...trims[0], mixed };
 }
-const trimZones = (patch: Partial<ZoneTrim>) => { if (selected.size) change({ zones: editZones(settings.zones, studioCount, selected, patch) }); };
+// Sent as what changes on which zones (`Store.trimZones`): another page trimming other zones at the same time keeps its trims.
+const trimZones = (patch: Partial<ZoneTrim>) => { if (selected.size) { store.trimZones(studioCount, [...selected], patch, sliding); render(); } };
 const trimInputs = trimKeys.map(([key, label]) => slider('zone-sliders', `zone-${key}`, label, 0, 200, () => selection()[key], value => trimZones({ [key]: value })));
 $<HTMLInputElement>('zone-on').addEventListener('change', e => trimZones({ on: (e.target as HTMLInputElement).checked ? 1 : 0 }));
 $('zone-reset').addEventListener('click', () => trimZones(NEUTRAL));
@@ -303,7 +320,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-select]').forEach(b => b.add
   render();
 }));
 $('patterns').append(...(Object.keys(PATTERNS) as Pattern[]).map(name => {
-  const button = make('button', { type: 'button', textContent: PATTERNS[name] }); button.dataset.pattern = name;
+  const button = make('button', { type: 'button', textContent: t(PATTERNS[name]) }); button.dataset.pattern = name;
   button.addEventListener('click', () => { pattern = name; render(); });
   return button;
 }));
@@ -336,7 +353,7 @@ function renderStudio(): void {
   const real = effectiveSettings(store.global).zoneCount;
   $('studio-count-note').textContent = t("この画面で実際に使われるのは {0} ゾーンです（{1}）。別の数を選ぶと、調整がどう引き継がれるかを確かめられます。光っているゾーン: {2} / {3}", [real, store.global.zoneMode === 'auto' ? t("解像度から自動") : t("手動で指定"), trims.active, studioCount]);
   document.querySelectorAll<HTMLButtonElement>('[data-pattern]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pattern === pattern)));
-  $('stage-note').textContent = pattern === 'identify' ? (zones.length ? t("選んだゾーンだけを光らせています") : t("ゾーンを選ぶと、そのゾーンだけが光ります")) : PATTERNS[pattern];
+  $('stage-note').textContent = pattern === 'identify' ? (zones.length ? t("選んだゾーンだけを光らせています") : t("ゾーンを選ぶと、そのゾーンだけが光ります")) : t(PATTERNS[pattern]);
 }
 
 // ───── Profiles
@@ -363,10 +380,14 @@ function renderProfiles(): void {
     const chips = keys.map(key => {
       const drop = make('button', { type: 'button', className: 'drop', textContent: '×', title: t("この項目をグローバル設定に戻す") });
       drop.setAttribute('aria-label', t("{0} をグローバル設定に戻す", [t(LOOK_NAMES[key])]));
+      // While this profile is being compared, what it saves stays as it is until A or B is kept.
+      drop.disabled = store.compare?.target === site;
       drop.addEventListener('click', () => { void store.inherit(site, [key]); render(); });
       return make('span', { className: 'chip' }, `${t(LOOK_NAMES[key])}: ${summary(key, profile)}`, drop);
     });
-    const edit = make('button', { type: 'button', textContent: store.target === site ? t("編集中") : t("編集") }); edit.dataset.edit = site;
+    const edit = make('button', { type: 'button', textContent: store.target === site ? t("編集中") : t("編集"), className: store.target === site ? 'is-active' : '' }); edit.dataset.edit = site;
+    // During a comparison this page edits the settings compared (`compareTarget`): others cannot be chosen until it ends.
+    edit.disabled = !!store.compare && compareTarget() !== site;
     edit.addEventListener('click', () => { store.target = site; show('lighting'); render(); });
     const copy = make('button', { type: 'button', textContent: t("複製") });
     copy.addEventListener('click', () => { $<HTMLSelectElement>('profile-from').value = site; $('profile-site').focus(); message(t("「{0}」を写します。複製先のホスト名を入力して「作成」を押してください。", [site])); });
@@ -386,7 +407,8 @@ function renderProfiles(): void {
       make('p', { className: 'hint' }, notes.join(' '))
     );
   };
-  const global = make('button', { type: 'button', textContent: store.target ? t("編集") : t("編集中") });
+  const global = make('button', { type: 'button', textContent: store.target ? t("編集") : t("編集中"), className: store.target ? '' : 'is-active' });
+  global.disabled = !!store.compare && compareTarget() !== '';
   global.addEventListener('click', () => { store.target = ''; show('lighting'); render(); });
   $('profile-list').replaceChildren(
     make('div', { className: 'profile' }, make('div', { className: 'profile-head' }, make('b', {}, t("Global Default · グローバル設定")), make('span', { className: 'actions' }, global)),
@@ -404,7 +426,9 @@ $('profile-form').addEventListener('submit', async e => {
   if (!typed || !site) { message(t("ホスト名を入力してください（例: www.youtube.com）。")); return; }
   if (store.profiles[site]) { message(t("「{0}」のプロファイルはすでにあります。", [site])); return; }
   const saved = store.setProfile(site, from ? { ...store.profiles[from] } : {}); store.target = site; input.value = ''; message(''); render();
-  if ((await saved).ok) message(t("「{0}」のプロファイルを作成しました。{1}上の「編集する設定」で選んだ状態です。", [site, from ? t("「{0}」の内容を写しています。", [from]) : t("まだ違いは無く、グローバル設定に従います。")]));
+  if ((await saved).ok) message(store.target === site
+    ? t("「{0}」のプロファイルを作成しました。{1}上の「編集する設定」で選んだ状態です。", [site, from ? t("「{0}」の内容を写しています。", [from]) : t("まだ違いは無く、グローバル設定に従います。")])
+    : t("「{0}」のプロファイルを作成しました。A/B 比較が終わると、上の「編集する設定」で選べます。", [site]));
 });
 
 // ───── Presets
@@ -420,7 +444,7 @@ function download(name: string, text: string): void {
 const fileName = (name: string) => `eclirim-${name.replace(/[^\w\u3040-\u30ff\u4e00-\u9fff-]+/g, '-').replace(/^-|-$/g, '') || 'preset'}.json`;
 function renderPresets(): void {
   const row = (name: string, note: string, look: PresetLook, own: boolean) => {
-    const active = matchesPreset(settings, look), apply = make('button', { type: 'button', textContent: active ? t("適用中") : t("適用"), disabled: active });
+    const active = matchesPreset(settings, look), apply = make('button', { type: 'button', textContent: active ? t("適用中") : t("適用"), disabled: active, className: active ? 'is-active' : '' });
     apply.dataset.apply = name;
     // Only the look changes. Whether sound is analysed, and a Flash Limiter that is on, stay the user's own switches.
     // During a comparison the look goes to the side that is showing, like any other change: nothing saved is written until a side is kept.
@@ -480,12 +504,18 @@ function offer(): void {
   say('import-message', t("バックアップです（プロファイル {0} 件、プリセット {1} 件）。読み込むと、現在のグローバル設定・プロファイル・プリセットがすべて置き換わります。よければ「現在の設定をすべて置き換える」を押してください。", [Object.keys(backup.profiles).length, Object.keys(backup.presets).length]));
 }
 $('import-pick').addEventListener('click', () => $('import-file').click());
+/** Counts files picked and text pasted: a file still being read when something newer was chosen is not taken. */
+let imports = 0;
 $('import-file').addEventListener('change', async e => {
-  const input = e.target as HTMLInputElement, file = input.files?.[0];
-  if (file) void take(file.size > 400_000 ? 'x'.repeat(400_001) : await file.text());
+  const input = e.target as HTMLInputElement, file = input.files?.[0], current = ++imports;
+  // A backup offered before stops being offered the moment another file is chosen: only the latest file can be restored.
+  if (file) { offered.offer(null); $('import-confirm').hidden = true; say('import-message', ''); }
   input.value = '';
+  if (!file) return;
+  const text = file.size > IMPORT_LIMIT ? 'x'.repeat(IMPORT_LIMIT + 1) : await file.text();
+  if (current === imports) void take(text);
 });
-$('import-paste').addEventListener('click', () => void take($<HTMLTextAreaElement>('import-text').value));
+$('import-paste').addEventListener('click', () => { imports++; void take($<HTMLTextAreaElement>('import-text').value); });
 $('import-confirm').addEventListener('click', async () => {
   if (!offered.backup) return;
   // A backup may come from someone else: reading it never starts sound analysis that is not already on here, and never turns a Flash Limiter off.
@@ -504,7 +534,10 @@ $('import-confirm').addEventListener('click', async () => {
     !!result.compared && t("進めていた A/B 比較は終了しました。"))]));
 });
 $('backup-export').addEventListener('click', () => {
-  download('eclirim-backup.json', exportBackup(store.global, store.profiles, store.presets));
+  // Only a file that can be read back is written: a backup larger than an import may be is refused here, not on restore.
+  const backup = exportBackup(store.global, store.profiles, store.presets);
+  if (fileBytes(backup) > IMPORT_LIMIT) { say('import-message', t("設定が大きすぎるため、バックアップを書き出せませんでした（5MBまで）。使っていないサイト別プロファイルを削除してから、もう一度お試しください。")); return; }
+  download('eclirim-backup.json', backup);
   say('import-message', t("すべての設定をJSONファイルに書き出しました。"));
 });
 
@@ -534,7 +567,7 @@ function renderDiagnostics(): void {
   }
   const analysing = status.source === 'direct' || status.source === 'capture';
   rows('diag-simple', [
-    [t("状態"), status.state], [t("描画方式"), paths[status.source]],
+    [t("状態"), STATE_NAMES[status.state] ? t(STATE_NAMES[status.state]) : status.state], [t("描画方式"), paths[status.source]],
     ['Analysis FPS', analysing ? `${f(p.analysisFps)} fps` : t("—（映像を解析していません）")],
     ['Rendering FPS', p.renderFps ? `${f(p.renderFps)} fps` : t("0（光に変化が無く、描画を休んでいます）")],
     [t("ゾーン"), t("{0}（光るゾーン {1}）", [p.zones, p.activeZones])],
@@ -583,7 +616,8 @@ function show(tab: string): void {
   history.replaceState(null, '', `#${tab}`);
   // The preview and the monitor only run while they can be seen.
   clearInterval(studioTimer); clearInterval(diagnosticsTimer); clearInterval(glowTimer); clearInterval(wizardTimer); studioTimer = diagnosticsTimer = glowTimer = wizardTimer = 0;
-  if (tab === 'studio') { preview.show(); renderStudio(); animate(); studioTimer = window.setInterval(animate, 100); } else preview.hide();
+  if (tab === 'studio') { preview.show(); renderStudio(); animate(); studioTimer = window.setInterval(animate, 100); }
+  else { preview.hide(); live?.hide(); live = null; $<HTMLInputElement>('studio-live').checked = false; }
   if (tab === 'glow') { glowPreview.show(); renderGlow(); animateGlow(); glowTimer = window.setInterval(animateGlow, 100); }
   else { glowPreview.hide(); glowLive?.hide(); glowLive = null; $<HTMLInputElement>('glow-live').checked = false; }
   // The wizard's pictures stand still, so they are fed once and then rest.
@@ -591,13 +625,22 @@ function show(tab: string): void {
   else { for (const shown of wizardPreviews) shown.hide(); wizardPreviews = []; wizardShown = -1; }
   if (tab === 'diagnostics') { void poll(); diagnosticsTimer = window.setInterval(() => void poll(), 1000); }
 }
+/** The settings a comparison in progress belongs to, which this page then edits; null when none is running. */
+const compareTarget = (): string | null => !store.compare ? null : store.compare.target && store.profiles[store.compare.target] ? store.compare.target : '';
 function render(): void {
+  // A comparison started elsewhere (the popup, another settings page) takes this page to the settings it compares, so a
+  // change made here goes to the side shown and never to settings the comparison does not cover.
+  const following = compareTarget();
+  if (following !== null && store.target !== following) store.target = following;
   settings = store.settings;
   for (const refresh of refreshers) refresh();
   for (const key of ['flashLimiter', 'enabled', 'hud', 'adaptive'] as const) $<HTMLInputElement>(key).checked = settings[key];
   for (const key of ['source', 'protectedLight', 'manualColor', 'preset', 'zoneMode', 'zoneCount'] as const) $<HTMLInputElement>(key).value = String(settings[key]);
   document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === settings.mode)));
   $('zone-count-row').hidden = settings.zoneMode === 'auto';
+  // The fixed colour and the Cinema preset are shown only while a light that uses them is chosen, as in the popup.
+  $('manual-row').hidden = settings.source !== 'manual' && settings.protectedLight !== 'manual';
+  $('preset-row').hidden = settings.source !== 'preset' && settings.protectedLight !== 'preset';
   $('zone-note').textContent = t("この画面では {0} ゾーンを使います。各辺に均等に配分します。", [effectiveSettings(store.global).zoneCount]);
   $<HTMLInputElement>('director-enabled').checked = settings.director.enabled;
   document.querySelectorAll<HTMLInputElement>('#director-sliders input').forEach(input => { input.disabled = !settings.director.enabled; });
@@ -616,7 +659,7 @@ function render(): void {
     ...Object.keys(store.profiles).sort().map(site => make('option', { value: site, textContent: t("{0} のプロファイル", [site]) })));
   target.value = store.target;
   $('target-note').textContent = store.target
-    ? t("「照明の見た目」「Light Director」「Zone Studio」の変更は、{0} のプロファイルに保存されます。変えていない項目はグローバル設定に従います。{1}", [store.target, protectedSite(store.target) ? t("保護された動画が映像に連動するようにはなりません。") : ''])
+    ? t("「照明を調整」の各タブ（基本設定・光の形・映像への反応・音への反応・ゾーン別）の変更は、{0} のプロファイルに保存されます。変えていない項目はグローバル設定に従います。{1}", [store.target, protectedSite(store.target) ? t("保護された動画が映像に連動するようにはなりません。") : ''])
     : t("すべてのサイトで使う設定です。サイト専用のプロファイルがあるサイトでは、プロファイルにある項目が優先されます。");
   renderStudio(); renderProfiles(); renderPresets(); renderGlow(); renderCompare();
   // The wizard's pictures show its answers over the look being edited, so they follow that look.
@@ -639,8 +682,9 @@ $('section-select').addEventListener('change', event => show((event.target as HT
 window.addEventListener('resize', () => {
   preview.update({ ...settings, zoneCount: studioCount, enabled: true }); live?.update({ ...settings, zoneCount: studioCount, enabled: true });
   glowPreview.update(previewSettings(settings)); glowLive?.update(previewSettings(settings));
+  if (!$('tab-glow').hidden) drawCurve();
 });
-window.addEventListener('eclirim-language', () => { void store.saved.then(() => location.reload()); });
+window.addEventListener('eclirim-language', () => { void Promise.all([store.saved, feedbackSaved()]).then(() => location.reload()); });
 // A slider move still being gathered goes out when the page is hidden or closed.
 window.addEventListener('pagehide', () => store.flush());
 document.addEventListener('visibilitychange', () => { if (document.hidden) store.flush(); });
@@ -657,7 +701,7 @@ void (async () => {
   language.value = getLanguagePreference();
   language.addEventListener('change', () => {
     language.disabled = true;
-    void store.saved.then(() => setLanguagePreference(language.value)).catch(() => {
+    void Promise.all([store.saved, feedbackSaved()]).then(() => setLanguagePreference(language.value)).catch(() => {
       language.value = getLanguagePreference(); language.disabled = false;
       error(t('言語を保存できませんでした。もう一度お試しください。'));
     });
@@ -665,7 +709,7 @@ void (async () => {
   const wanted = new URLSearchParams(location.search).get('site');
   if (wanted && store.profiles[wanted]) store.target = wanted;
   // A comparison in progress is picked up where it was left: this page then edits the settings it belongs to.
-  if (store.compare) store.target = store.compare.target && store.profiles[store.compare.target] ? store.compare.target : '';
+  if (store.compare) store.target = compareTarget() ?? '';
   studioCount = effectiveSettings(store.global).zoneCount;
   buildZones(); render(); await permissions();
   await setupFeedback(async () => {
