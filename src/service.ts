@@ -2,6 +2,7 @@ import { loadSettings, migrate, sanitize } from './shared/settings';
 import { SAVED_KEYS, applyOp, readSaved } from './shared/save';
 import { captureBlockReason } from './shared/capture-policy';
 import { sitePattern } from './shared/site';
+import { FEEDBACK_KEY, feedbackDraft } from './shared/feedback';
 import type { Message, SaveOp, SaveResult, Settings, VideoContext } from './shared/types';
 /**
  * What the background does. Nothing here runs or listens on import: background.ts hands Chrome's events to these, and the
@@ -154,9 +155,19 @@ export function handleMessage(m: Message, sender: chrome.runtime.MessageSender):
   } else if (m.type === 'release' && sender.tab?.id !== undefined) {
     job = serial(async () => { if (await captured() === sender.tab!.id) await stopCapture(); });
   } else if (m.type === 'relay' && offscreen && m.message.target === 'content') {
-    job = chrome.tabs.sendMessage(m.tabId, m.message).catch(() => { void serial(() => stopCapture()); });
+    // A tab that can no longer be reached ends its own capture only: one started since for another tab is left running.
+    job = chrome.tabs.sendMessage(m.tabId, m.message).catch(() => { void serial(async () => { if (await captured() === m.tabId) await stopCapture(); }); });
   } else if (m.type === 'capture-closed' && offscreen) {
     job = serial(async () => { if (await captured() === m.tabId) await stopCapture(m.detail); });
+  } else if (m.type === 'draft' && options) {
+    // The feedback draft: the fields a settings page changed, laid over the draft as stored now, one change at a time
+    // (null clears it). Two settings pages editing different fields keep both.
+    job = saving(async () => {
+      const stored = feedbackDraft((await chrome.storage.local.get(FEEDBACK_KEY))[FEEDBACK_KEY]);
+      const next = m.patch && typeof m.patch === 'object' ? feedbackDraft({ ...stored, ...m.patch }) : feedbackDraft();
+      await chrome.storage.local.set({ [FEEDBACK_KEY]: next });
+      return { ok: true, draft: next };
+    });
   } else if (m.type === 'heartbeat' && sender.tab) {
     job = chrome.tabs.getZoom(sender.tab.id!).then(zoom => ({ ok: true, zoom }));
   }

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BUILT_IN, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, guardRestore, importJSON, limiterKept, matchesPreset, presetFrom, resetProfile } from '../src/shared/presets.ts';
+import { BUILT_IN, IMPORT_LIMIT, applyPreset, builtInName, exportBackup, exportPreset, freePresetName, guardRestore, importJSON, limiterKept, matchesPreset, presetFrom, resetProfile } from '../src/shared/presets.ts';
 import { COLOR, DEFAULTS, DIRECTOR, PULSE, SCHEMA, TRAILS, lookOf, migrate, presetName, sanitize, sanitizePreset, sanitizePresets } from '../src/shared/settings.ts';
 import { editZones } from '../src/engine/zones.ts';
 import { command } from '../src/service.ts';
@@ -49,7 +49,7 @@ test('presets travel as JSON and come back the same; anything else in the file i
   }
   assert.equal(({} as Record<string, unknown>).polluted, undefined);
   for (const [text, why] of [['{', /JSONとして/], ['[1,2]', /ECLIRIMの書き出し/], [JSON.stringify({ app: 'Other', kind: 'preset' }), /ECLIRIMの書き出し/], [JSON.stringify({ app: 'CineGlow', kind: 'preset', name: '', look: {} }), /名前/],
-    [JSON.stringify({ app: 'CineGlow', kind: 'theme' }), /種類/], [JSON.stringify({ app: 'CineGlow', kind: 'preset', schema: SCHEMA + 1, name: 'x', look: {} }), /新しい版/], ['x'.repeat(400_001), /大きすぎ/]] as const) {
+    [JSON.stringify({ app: 'CineGlow', kind: 'theme' }), /種類/], [JSON.stringify({ app: 'CineGlow', kind: 'preset', schema: SCHEMA + 1, name: 'x', look: {} }), /新しい版/], ['x'.repeat(IMPORT_LIMIT + 1), /大きすぎ/], [JSON.stringify({ app: 'ECLIRIM', kind: 'backup' }), /内容が足りません/], [JSON.stringify({ app: 'ECLIRIM', kind: 'backup', settings: {}, profiles: {} }), /内容が足りません/]] as const) {
     const result = importJSON(text); assert.equal(result.kind, 'error'); if (result.kind === 'error') assert.match(result.error, why);
   }
   assert.equal(presetName('  a\tb  '), 'ab'); assert.equal(presetName('x'.repeat(60)).length, 40); assert.equal(presetName(5), ''); assert.equal(presetName('   '), '');

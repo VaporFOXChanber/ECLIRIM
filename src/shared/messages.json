@@ -87,7 +87,7 @@
   {
     "id": "m_bcdb00dafa74",
     "ja": "照明は表示していません。固定の照明は、ポップアップの「保護された動画での照明」で選べます。",
-    "en": "Lighting is off. Choose fixed lighting under “Protected video” in the popup."
+    "en": "Lighting is off. Choose fixed lighting under “Lighting for protected video” in the popup."
   },
   {
     "id": "m_9525cdd91c80",
@@ -285,88 +285,78 @@
     "en": "Chrome ended video capture."
   },
   {
-    "id": "m_74bbdb62c9ce",
-    "ja": "Brightness · 明るさ",
-    "en": "Brightness"
-  },
-  {
-    "id": "m_f6635577039f",
-    "ja": "Glow Width · 光の幅",
-    "en": "Glow Width"
-  },
-  {
     "id": "m_e2e2c0424c5e",
-    "ja": "Glow Intensity · 光の拡散",
-    "en": "Glow Intensity"
+    "ja": "光の広がり",
+    "en": "Glow spread"
   },
   {
     "id": "m_6a92ab635eec",
-    "ja": "Saturation · 彩度",
+    "ja": "色の鮮やかさ",
     "en": "Saturation"
   },
   {
     "id": "m_b199b80b1d20",
-    "ja": "Smoothing · 滑らかさ",
-    "en": "Smoothing"
+    "ja": "変化のなめらかさ",
+    "en": "Smoothness"
   },
   {
     "id": "m_b9de30cc714f",
-    "ja": "Response Speed · 追従速度",
-    "en": "Response Speed"
+    "ja": "映像への追従の速さ",
+    "en": "Response speed"
   },
   {
     "id": "m_d14cf7404bbc",
-    "ja": "Shadows · 暗い場面の色",
-    "en": "Shadows · Dark-scene color"
+    "ja": "暗い場面の色",
+    "en": "Shadows"
   },
   {
     "id": "m_c4901e0a5e96",
-    "ja": "Highlights · 明るい側の丸め",
-    "en": "Highlights · Highlight roll-off"
+    "ja": "明るい色の白飛び防止",
+    "en": "Highlight roll-off"
   },
   {
     "id": "m_2287c16f9a34",
-    "ja": "Vibrance · 彩度の補正",
+    "ja": "自然な鮮やかさ",
     "en": "Vibrance"
   },
   {
     "id": "m_9afda144b983",
-    "ja": "Guard Strength · 弱める強さ",
-    "en": "Guard Strength"
+    "ja": "光を弱める強さ",
+    "en": "Dimming strength"
   },
   {
     "id": "m_a9a8a47ba26d",
-    "ja": "Dark Scenes · 暗い場面で明るい光を抑える",
-    "en": "Dark Scenes · Reduce bright light"
+    "ja": "暗い場面でまぶしさを抑える",
+    "en": "Calm dark scenes"
   },
   {
     "id": "m_28f9c62a0b97",
-    "ja": "Bright Scenes · 明るい場面で光を下げる",
-    "en": "Bright Scenes · Dim the glow"
+    "ja": "明るい場面で光を下げる",
+    "en": "Dim in bright scenes"
   },
   {
     "id": "m_04013feff91a",
-    "ja": "Adaptation Speed · 追従の速さ",
-    "en": "Adaptation Speed"
+    "ja": "自動調整の速さ",
+    "en": "Adaptation speed"
   },
   {
     "id": "m_2d9608aaf8fe",
-    "ja": "Source Thickness · 光源の太さ",
-    "en": "Source Thickness"
+    "ja": "縁の光の太さ",
+    "en": "Core thickness"
   },
   {
     "id": "m_cc88a1b4d5f5",
-    "ja": "Diffusion Curve · 拡散曲線",
-    "en": "Diffusion Curve"
+    "ja": "広がりのカーブ",
+    "en": "Spread curve"
   },
   {
     "id": "m_f4f7d7558099",
-    "ja": "Falloff · 減衰",
+    "ja": "光の消え方",
     "en": "Falloff"
   },
   {
     "id": "m_d4f95be9dc98",
-    "ja": "Softness · 柔らかさ",
+    "ja": "光の柔らかさ",
     "en": "Softness"
   },
   {
@@ -496,78 +486,63 @@
   },
   {
     "id": "m_ecf51957f908",
-    "ja": "Effect Strength · 効果の強さ",
-    "en": "Effect Strength"
+    "ja": "効果の強さ",
+    "en": "Effect strength"
   },
   {
     "id": "m_5da5a708f979",
-    "ja": "Light Source Sensitivity · 光源への感度",
-    "en": "Light Source Sensitivity"
+    "ja": "光源への反応",
+    "en": "Light source sensitivity"
   },
   {
     "id": "m_63131da7e820",
-    "ja": "Motion Sensitivity · 動きへの感度",
-    "en": "Motion Sensitivity"
+    "ja": "動きへの反応",
+    "en": "Motion sensitivity"
   },
   {
     "id": "m_d3797c6c2e00",
-    "ja": "Response Speed · 反応の速さ",
-    "en": "Response Speed"
+    "ja": "反応の速さ",
+    "en": "Response speed"
   },
   {
     "id": "m_e3ebf69dcca0",
-    "ja": "Cinematic Smoothing · 余韻の長さ",
-    "en": "Cinematic Smoothing"
+    "ja": "余韻の長さ",
+    "en": "Linger"
   },
   {
     "id": "m_98e71e73f610",
-    "ja": "Trail Length · 残光の長さ",
-    "en": "Trail Length"
+    "ja": "残光の長さ",
+    "en": "Trail length"
   },
   {
     "id": "m_51b59d54dca5",
-    "ja": "Trail Strength · 残光の強さ",
-    "en": "Trail Strength"
-  },
-  {
-    "id": "m_68e58c1c2763",
-    "ja": "Pulse Depth · 反応の深さ",
-    "en": "Pulse Depth"
+    "ja": "残光の強さ",
+    "en": "Trail strength"
   },
   {
     "id": "m_927cdf882dba",
-    "ja": "Bass · 低音",
+    "ja": "低音",
     "en": "Bass"
   },
   {
     "id": "m_83fff037b6e3",
-    "ja": "Mid · 中音",
+    "ja": "中音",
     "en": "Mid"
   },
   {
     "id": "m_9e97837bf860",
-    "ja": "Treble · 高音",
+    "ja": "高音",
     "en": "Treble"
   },
   {
     "id": "m_ce8fba36eb45",
-    "ja": "Beat Sensitivity · ビートの感度",
-    "en": "Beat Sensitivity"
+    "ja": "ビートの感度",
+    "en": "Beat sensitivity"
   },
   {
     "id": "m_ad161ccfe401",
-    "ja": "Beat Wave · ビートが走る時間",
-    "en": "Beat Wave · Travel time"
-  },
-  {
-    "id": "m_ca263e2b2ca9",
-    "ja": "Beat Bloom · ビートで光が広がる量",
-    "en": "Beat Bloom · Glow expansion"
-  },
-  {
-    "id": "m_720586e19e32",
-    "ja": "Glow Intensity · 光の広がり",
-    "en": "Glow Intensity"
+    "ja": "ビートが走る時間",
+    "en": "Beat wave"
   },
   {
     "id": "m_9e603cb72278",
@@ -1272,12 +1247,12 @@
   {
     "id": "m_031e881da03a",
     "ja": "照明は出していません。固定の照明は、下の「保護された動画での照明」で選べます。",
-    "en": "Lighting is off. Choose fixed lighting under “Protected video” below."
+    "en": "Lighting is off. Choose fixed lighting under “Lighting for protected video” below."
   },
   {
     "id": "m_55191c10243d",
     "ja": "下の「保護された動画での照明」で選んだ照明を使います。",
-    "en": "Using the lighting selected under “Protected video” below."
+    "en": "Using the lighting selected under “Lighting for protected video” below."
   },
   {
     "id": "m_c8b6eb1fbabd",
@@ -1316,8 +1291,8 @@
   },
   {
     "id": "m_355e7004f73f",
-    "ja": "映像を解析できる照明（映像に連動 · RGB解析）でのみ働きます。",
-    "en": "Works only with readable video (Video · RGB analysis)."
+    "ja": "映像を解析できる照明（映像に連動（標準））でのみ働きます。",
+    "en": "Works only with readable video (Follow video)."
   },
   {
     "id": "m_5675ba82f4cf",
@@ -1401,8 +1376,8 @@
   },
   {
     "id": "m_320b8c2b9ff3",
-    "ja": "動画のあるタブで「照明を開始」を押してください。",
-    "en": "Press “Start lighting” in a tab with a video."
+    "ja": "動画のあるタブで「このタブで照明を開始」を押してください。",
+    "en": "In a tab with a video, press “Start lighting in this tab”."
   },
   {
     "id": "m_bdb2104522e2",
@@ -1611,8 +1586,8 @@
   },
   {
     "id": "m_feb20f7964ca",
-    "ja": "ファイルが大きすぎます（400KBまで）。",
-    "en": "File too large (400 KB maximum)."
+    "ja": "ファイルが大きすぎます（5MBまで）。",
+    "en": "File too large (5 MB maximum)."
   },
   {
     "id": "m_a06a92a5a276",
@@ -2056,18 +2031,18 @@
   },
   {
     "id": "m_f7850c87be2b",
-    "ja": "映像に連動 · RGB解析",
-    "en": "Video · RGB analysis"
+    "ja": "映像に連動（標準）",
+    "en": "Follow video (default)"
   },
   {
     "id": "m_e09e1918b67e",
-    "ja": "DRM互換描画 · CSS",
-    "en": "DRM compatibility · CSS"
+    "ja": "保護動画向け · 互換描画",
+    "en": "Protected video (compatibility)"
   },
   {
     "id": "m_3cf5cda7ac3e",
-    "ja": "Music Mode · 音だけで発光",
-    "en": "Music Mode · Sound only"
+    "ja": "音だけで発光 · Music Mode",
+    "en": "Sound only (Music Mode)"
   },
   {
     "id": "m_f5f64cbd91a6",
@@ -2151,7 +2126,7 @@
   },
   {
     "id": "m_0ae0d37e35f5",
-    "ja": "Enable 照明のオン／オフ",
+    "ja": "照明のオン／オフを切り替える",
     "en": "Enable lighting"
   },
   {
@@ -2341,8 +2316,8 @@
   },
   {
     "id": "m_0187553d8d8c",
-    "ja": "光源の太さ。",
-    "en": "Source Thickness. "
+    "ja": "縁の光の太さ。",
+    "en": "Core thickness. "
   },
   {
     "id": "m_fb400e3bb04f",
@@ -2351,8 +2326,8 @@
   },
   {
     "id": "m_2ce4251aa5ce",
-    "ja": "拡散曲線。",
-    "en": "Diffusion Curve. "
+    "ja": "広がりのカーブ。",
+    "en": "Spread curve. "
   },
   {
     "id": "m_36e6b1de7a77",
@@ -2361,7 +2336,7 @@
   },
   {
     "id": "m_812ca5f5db1a",
-    "ja": "減衰。",
+    "ja": "光の消え方。",
     "en": "Falloff. "
   },
   {
@@ -2381,8 +2356,8 @@
   },
   {
     "id": "m_2dcf0d007744",
-    "ja": "「光の幅」「光の拡散」（基本設定 タブ）は、この形が届く範囲と量を決めます。DRM互換描画の光にも、この形が使われます（辺に沿った色の混ざり具合を除く）。",
-    "en": "Glow Width and Glow Intensity (Lighting tab) set the reach and amount of this shape. DRM compatibility lighting uses the shape too, except for color blending along the edge."
+    "ja": "「光の幅」「光の広がり」（基本設定 タブ）は、この形が届く範囲と量を決めます。DRM互換描画の光にも、この形が使われます（辺に沿った色の混ざり具合を除く）。",
+    "en": "Glow width and Glow spread (Lighting tab) set the reach and amount of this shape. DRM compatibility lighting uses the shape too, except for color blending along the edge."
   },
   {
     "id": "m_d96350bd1a35",
@@ -2511,7 +2486,7 @@
   },
   {
     "id": "m_248227238511",
-    "ja": "明るいゾーンの光だけを抑えます。暗いゾーンの光はそのままなので、暗い色は暗いまま光り続けます（Color Engine の Shadows と一緒に働きます）。",
+    "ja": "明るいゾーンの光だけを抑えます。暗いゾーンの光はそのままなので、暗い色は暗いまま光り続けます（Color Engine の「暗い場面の色」 と一緒に働きます）。",
     "en": "Reduces only bright-zone light. Dark zones keep their light, so dark colors stay visible at low brightness (works with Color Engine’s Shadows)."
   },
   {
@@ -2536,7 +2511,7 @@
   },
   {
     "id": "m_6424e3b5c52d",
-    "ja": "映像を解析できる照明（映像に連動 · RGB解析、タブ取得）でのみ働きます。固定の照明・Music Mode・DRM互換描画では働きません。",
+    "ja": "映像を解析できる照明（映像に連動（標準）、タブ取得）でのみ働きます。固定の照明・Music Mode・DRM互換描画では働きません。",
     "en": "Works only with readable video (RGB analysis or tab capture). Unavailable for fixed lighting, Music Mode, and DRM compatibility rendering."
   },
   {
@@ -2676,8 +2651,8 @@
   },
   {
     "id": "m_ee9b5220e39e",
-    "ja": "映像を解析できる照明（映像に連動 · RGB解析）でのみ働きます。DRM互換描画・固定の照明・保護された動画では働きません。",
-    "en": "Works only with readable video (Video · RGB analysis). Unavailable for DRM compatibility rendering, fixed lighting, and protected video."
+    "ja": "映像を解析できる照明（映像に連動（標準））でのみ働きます。DRM互換描画・固定の照明・保護された動画では働きません。",
+    "en": "Works only with readable video (Follow video). Unavailable for DRM compatibility rendering, fixed lighting, and protected video."
   },
   {
     "id": "m_b31141958eef",
@@ -2751,8 +2726,8 @@
   },
   {
     "id": "m_77f2409d1b0e",
-    "ja": "全サイト共通の設定です。オフに戻すと「映像に連動 · RGB解析」になります。",
-    "en": "Shared across all sites. Turning it off returns to Video · RGB analysis."
+    "ja": "全サイト共通の設定です。オフに戻すと「映像に連動（標準）」になります。",
+    "en": "Shared across all sites. Turning it off returns to Follow video (default)."
   },
   {
     "id": "m_4b1fe35fc52a",
@@ -2791,8 +2766,8 @@
   },
   {
     "id": "m_6ccd226af5ec",
-    "ja": "音で動かした光にも掛かります。オンの間は、ビートへの反応を1秒に3回までにします。ビートの瞬間だけは、光を一度に少し（最大の明るさの8%まで）持ち上げ、同じだけ速く戻すことを許しています。それ以外の変化の速さは、映像の光と同じ上限のままです。Flash Limiter がオンの間は、Beat Bloom の広がりは半分になり、ビートで濃さを上限いっぱいまで持ち上げる動きは使いません。ビートをもっと穏やかにしたいときは Pulse Depth を下げてください。",
-    "en": "Also applies to sound-driven light. While enabled, beat responses are limited to three per second. At a beat, light may rise briefly by up to 8% of maximum brightness and return just as quickly. Other changes keep the same speed limit as video lighting. Flash Limiter also halves Beat Bloom expansion and disables full-opacity beat peaks. Lower Pulse Depth for gentler beats."
+    "ja": "音で動かした光にも掛かります。オンの間は、ビートへの反応を1秒に3回までにします。ビートの瞬間だけは、光を一度に少し（最大の明るさの8%まで）持ち上げ、同じだけ速く戻すことを許しています。それ以外の変化の速さは、映像の光と同じ上限のままです。Flash Limiter がオンの間は、「ビートで光が広がる量」は半分になり、ビートで濃さを上限いっぱいまで持ち上げる動きは使いません。ビートをもっと穏やかにしたいときは「反応の深さ」を下げてください。",
+    "en": "Also applies to sound-driven light. While enabled, beat responses are limited to three per second. At a beat, light may rise briefly by up to 8% of maximum brightness and return just as quickly. Other changes keep the same speed limit as video lighting. Flash Limiter also halves Beat bloom expansion and disables full-opacity beat peaks. Lower Pulse depth for gentler beats."
   },
   {
     "id": "m_652acac4e965",
@@ -3256,17 +3231,17 @@
   },
   {
     "id": "m_25e640902791",
-    "ja": "Shadows。",
+    "ja": "暗い場面の色。",
     "en": "Shadows. "
   },
   {
     "id": "m_10020c363bf4",
-    "ja": "Highlights。",
-    "en": "Highlights. "
+    "ja": "明るい色の白飛び防止。",
+    "en": "Highlight roll-off. "
   },
   {
     "id": "m_53da23c20307",
-    "ja": "Vibrance。",
+    "ja": "自然な鮮やかさ。",
     "en": "Vibrance. "
   },
   {
@@ -3323,5 +3298,165 @@
     "id": "m_6f67eda5093e",
     "ja": "ECLIRIM の応答がありませんでした。",
     "en": "ECLIRIM did not respond."
+  },
+  {
+    "id": "m_afb6d60fdd9c",
+    "ja": "設定が大きすぎるため、バックアップを書き出せませんでした（5MBまで）。使っていないサイト別プロファイルを削除してから、もう一度お試しください。",
+    "en": "The settings are too large to back up (5 MB maximum). Delete site profiles you no longer use, then try again."
+  },
+  {
+    "id": "m_82fff07386a0",
+    "ja": "バックアップの内容が足りません（設定・プロファイル・プリセットのどれかがありません）。ECLIRIMで書き出したファイルをそのまま読み込んでください。",
+    "en": "This backup is incomplete (settings, profiles or presets are missing). Import the file exactly as ECLIRIM exported it."
+  },
+  {
+    "id": "m_1660c0fc3d6c",
+    "ja": "点灯中",
+    "en": "Lighting"
+  },
+  {
+    "id": "m_95c39184e7ee",
+    "ja": "互換描画で点灯中",
+    "en": "Lighting (compatibility)"
+  },
+  {
+    "id": "m_81c606b8c3d1",
+    "ja": "動画を待っています",
+    "en": "Waiting for video"
+  },
+  {
+    "id": "m_6b066e9c8849",
+    "ja": "タブの映像の取得が必要",
+    "en": "Tab capture needed"
+  },
+  {
+    "id": "m_61a45ada889e",
+    "ja": "この映像は読み取れません",
+    "en": "Cannot read this video"
+  },
+  {
+    "id": "m_dcb721fdf7fb",
+    "ja": "一時停止中",
+    "en": "Paused"
+  },
+  {
+    "id": "m_00701a889a97",
+    "ja": "このタブでは未開始",
+    "en": "Not started in this tab"
+  },
+  {
+    "id": "m_3724cd7a195d",
+    "ja": "この全画面には非対応",
+    "en": "This fullscreen is not supported"
+  },
+  {
+    "id": "m_bcbab7a236da",
+    "ja": "このタブの照明を更新",
+    "en": "Update this tab’s lighting"
+  },
+  {
+    "id": "m_84b27974b1a8",
+    "ja": "もう一度押すと初期化",
+    "en": "Press again to reset"
+  },
+  {
+    "id": "m_e5a81fdf5549",
+    "ja": "映像の位置に対応する色を、画面の最外周へ。Netflix・Prime Videoなど保護された動画の色はこのMacのChromeでは読み取れないため、下の「保護された動画での照明」の設定に従います。",
+    "en": "Colors from each part of the picture light the outer edge. Chrome on this Mac cannot read protected video such as Netflix and Prime Video, so those follow the “Lighting for protected video” setting below."
+  },
+  {
+    "id": "m_76500618121d",
+    "ja": "初期設定に戻しました。",
+    "en": "Reset to defaults."
+  },
+  {
+    "id": "m_a5c7a9c614a7",
+    "ja": "おすすめの設定を{0}に保存しました。「基本設定」や「光の形」のタブで、ここからさらに調整できます。",
+    "en": "Saved the recommended settings to {0}. Fine-tune them further in the Lighting and Glow shape tabs."
+  },
+  {
+    "id": "m_8ab12d31b926",
+    "ja": "「{0}」としてプリセットに保存しました。「プリセット」のタブからいつでも適用できます。",
+    "en": "Saved as the preset “{0}”. Apply it any time from the Presets tab."
+  },
+  {
+    "id": "m_a5a3459aa008",
+    "ja": "「照明を調整」の各タブ（基本設定・光の形・映像への反応・音への反応・ゾーン別）の変更は、{0} のプロファイルに保存されます。変えていない項目はグローバル設定に従います。{1}",
+    "en": "Changes in the Adjust lighting tabs (Lighting, Glow shape, Video response, Sound response, Zones) are saved to the {0} profile. Anything you have not changed follows the global settings. {1}"
+  },
+  {
+    "id": "m_4c8fff317922",
+    "ja": "画質への影響を避けるため、この動画ではタブ取得を使用しません。保護された動画の照明は、下の「保護された動画での照明」で選べます。",
+    "en": "To protect picture quality, tab capture is not used for this video. Choose lighting for protected video under “Lighting for protected video” below."
+  },
+  {
+    "id": "m_d3af82fa9cda",
+    "ja": "戻しました",
+    "en": "Restored"
+  },
+  {
+    "id": "m_970d9e38c4ee",
+    "ja": "ローカル処理 · 送信なし",
+    "en": "Local only · nothing sent"
+  },
+  {
+    "id": "m_a009e05310f7",
+    "ja": "Pulse Engine の各スライダー",
+    "en": "About the Pulse Engine sliders"
+  },
+  {
+    "id": "m_8663d06ea0c8",
+    "ja": "「{0}」のプロファイルを作成しました。A/B 比較が終わると、上の「編集する設定」で選べます。",
+    "en": "Created the “{0}” profile. Choose it under “Settings to edit” above once the A/B comparison has ended."
+  },
+  {
+    "id": "m_3c0b9a717a34",
+    "ja": "Music Mode：いまは音が聞こえないため、光は止まっています。",
+    "en": "Music Mode: no sound is playing right now, so the light has stopped."
+  },
+  {
+    "id": "m_0e3ff0b74bac",
+    "ja": "サンプル映像",
+    "en": "Sample scene"
+  },
+  {
+    "id": "m_d17fd0d2aeaf",
+    "ja": "レインボー",
+    "en": "Rainbow"
+  },
+  {
+    "id": "m_bbca3abd3c6e",
+    "ja": "赤・緑・青",
+    "en": "Red / Green / Blue"
+  },
+  {
+    "id": "m_76fcf9fd8499",
+    "ja": "動く光",
+    "en": "Moving light"
+  },
+  {
+    "id": "m_017c480f8fd1",
+    "ja": "四隅の確認",
+    "en": "Corner test"
+  },
+  {
+    "id": "m_af598c3c9e28",
+    "ja": "明るさのグラデーション",
+    "en": "Brightness gradient"
+  },
+  {
+    "id": "m_e783cd9da467",
+    "ja": "選んだゾーンの確認",
+    "en": "Zone identification"
+  },
+  {
+    "id": "m_960e9f5e8561",
+    "ja": "働きかた・使える場面",
+    "en": "How it works & limits"
+  },
+  {
+    "id": "m_8b29f6b5c47e",
+    "ja": "音の扱い・使える場面",
+    "en": "Sound handling & limits"
   }
 ]

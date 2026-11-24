@@ -23,7 +23,7 @@ h2{font-size:14px;font-weight:600;margin:0 0 8px;letter-spacing:.2px}
 .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:4px;background:#101216;border:1px solid #292c34;border-radius:9px;margin:10px 0 18px}
 .modes button{padding:10px 2px;border:1px solid transparent;background:transparent;border-radius:6px;font-size:13px;color:#a8adba}
 .modes button small{display:block;font-size:10px;margin-top:5px;color:#808795}
-.modes button[aria-pressed=true]{background:#302b25;border-color:#7f624347;color:#f3d0a5}.modes button[aria-pressed=true] small{color:#bfa689}
+.modes button[aria-pressed=true]{background:#302b25;border-color:#7f6243;color:#f3d0a5}.modes button[aria-pressed=true] small{color:#bfa689}
 .sliders{display:grid;gap:16px;margin:16px 0}
 .slider label{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:8px}
 .slider output{font-size:11px;color:#b6bbc5;font-variant-numeric:tabular-nums}
@@ -129,7 +129,8 @@ summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .slider label{gap:12px;align-items:flex-start}.slider output{flex:none}
 .slider input{height:18px}.check-row>span{min-width:0}.check-row,.select-row{gap:12px}
 .metrics dd,.metrics dt,.banner,.note{overflow-wrap:anywhere}
-body[data-section=feedback] .top-tools > :not(.language),body[data-section=feedback] #target-note,body[data-section=feedback] #compare-bar,body[data-section=feedback] #compare-result{display:none}
+body[data-section=feedback] .top-tools > :not(.language),body[data-section=feedback] #target-note,body[data-section=feedback] #compare-bar,body[data-section=feedback] #compare-result,
+body[data-section=diagnostics] .top-tools > :not(.language),body[data-section=diagnostics] #target-note,body[data-section=diagnostics] #compare-result{display:none}
 .section-intro{max-width:720px;margin:0 0 20px}.section-intro h2{font-size:20px;margin-bottom:6px}
 .feedback-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:26px;align-items:start}
 .feedback-layout .card{padding:22px}.feedback-layout fieldset{border:0;padding:0;margin:0;min-width:0}
@@ -149,7 +150,7 @@ body[data-section=feedback] .top-tools > :not(.language),body[data-section=feedb
 @media(max-width:600px){
   body{padding:18px 16px 30px}.top{gap:16px}.top-tools{width:100%;align-items:stretch}.target{flex:1;min-width:0;flex-wrap:wrap}.target select{max-width:100%;width:100%}
   nav{display:none}.mobile-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted);margin:18px 0}.mobile-nav select{max-width:70%;min-height:40px}
-  .card{padding:18px}.select-row{flex-wrap:wrap}.select-row select{max-width:100%}.profile-form label{max-width:100%}.profile-form input{width:100%}
+  .card{padding:18px}.select-row{flex-wrap:wrap}.select-row select{max-width:100%}.profile-form label{width:100%;flex:1 1 100%;max-width:100%}.profile-form select{width:100%;max-width:100%}.profile-form input{width:100%}
   .metrics{grid-template-columns:minmax(100px,.7fr) minmax(0,1fr);gap:8px 12px}.metrics.detail{grid-template-columns:1fr}.metrics.detail dd{margin-bottom:9px}
   .feedback-layout{grid-template-columns:1fr}.feedback-layout .card{padding:18px}.feedback-preview{position:static}.feedback-preview textarea{min-height:280px}
   .feedback-pair{gap:10px}.section-intro h2{font-size:18px}.section-intro .lead{font-size:13px}
@@ -168,3 +169,19 @@ button,summary,.hint,.lead,.notes,.metrics,.profile{overflow-wrap:anywhere}
 @media(max-width:600px){.top-tools{width:100%}.language{width:100%;justify-content:space-between}.language select{max-width:65%}.target{flex-wrap:wrap}.target select{max-width:100%}.actions{flex-wrap:wrap}.profile-head{flex-wrap:wrap}.metrics dd{min-width:0;overflow-wrap:anywhere}}
 
 @media(max-width:600px){.top-tools .target{flex-basis:100%;width:100%;justify-content:space-between}.top-tools .target select{width:auto;max-width:75%}}
+/* The preset applied now, and the settings being edited: marked, not greyed out like a control that cannot be used. */
+button.is-active,button.is-active:disabled{background:#302b25;border-color:#7f6243;color:#f3d0a5;opacity:1}
+/* Toggle titles stand above their descriptions, as in the popup. */
+.check-row>span{font-weight:550}.check-row small{font-weight:400}
+@media(max-width:600px){
+  /* Phone width: the header takes less room, and the wizard's four pictures compare two by two. */
+  body{padding:14px 14px 28px}.top{gap:10px}.mark{width:32px;height:32px}.banner{margin:10px 0 0;padding:7px 10px;font-size:11px;line-height:1.5}
+  .choices{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.choice{padding:8px}
+}
+/* The language picker's label is a label like the others in the header. */
+.language{color:#a7adba}
+@media(max-width:600px){
+  /* Zone Studio on a phone: wider strips to tap, and buttons tall enough for a finger. */
+  .stage-grid{grid-template-columns:26px minmax(0,1fr) 26px;grid-template-rows:26px auto 26px;gap:5px}.zone{touch-action:manipulation}
+  #patterns button,.quick button{min-height:36px}
+}

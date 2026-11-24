@@ -187,7 +187,7 @@ try {
     assert.equal(await page.locator('#eclirim-compatibility').count(), 0); assert.equal(await page.locator('#eclirim-lighting').count(), 1);
     await until(async () => { const c = await bands(); return c.length === 4 && c.every(v => v[3] === 0); }, 'no light by default');
     assert.equal(await sw.evaluate(async () => (await chrome.storage.local.get('settings')).settings.source), 'video', 'the saved choice is not rewritten');
-    const told = await popupAction(`(async () => { for (let i = 0; i < 30 && document.querySelector('#state').textContent !== 'Protected Content'; i++) await new Promise(r => setTimeout(r, 100)); return { state: document.querySelector('#state').textContent, note: document.querySelector('#source-note').textContent, light: document.querySelector('#protectedLight').value, first: document.querySelector('#protectedLight').options[0].value, capture: document.querySelector('#capture').hidden, limiter: document.querySelector('#flashLimiter').disabled, preset: !document.querySelector('#preset-row').hidden }; })()`);
+    const told = await popupAction(`(async () => { for (let i = 0; i < 30 && document.querySelector('#state').dataset.state !== 'Protected Content'; i++) await new Promise(r => setTimeout(r, 100)); return { state: document.querySelector('#state').dataset.state, note: document.querySelector('#source-note').textContent, light: document.querySelector('#protectedLight').value, first: document.querySelector('#protectedLight').options[0].value, capture: document.querySelector('#capture').hidden, limiter: document.querySelector('#flashLimiter').disabled, preset: !document.querySelector('#preset-row').hidden }; })()`);
     assert.deepEqual({ ...told, note: /色を取り出せません/.test(told.note) }, { state: 'Protected Content', note: true, light: 'off', first: 'off', capture: true, limiter: true, preset: false });
     await popup.close();
     await set({ protectedLight: 'preset' });
@@ -215,7 +215,7 @@ try {
   assert.ok(autoEdgeDelta.some(v => v > 2), 'the automatic path visibly lights the outer perimeter');
   const rejected = await popupAction('(async () => { const [t] = await chrome.tabs.query({active:true,currentWindow:true}); return chrome.runtime.sendMessage({target:"background",type:"capture",tabId:t.id}); })()');
   assert.equal(rejected.ok, false); assert.match(rejected.error, /暗号化動画/);
-  const shown = await popup.evaluate('new Promise(done => { const read = () => ({ select: document.querySelector("#source").value, note: document.querySelector("#source-note").textContent, state: document.querySelector("#state").textContent, capture: document.querySelector("#capture").hidden, limiter: document.querySelector("#flashLimiter").disabled }); const end = Date.now() + 3000; const poll = () => { const v = read(); /自動/.test(v.note) || Date.now() > end ? done(v) : setTimeout(poll, 100); }; poll(); })');
+  const shown = await popup.evaluate('new Promise(done => { const read = () => ({ select: document.querySelector("#source").value, note: document.querySelector("#source-note").textContent, state: document.querySelector("#state").dataset.state, capture: document.querySelector("#capture").hidden, limiter: document.querySelector("#flashLimiter").disabled }); const end = Date.now() + 3000; const poll = () => { const v = read(); /自動/.test(v.note) || Date.now() > end ? done(v) : setTimeout(poll, 100); }; poll(); })');
   assert.equal(shown.select, 'video'); assert.match(shown.note, /自動でDRM互換描画/); assert.equal(shown.state, 'Compatibility Mode');
   assert.equal(shown.capture, true, 'tab capture is not offered'); assert.equal(shown.limiter, true, 'analysis-only controls are locked');
   assert.equal((await sw.evaluate(() => chrome.runtime.getContexts({contextTypes:['OFFSCREEN_DOCUMENT']}))).length, 0);
@@ -343,7 +343,7 @@ try {
     await until(async () => await layer(first) === 1, 'a new tab on an approved site lights with no click');
     const grantedCDP = await granted.browser().newBrowserCDPSession();
     popup = await openPopup(grantedCDP, worker.url().split('/')[2], first.url());
-    const shown = await popup.evaluate(`(async () => { for (let i = 0; i < 40 && document.querySelector('#state').textContent !== 'Active'; i++) await new Promise(r => setTimeout(r, 100)); return { always: document.querySelector('#always').checked, state: document.querySelector('#state').textContent }; })()`);
+    const shown = await popup.evaluate(`(async () => { for (let i = 0; i < 40 && document.querySelector('#state').dataset.state !== 'Active'; i++) await new Promise(r => setTimeout(r, 100)); return { always: document.querySelector('#always').checked, state: document.querySelector('#state').dataset.state }; })()`);
     assert.deepEqual(shown, { always: true, state: 'Active' }); await popup.close();
     const second = await open('http://localhost:4173/?tab=2');
     await until(async () => await layer(second) === 1, 'every further tab on that site lights too');

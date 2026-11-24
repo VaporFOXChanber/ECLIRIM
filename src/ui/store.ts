@@ -1,12 +1,13 @@
 import { DEFAULTS, LOOK_KEYS, compareSettings, presetName, resolveSettings, sanitize, sanitizeCompare, sanitizePresets, sanitizeProfiles } from '../shared/settings';
 import { SAVED_KEYS, applyOp, differing, merged, readSaved, type Saved, type State } from '../shared/save';
-import type { AudioStatus, Compare, LookKey, Message, Patch, PresetLook, Presets, Profile, Profiles, SaveOp, SaveResult, Settings } from '../shared/types';
+import type { AudioStatus, Status, Compare, LookKey, Message, Patch, PresetLook, Presets, Profile, Profiles, SaveOp, SaveResult, Settings } from '../shared/types';
 
 /** How long slider moves are gathered into one change. The lit tabs still follow a slider while it is dragged. */
 export const SLIDE_MS = 50;
 /** One of this page's own changes: being gathered (a slider), sent, or written (`rev`) but not yet heard of from storage. */
 interface Mine { op: SaveOp; done?: Promise<SaveResult>; rev?: number }
 type ChangeOp = Extract<SaveOp, { kind: 'change' }>;
+type ZoneOp = Extract<SaveOp, { kind: 'zones' }>;
 const refused = (error = ''): Promise<SaveResult> => Promise.resolve({ ok: false, error });
 
 /**
@@ -120,9 +121,25 @@ export class Store {
    * at once: when the slider is let go, when the page is hidden or closes, and before any other change.
    */
   slide(patch: Patch): void {
-    const op = this.changeOp(patch), last = this.draft?.op as ChangeOp | undefined;
+    const op = this.changeOp(patch), last = this.draft?.op;
     if (!op) return;
-    if (last && last.site === op.site && JSON.stringify(last.compare) === JSON.stringify(op.compare)) this.draft!.op = { ...last, patch: merged(last.patch, op.patch) };
+    if (last?.kind === 'change' && last.site === op.site && JSON.stringify(last.compare) === JSON.stringify(op.compare)) this.draft!.op = { ...last, patch: merged(last.patch, op.patch) };
+    else { this.flush(); this.draft = { op }; this.mine.push(this.draft); }
+    this.show();
+    this.timer ??= setTimeout(() => { this.timer = undefined; this.flush(); }, SLIDE_MS);
+  }
+  /**
+   * Sets a trim on some zones of a layout of `count` zones. It is sent as what changes on which zones, and laid over the zone
+   * trims stored when it is written, so another page trimming other zones meanwhile loses nothing. With `sliding`, the moves
+   * of one slider on one selection are gathered like `slide`.
+   */
+  trimZones(count: number, zones: number[], trim: ZoneOp['trim'], sliding = false): void {
+    if (!this.loaded || !zones.length) return;
+    const compare = this.comparing ? { compare: { id: this.compare!.id, side: this.compare!.active } } : {};
+    const op: ZoneOp = { kind: 'zones', site: this.target, count, zones: [...zones].sort((a, b) => a - b), trim, ...compare };
+    if (!sliding) { void this.push(op); return; }
+    const last = this.draft?.op;
+    if (last?.kind === 'zones' && JSON.stringify({ ...last, trim: null }) === JSON.stringify({ ...op, trim: null })) this.draft!.op = { ...last, trim: { ...last.trim, ...trim } };
     else { this.flush(); this.draft = { op }; this.mine.push(this.draft); }
     this.show();
     this.timer ??= setTimeout(() => { this.timer = undefined; this.flush(); }, SLIDE_MS);
@@ -194,9 +211,15 @@ export class BackupOffer {
 
 /** Human names of what a profile can hold, for listing its differences from the global settings. */
 export const LOOK_NAMES: Record<LookKey, string> = {
-  mode: '照明モード', brightness: '明るさ', glowWidth: '光の幅', intensity: '光の拡散', saturation: '彩度', smoothing: '滑らかさ',
-  responseSpeed: '追従速度', flashLimiter: 'Flash Limiter', director: 'Light Director', zones: 'Zone Studio',
+  mode: '照明モード', brightness: '明るさ', glowWidth: '光の幅', intensity: '光の広がり', saturation: '色の鮮やかさ', smoothing: '変化のなめらかさ',
+  responseSpeed: '映像への追従の速さ', flashLimiter: 'Flash Limiter', director: 'Light Director', zones: 'Zone Studio',
   pulse: 'Pulse Engine', color: 'Color Engine', trails: 'Light Trails', glow: 'Glow Designer', guard: 'UI Guard', exposure: 'Adaptive Brightness'
+};
+/** The state of a tab, in words (catalog sources; pass through `t`). The identifiers stay as they are on the wire. */
+export const STATE_NAMES: Record<Status['state'], string> = {
+  'Active': '点灯中', 'Compatibility Mode': '互換描画で点灯中', 'Waiting for Video': '動画を待っています', 'Capture Required': 'タブの映像の取得が必要',
+  'Protected Content': '保護された動画', 'Capture Unavailable': 'この映像は読み取れません', 'Paused': '一時停止中', 'Disabled': 'オフ',
+  'Fullscreen Unsupported': 'この全画面には非対応'
 };
 /** What the Pulse Engine is doing in a tab, in words. */
 export const AUDIO_NAMES: Record<AudioStatus['state'], string> = {

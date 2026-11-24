@@ -54,8 +54,8 @@ export function sanitize(raw: unknown = {}): Settings {
   if (['video', 'compatibility', 'manual', 'preset', 'drift', 'music'].includes(input.source!)) s.source = input.source!;
   if (input.zoneMode === 'manual') s.zoneMode = 'manual';
   if ([32, 64, 96, 128].includes(input.zoneCount!)) s.zoneCount = input.zoneCount!;
-  if (/^#[\da-f]{6}$/i.test(input.manualColor || '')) s.manualColor = input.manualColor!;
-  if (Object.hasOwn(PRESETS, input.preset || '')) s.preset = input.preset!;
+  if (typeof input.manualColor === 'string' && /^#[\da-f]{6}$/i.test(input.manualColor)) s.manualColor = input.manualColor;
+  if (typeof input.preset === 'string' && Object.hasOwn(PRESETS, input.preset)) s.preset = input.preset;
   if (['preset', 'drift', 'manual', 'off'].includes(input.protectedLight!)) s.protectedLight = input.protectedLight!;
   const director: Partial<DirectorSettings> = input.director && typeof input.director === 'object' ? input.director : {};
   s.director = { ...DIRECTOR };

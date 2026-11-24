@@ -58,13 +58,28 @@ export function fullscreenElement(): Element | null {
   while (el?.shadowRoot?.fullscreenElement) el = el.shadowRoot.fullscreenElement;
   return el;
 }
+/**
+ * Where `object-position` puts the picture in the space its box leaves free, per axis: Chrome resolves keywords to
+ * percentages ("0% 50%"); lengths are in px. Anything else (calc) is taken as centred, the default.
+ */
+function objectPosition(value: string): [(free: number) => number, (free: number) => number] {
+  const axis = (part: string | undefined) => {
+    const n = parseFloat(part || '');
+    if (!Number.isFinite(n)) return (free: number) => free / 2;
+    return part!.endsWith('%') ? (free: number) => free * n / 100 : part!.endsWith('px') ? () => n : (free: number) => free / 2;
+  };
+  const parts = (value || '').trim().split(/\s+/);
+  return parts.length === 2 ? [axis(parts[0]), axis(parts[1])] : [axis(undefined), axis(undefined)];
+}
 export function videoRect(v: HTMLVideoElement): Rect {
   const r = v.getBoundingClientRect(), css = getComputedStyle(v);
   // Standard players use centered contain. Unknown positioning is explicitly restricted in capture.
   if (css.objectFit === 'contain' && v.videoWidth && v.videoHeight) {
     const scale = Math.min(r.width / v.videoWidth, r.height / v.videoHeight);
-    const width = v.videoWidth * scale, height = v.videoHeight * scale;
-    return { x: r.x + (r.width - width) / 2, y: r.y + (r.height - height) / 2, width, height };
+    const width = v.videoWidth * scale, height = v.videoHeight * scale, [px, py] = objectPosition(css.objectPosition);
+    // A picture moved partly out of its box is cut off there: only what is inside the box is shown, and read.
+    const x = Math.max(r.x, r.x + px(r.width - width)), y = Math.max(r.y, r.y + py(r.height - height));
+    return { x, y, width: Math.max(0, Math.min(r.x + r.width, x + width) - x), height: Math.max(0, Math.min(r.y + r.height, y + height) - y) };
   }
   return { x: r.x, y: r.y, width: r.width, height: r.height };
 }

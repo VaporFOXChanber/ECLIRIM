@@ -2,6 +2,20 @@
 
 Current validation scope: [English](docs/QA-0.9.9.en.md) / [日本語](docs/QA.md).
 
+## 0.9.10 — Fixes and UI polish (2026-11-24)
+
+- The Flash Limiter also holds the step back from sound-driven light (mute, Pulse Engine off).
+- Settings changed during a popup-started A/B comparison go to the compared profile; deleting or resetting that profile no longer breaks the comparison.
+- Exported backups import again (5 MB limit, measured in bytes); incomplete backups are rejected instead of clearing data; a newer file choice cancels an older import.
+- Zone Studio trims and feedback drafts edited from two pages no longer overwrite each other.
+- Music Mode stays dark while muted or silent, follows other playing media, and checks protection per element. Capture no longer reacts to sound, reports start failures, and follows `object-fit` / `object-position`.
+- UI Guard re-measures text positions every 250 ms instead of keeping page text.
+- Readable popup text and localized states; quieter Start button after lighting begins; Reset needs a second press and confirms after saving.
+- About 30 bilingual control names replaced by one name in the selected language; clearer source names; unused color fields hidden; active preset highlighted; compact narrow layout and arrow-key Quick setup.
+- No new permissions, CSP unchanged. 138 unit tests, build and seven browser E2E suites passed; language-upgrade and identity E2E were not run.
+
+不具合修正とUIの改善を3回繰り返した版です。Flash Limiter、A/B比較、バックアップ、同時編集、Music Mode、タブ取得の不具合を直し、ポップアップの文字の大きさ、状態表示、項目名、狭い画面での表示を改善しました。権限は増やしていません。
+
 ## 0.9.9 — Global Update (2026-10-11)
 
 - Added Japanese/English UI throughout the popup, all ten settings tabs, Wizard, presets, A/B comparison, diagnostics and feedback.

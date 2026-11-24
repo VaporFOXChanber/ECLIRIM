@@ -90,7 +90,12 @@ export class TemporalFilter {
       // Bound scene flashes in linear luminance, with a gentler rise than fall.
       if (s.flashLimiter) next = limited(old, next, dt);
       this.values[i] = next;
-      if (!gain) { this.emitted[i] = next; return decode(next); }
+      if (!gain) {
+        // Coming back from pulsed light (sound muted or the Pulse Engine turned off), the light still starts from what was
+        // really shown, so the step back to the plain colour is held to the same rates.
+        const shown = s.flashLimiter && this.emitted[i] ? this.bounded(i, this.emitted[i], next, dt) : next;
+        this.emitted[i] = shown; return decode(shown);
+      }
       // A zone can only be driven up to full: one that is nearly there has little room left to pulse into. A lift is
       // bent toward that ceiling instead of being cut off at it, so a strong beat still rises and falls instead of
       // sitting flat at full strength until it has decayed (which also left no time for the dip between two beats).
@@ -110,7 +115,9 @@ export class TemporalFilter {
     return { zones: this.values.length, now: peak(this.values), wanted: peak(this.targets), shown: peak(this.emitted.filter(Boolean)), notNumbers: bad(this.values) + bad(this.targets), settled: this.settled };
   }
   get settled(): boolean {
-    return this.values.every((color, i) => color.every((v, channel) => Math.abs(v - this.targets[i][channel]) < .0005));
+    // What is shown counts too: after pulsed light, it is still on its way back to the smoothed colour.
+    const near = (a: RGB, b: RGB) => a.every((v, channel) => Math.abs(v - b[channel]) < .0005);
+    return this.values.every((color, i) => near(color, this.targets[i]) && (!this.emitted[i] || near(this.emitted[i], color)));
   }
   reset(): void { this.values = []; this.targets = []; this.emitted = []; this.spare = new Float32Array(0); this.back = new Float32Array(0); this.sinceBeat = 9; }
 }
