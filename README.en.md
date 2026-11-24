@@ -8,9 +8,9 @@ The main English guide is [README.md](README.md).
 
 A Chrome extension that lights the edges of your browser’s page area with the colors and sound of the video you are watching. Video analysis, audio analysis, and lighting run on your device.
 
-**0.9.9 · Global Update (Beta)** · [Download ZIP](https://github.com/VaporFOXChanber/ECLIRIM/releases/download/v0.9.9/ECLIRIM-0.9.9.zip) · [Release notes](docs/releases/0.9.9.en.md) · [Validation report](docs/QA-0.9.9.en.md)
+**0.9.10 · Fixes and UI polish (Beta)** · [Download ZIP](https://github.com/VaporFOXChanber/ECLIRIM/releases/download/v0.9.10/ECLIRIM-0.9.10.zip) · [What changed](#0910-fixes-and-ui-polish) · [Changelog](CHANGELOG.md) · [Verification scope](#verification-scope)
 
-[Japanese / English release notes](https://github.com/VaporFOXChanber/ECLIRIM/releases/tag/v0.9.9). This remains a **Beta (GitHub Pre-release)**. The tag is `v0.9.9` and the extension version is `0.9.9`; these do not indicate validation as a stable release across all environments. It has not been submitted to the Chrome Web Store.
+[Release page](https://github.com/VaporFOXChanber/ECLIRIM/releases/tag/v0.9.10). This remains a **Beta (GitHub Pre-release)**. The tag is `v0.9.10` and the extension version is `0.9.10`; these do not indicate validation as a stable release across all environments. It has not been submitted to the Chrome Web Store.
 
 - Perimeter colors follow the video’s spatial layout, light sources, and motion.
 - Choose Cinema / Vivid / Ambient and Edge Light / Soft Halo.
@@ -22,7 +22,7 @@ A Chrome extension that lights the edges of your browser’s page area with the 
 
 - [Supported environments](#supported-environments)
 - [Installation](#installation) · [Updating](#updating)
-- [0.9.9 Global Update](#099-global-update)
+- [0.9.10 Fixes and UI polish](#0910-fixes-and-ui-polish)
 - [Rendering paths](#rendering-paths)
 - [Protected video and DRM](#protected-video-and-drm)
 - [Features](#features)
@@ -57,6 +57,7 @@ A Chrome extension that lights the edges of your browser’s page area with the 
 <details>
 <summary>Earlier updates</summary>
 
+- [0.9.9: Global Update](#099-global-update)
 - [0.9.8: reviewed diagnostics](#098-reviewed-diagnostics)
 - [0.9.7: UI and feedback](#097-ui-and-feedback)
 - [0.9.6: UI Guard ceiling](#096-ui-guard-ceiling)
@@ -74,17 +75,17 @@ A Chrome extension that lights the edges of your browser’s page area with the 
 
 ## Supported environments
 
-Requires Chrome 116 or later. Most historical testing was on macOS Chrome; Windows, Linux, and Intel Mac have not been verified. **Chrome on macOS cannot read the colors of protected video such as Netflix and Prime Video.** Optional fixed lighting remains available. See [Protected video and DRM](#protected-video-and-drm) and the [current validation report](docs/QA-0.9.9.en.md).
+Requires Chrome 116 or later. Most historical testing was on macOS Chrome; Windows, Linux, and Intel Mac have not been verified. **Chrome on macOS cannot read the colors of protected video such as Netflix and Prime Video.** Optional fixed lighting remains available. See [Protected video and DRM](#protected-video-and-drm) and [Verification scope](#verification-scope).
 
 ## Installation
 
-1. Download **ECLIRIM-0.9.9.zip** from the [0.9.9 Release](https://github.com/VaporFOXChanber/ECLIRIM/releases/tag/v0.9.9). This is the extension package, not a GitHub “Source code” archive.
+1. Download **ECLIRIM-0.9.10.zip** from the [0.9.10 Release](https://github.com/VaporFOXChanber/ECLIRIM/releases/tag/v0.9.10). This is the extension package, not a GitHub “Source code” archive.
 2. Extract it into a permanent folder.
 3. Open `chrome://extensions` in Chrome and enable **Developer mode**.
 4. Select **Load unpacked**, then choose the extracted folder containing **manifest.json**.
-5. Open a video page, open ECLIRIM, and press **Start lighting in this tab**. Begin with **Video · RGB analysis**.
+5. Open a video page, open ECLIRIM, and press **Start lighting in this tab**. Begin with **Follow video (default)**.
 
-The extension list should show **ECLIRIM**, version **0.9.9**. `Alt+Shift+G` opens its popup; change conflicting shortcuts in Chrome’s extension shortcut settings. The Release includes a companion SHA-256 checksum file for the ZIP.
+The extension list should show **ECLIRIM**, version **0.9.10**. `Alt+Shift+G` opens its popup; change conflicting shortcuts in Chrome’s extension shortcut settings. The Release includes a companion SHA-256 checksum file for the ZIP.
 
 ### Updating
 
@@ -104,13 +105,41 @@ Once started, a tab resumes lighting after same-site navigation, reload, back/fo
 - Open cross-origin embedded videos on their original site.
 - YouTube thumbnail hover previews do not light up; actual watch-page videos do. This exclusion is specific to YouTube’s preview player.
 
+## 0.9.10 Fixes and UI polish
+
+Three rounds of bug fixing and usability review. Existing settings, profiles, presets and backups remain compatible. No permissions were added and the CSP is unchanged.
+
+**Fixes**
+
+- The Flash Limiter now also holds the step back from sound-driven light (player muted or Pulse Engine turned off), so the light no longer jumps brighter than the limiter allows.
+- During an A/B comparison started from the popup, changes made in Settings go to the compared site profile instead of the global settings. Deleting or resetting that profile mid-comparison no longer leaves the comparison in an inconsistent state.
+- Backups exported by ECLIRIM can be imported again: the limit is now 5 MB, measured in bytes on both export and import. A backup missing its settings, profiles or presets is rejected instead of clearing them. Picking a new file cancels an older one that is still being read.
+- Zone Studio trims and feedback drafts edited from two pages at once no longer overwrite each other.
+- Music Mode stays dark while the player is muted or nothing is audible, follows another playing media element when the video is paused, and checks protection per media element.
+- While the tab video is being captured, sound no longer drives the light. A capture that fails to start is reported as an error instead of success. The captured region follows the visible picture (`object-fit` / `object-position`).
+- UI Guard no longer keeps page text: it re-measures where text is every 250 ms.
+
+**UI**
+
+- Popup text is readable again (it had shrunk to 9px), and the state is shown in the selected language. A tab that has not been started shows **Not started in this tab** instead of Disabled.
+- Once lighting is on, the Start button becomes less prominent. **Reset** needs a second press within 4 seconds and reports **Restored** only after the save succeeds.
+- About 30 controls that showed “English · 日本語” pairs now show one name in the selected language (for example Glow spread, Core thickness, Dimming strength).
+- Source names are now **Follow video (default)**, **Protected video (compatibility)** and **Sound only (Music Mode)**. Explanations that contradicted each other (such as recommending compatibility rendering on Mac) were corrected.
+- Color fields that are not in use are hidden, the active preset is highlighted, and the glow-shape graph uses readable text.
+- On narrow screens the Settings header is compact, Quick setup compares its choices in a 2×2 grid, and zone selection targets are larger. Quick setup choices can be chosen with the arrow keys.
+
 ## 0.9.9 Global Update
+
+<details>
+<summary>Read this update</summary>
 
 The popup, all ten settings tabs, Calibration Wizard, preset descriptions, A/B comparison, diagnostics, feedback, tooltips, errors, and guidance are available in Japanese and English. Names such as ECLIRIM, Glow Designer, Light Director, and Pulse Engine are unchanged.
 
 Under **Settings → Language**, choose **Auto (Chrome)**, **Japanese**, or **English**. Automatic selects Japanese for Japanese Chrome UI and English for every other UI language. Manual choice persists after restarting Chrome. Switching languages refreshes extension UI pages only: it does not turn lighting off, reset looks, or stop an A/B comparison. A wizard in progress and a reviewed diagnostics attachment must be reopened/reviewed after the UI refresh; saved feedback drafts remain.
 
 Chrome owns the extension-list description and keyboard-command description; these follow Chrome’s UI language even when you select a manual in-extension language. Missing native translations fall back to the bundled catalog. English labels wrap at narrow widths.
+
+</details>
 
 ## 0.9.8: reviewed diagnostics
 
@@ -197,18 +226,18 @@ CineGlow became **ECLIRIM**, with a new edge-light icon and logo. The rename cha
 
 | Control | Effect |
 |---|---|
-| Source Thickness | Width of the brightest region; ¼–4× the standard Edge Light core |
-| Diffusion Curve | Low: sharp initial drop and a long tail; high: holds near the edge before fading |
+| Core thickness | Width of the brightest region; ¼–4× the standard Edge Light core |
+| Spread curve | Low: sharp initial drop and a long tail; high: holds near the edge before fading |
 | Falloff | Inward fade speed, ½–2× the standard |
 | Softness | Core blur and color blending along edges and around corners |
 
-All four Edge Light sliders at 50% reproduce the pre-0.9.1 shape. Glow Width and Glow Intensity set its reach and amount. Disabled zones do not receive neighboring colors. CSS compatibility rendering uses the shape, except for along-edge blending.
+All four Edge Light sliders at 50% reproduce the pre-0.9.1 shape. Glow width and Glow spread set its reach and amount. Disabled zones do not receive neighboring colors. CSS compatibility rendering uses the shape, except for along-edge blending.
 
 ### UI Guard
 
 Caps light over buttons, links, inputs, sliders, icons, and text near the edges. Empty areas are unchanged; the outermost line (up to 6px) stays lit. Already faint light is left alone. Hidden controls lose protection until they reappear. Optional pointer dimming covers nearby UI that cannot be detected.
 
-Guard Strength sets the opacity cap: 60% at slider 0%, about 31% at the default 60%, and 12% at 100%. Applying presets, including Overkill, preserves your UI Guard setting.
+Dimming strength sets the opacity cap: 60% at slider 0%, about 31% at the default 60%, and 12% at 100%. Applying presets, including Overkill, preserves your UI Guard setting.
 
 It uses element hit testing and geometry, not pixel capture or text contents. Native video controls, canvas-drawn UI, pointer-transparent elements, burned-in or native video captions, and cross-origin iframe contents may not be detected. It cannot cap CSS compatibility lighting.
 
@@ -250,7 +279,7 @@ A lighting source driven by sound alone. Bass produces warm colors at the bottom
 
 ### Color Engine 2.0
 
-Shadows preserves dim colors instead of dropping them to black; near-black noise remains neutral. Highlights rolls off bright values to preserve differences and resist dilution by white areas. Vibrance boosts muted colors more than vivid ones, bringing out-of-gamut colors into range while preserving hue. Supported wide-gamut video is read/rendered in Display P3 on a P3 display.
+Shadows preserves dim colors instead of dropping them to black; near-black noise remains neutral. Highlight roll-off eases bright values to preserve differences and resist dilution by white areas. Vibrance boosts muted colors more than vivid ones, bringing out-of-gamut colors into range while preserving hue. Supported wide-gamut video is read/rendered in Display P3 on a P3 display.
 
 HDR is detected and reported, but Chrome exposes SDR-converted pixels, not original HDR brightness. Lighting is rendered in SDR. Turning Color Engine off restores the 0.8 color path. Updating from 0.8 can make dark colors more visible and slightly lower the brightest zones.
 
@@ -307,9 +336,9 @@ CPU/GPU utilization is not shown because extensions cannot obtain accurate per-t
 
 | Path | Behavior |
 |---|---|
-| Video · RGB analysis | Reads accessible HTML5 video pixels locally; supports spatial zones, smoothing, Flash Limiter, and analysis-based features |
+| Follow video (default) · RGB analysis | Reads accessible HTML5 video pixels locally; supports spatial zones, smoothing, Flash Limiter, and analysis-based features |
 | Tab video capture | Explicit video-only capture when direct reads are blocked; samples an inset video region to avoid feedback from the glow |
-| DRM compatibility · CSS | Page compositing without pixel readback; results depend on the protected-video pipeline and environment |
+| Protected video (compatibility) · CSS | Page compositing without pixel readback; results depend on the protected-video pipeline and environment |
 
 Fixed color, Cinema presets (Warm / Moon / Dusk), and slow color drift work without video analysis. Music Mode uses sound only.
 
@@ -331,7 +360,7 @@ Lighting can follow fullscreen containers, but cannot overlay a video-only fulls
 
 ## Verification scope
 
-Type checking, 100 client unit tests and the build passed for this package. Browser E2E and real feedback delivery were not rerun. Windows, Linux, Intel Mac, Chrome 116, long sessions, commercial DRM services and physical multi-monitor moves remain unverified. This Beta is not a guarantee of support across every environment. See the [validation summary](docs/QA-0.9.9.en.md).
+For 0.9.10, type checking, 138 unit tests and the build passed, and seven browser E2E suites (core, cinematic, resonance, recovery, UI Guard, UI, feedback and diagnostics) passed in Playwright Chromium on local test pages. The language-upgrade and identity E2E suites were not run because they need earlier release ZIPs, and the English screens were not checked visually. Real feedback delivery, Windows, Linux, Intel Mac, Chrome 116, long sessions, commercial DRM services and physical multi-monitor moves remain unverified. This Beta is not a guarantee of support across every environment. The 0.9.9 results are in its [validation summary](docs/QA-0.9.9.en.md).
 
 ## Permissions and privacy
 
@@ -354,7 +383,7 @@ No site access is requested at installation. No `tabs`, microphone, or whole-des
 
 **Audio:** untouched by default. Only while Pulse Engine or Music Mode is enabled does ECLIRIM read band levels from Chrome’s copy of playing media. The copy is never output, recorded, saved, or sent. The original audio route, volume, mute, and playback rate are unchanged. Protected audio is never requested. No microphone or tab-capture audio is used.
 
-Stopping lighting removes layers/timers and stops capture tracks/offscreen processing. Capture never resumes without another explicit click. Compatibility rendering sends no data externally. This update adds no permissions and changes no CSP or analysis engine.
+Stopping lighting removes layers/timers and stops capture tracks/offscreen processing. Capture never resumes without another explicit click. Compatibility rendering sends no data externally. 0.9.10 adds no permissions and does not change the CSP.
 
 ## License
 

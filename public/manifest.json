@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ECLIRIM",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "__MSG_extensionDescription__",
   "minimum_chrome_version": "116",
   "icons": {
